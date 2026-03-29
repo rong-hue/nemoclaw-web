@@ -15,15 +15,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
         env:
           npm_config_registry: https://registry.npmjs.org
 
-      - name: Build for Cloudflare Pages
-        run: npm run build && npx @cloudflare/next-on-pages
+      - name: Build Next.js
+        run: npm run build
+        env:
+          npm_config_registry: https://registry.npmjs.org
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Build Cloudflare Pages bundle
+        run: npx @cloudflare/next-on-pages
         env:
           npm_config_registry: https://registry.npmjs.org
 
