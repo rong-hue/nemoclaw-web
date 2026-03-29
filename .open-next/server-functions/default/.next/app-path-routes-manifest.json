@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/cart/page": "/cart",
+  "/auth/page": "/auth",
+  "/checkout/page": "/checkout",
+  "/dashboard/page": "/dashboard",
+  "/gallery/page": "/gallery",
+  "/page": "/",
+  "/payment/page": "/payment",
+  "/pricing/page": "/pricing",
+  "/studio/page": "/studio",
+  "/success/page": "/success"
+}

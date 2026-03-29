@@ -11,27 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
-        env:
-          npm_config_registry: https://registry.npmjs.org
-
-      - name: Build Next.js
-        run: npm run build
-        env:
-          npm_config_registry: https://registry.npmjs.org
-          NEXT_TELEMETRY_DISABLED: 1
-
-      - name: Build Cloudflare Pages bundle
-        run: npx @cloudflare/next-on-pages
-        env:
-          npm_config_registry: https://registry.npmjs.org
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
