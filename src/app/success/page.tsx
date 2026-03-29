@@ -1,7 +1,4 @@
 'use client';
-
-export const runtime = 'edge';
-
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { CheckCircle, Package, Home, LayoutDashboard } from 'lucide-react';

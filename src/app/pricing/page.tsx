@@ -1,7 +1,4 @@
 'use client';
-
-export const runtime = 'edge';
-
 import Link from "next/link";
 import { Check, X, ShoppingCart } from "lucide-react";
 import { cartService } from "@/lib/cart";
