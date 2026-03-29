@@ -7,6 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      NPM_CONFIG_LEGACY_PEER_DEPS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,10 +19,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Next.js Build
-        run: npm run build
+        run: npm install
 
       - name: Build for Cloudflare Pages
         run: npx @cloudflare/next-on-pages
