@@ -11,9 +11,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 6864e703b29af8f7cd02cee7a023511d
-          command: pages deploy .vercel/output/static --project-name=nemoclaw-web --branch=main
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler@4.78.0
+        env:
+          npm_config_registry: https://registry.npmjs.org
+
+      - name: Deploy to Cloudflare Pages
+        run: wrangler pages deploy .vercel/output/static --project-name=nemoclaw-web --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 6864e703b29af8f7cd02cee7a023511d
