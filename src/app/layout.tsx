@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NemoClaw - 精准捕捉你的每一个设计灵感",
-  description: "NemoClaw 专为独立创作者和个性品牌打造的下一代定制平台",
+  title: "NemoClaw - Capture Every Design Idea Precisely",
+  description: "Next-generation customization platform for independent creators and personal brands",
 };
 
 export default function RootLayout({
@@ -24,10 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

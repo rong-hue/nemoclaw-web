@@ -19,6 +19,7 @@
     "fabric": "^7.2.0",
     "lucide-react": "^1.6.0",
     "next": "^15.2.4",
+    "next-intl": "^4.8.3",
     "onnxruntime-web": "1.21.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",

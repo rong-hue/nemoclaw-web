@@ -1,37 +1,43 @@
-
+'use client';
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTranslations } from 'next-intl';
 
 const works = [
-  { id: 1, title: "深海系列 T恤", author: "创作者 Mia", tag: "服装定制", color: "from-blue-600 to-cyan-400" },
-  { id: 2, title: "霓虹城市 手机壳", author: "创作者 Leo", tag: "数码配件", color: "from-purple-600 to-pink-400" },
-  { id: 3, title: "极简几何 帆布包", author: "创作者 Zoe", tag: "日用品", color: "from-orange-500 to-yellow-400" },
-  { id: 4, title: "水墨山水 马克杯", author: "创作者 Kai", tag: "家居", color: "from-green-600 to-teal-400" },
-  { id: 5, title: "赛博朋克 贴纸包", author: "创作者 Nova", tag: "文创", color: "from-rose-600 to-orange-400" },
-  { id: 6, title: "复古胶片 相册", author: "创作者 Ren", tag: "摄影周边", color: "from-slate-600 to-slate-400" },
+  { id: 1, title: "Deep Sea T-Shirt", author: "Creator Mia", tag: "Apparel", color: "from-blue-600 to-cyan-400" },
+  { id: 2, title: "Neon City Phone Case", author: "Creator Leo", tag: "Accessories", color: "from-purple-600 to-pink-400" },
+  { id: 3, title: "Minimal Geometry Tote", author: "Creator Zoe", tag: "Daily Use", color: "from-orange-500 to-yellow-400" },
+  { id: 4, title: "Ink Landscape Mug", author: "Creator Kai", tag: "Home", color: "from-green-600 to-teal-400" },
+  { id: 5, title: "Cyberpunk Sticker Pack", author: "Creator Nova", tag: "Creative", color: "from-rose-600 to-orange-400" },
+  { id: 6, title: "Vintage Film Album", author: "Creator Ren", tag: "Photography", color: "from-slate-600 to-slate-400" },
 ];
 
 export default function Gallery() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('gallery');
+  
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       {/* 导航栏 */}
       <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto border-b border-slate-800/50">
-        <Link href="/" className="text-2xl font-black tracking-tighter">
+        <Link href={`/${locale}`} className="text-2xl font-black tracking-tighter">
           <span className="text-orange-500">Nemo</span>Claw
         </Link>
         <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
-          <Link href="/#features" className="hover:text-white transition-colors">设计工具</Link>
-          <Link href="/gallery" className="text-white">创作者画廊</Link>
-          <Link href="/pricing" className="hover:text-white transition-colors">成为专业版</Link>
+          <Link href={`/${locale}#features`} className="hover:text-white transition-colors">{t("designTools") || "设计工具"}</Link>
+          <Link href={`/${locale}/gallery`} className="text-white">{t("title") || "创作者画廊"}</Link>
+          <Link href={`/${locale}/pricing`} className="hover:text-white transition-colors">{t("becomePro") || "成为专业版"}</Link>
         </div>
         <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full text-sm font-bold transition-all">
-          开始定制
+          {t("startCustom") || "开始定制"}
         </button>
       </nav>
 
       {/* 页头 */}
       <div className="max-w-7xl mx-auto px-6 py-16 text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-4">创作者画廊</h1>
-        <p className="text-slate-400 text-lg max-w-xl mx-auto">来自全球创作者的真实定制作品，每一件都是独一无二的灵感结晶。</p>
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{t("title") || "创作者画廊"}</h1>
+        <p className="text-slate-400 text-lg max-w-xl mx-auto">{t("subtitle") || "Discover amazing designs from creators worldwide"}</p>
       </div>
 
       {/* 作品网格 */}
@@ -52,7 +58,7 @@ export default function Gallery() {
 
         <div className="text-center mt-12">
           <button className="px-8 py-3 rounded-full border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold transition-colors">
-            加载更多作品
+            {t("loadMore") || "Load More"}
           </button>
         </div>
       </div>

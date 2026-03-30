@@ -1,0 +1,263 @@
+{
+  "nav": {
+    "features": "デザインツール",
+    "howItWorks": "使い方",
+    "gallery": "ギャラリー",
+    "pricing": "料金プラン",
+    "login": "ログイン / 登録",
+    "studio": "スタジオ"
+  },
+  "home": {
+    "heroTitle1": "すべての",
+    "heroTitle2": "デザインアイデアを",
+    "heroTitle3": "正確に捉える",
+    "heroSubtitle": "NemoClawは、独立クリエイターとパーソナルブランドのための次世代カスタマイズプラットフォームです。",
+    "heroCta": "無料でデザインを始める",
+    "heroSecondary": "ギャラリーを見る",
+    "heroStats": {
+      "designers": "アクティブデザイナー",
+      "products": "カスタム製品",
+      "rate": "満足度"
+    },
+    "featuresTitle": "すべてのクリエイターのための強力なツール",
+    "featuresSubtitle": "コンセプトから製品まで、創造力を解放するツール",
+    "features": {
+      "canvas": {
+        "title": "プロ仕様キャンバス",
+        "desc": "図形、テキスト、グラデーション、レイヤーなど多彩な機能を備えたFabric.jsエディター。"
+      },
+      "preview3d": {
+        "title": "3Dリアルタイムプレビュー",
+        "desc": "Tシャツ、マグカップ、スマホケースにデザインをリアルタイムで確認。見たままが出来上がり。"
+      },
+      "aiRemoval": {
+        "title": "AI背景除去",
+        "desc": "ワンクリックのクライアントサイドAIで背景を削除。サーバー不要、高速で正確。"
+      },
+      "layers": {
+        "title": "レイヤー管理",
+        "desc": "ロック、非表示、並び替えで複雑なデザインを完全にコントロール。"
+      },
+      "export": {
+        "title": "マルチフォーマット出力",
+        "desc": "高品質PNGまたは再利用可能なJSONデザインファイルとしてエクスポート。"
+      },
+      "community": {
+        "title": "クリエイターコミュニティ",
+        "desc": "ギャラリーを閲覧し、他のクリエイターから刺激を受け、作品をシェアしよう。"
+      }
+    },
+    "howTitle": "3ステップで始めよう",
+    "howSteps": {
+      "step1": {
+        "title": "キャンバスでデザイン",
+        "desc": "プロエディターでテキスト、図形、画像、AI機能を追加。"
+      },
+      "step2": {
+        "title": "3Dでプレビュー",
+        "desc": "実際の製品にデザインを即時プレビューし、細部を調整。"
+      },
+      "step3": {
+        "title": "注文して受け取る",
+        "desc": "数量を選択してチェックアウトし、カスタム製品を受け取ろう。"
+      }
+    },
+    "ctaTitle": "クリエイティブを始める準備はできましたか？",
+    "ctaSubtitle": "NemoClawの数千人のクリエイターに参加しましょう。",
+    "ctaButton": "スタジオを開く",
+    "ctaSecondary": "料金を見る"
+  },
+  "footer": {
+    "tagline": "独立クリエイターのための次世代カスタマイズプラットフォーム。",
+    "product": "プロダクト",
+    "studio": "デザインスタジオ",
+    "gallery": "ギャラリー",
+    "pricing": "料金プラン",
+    "support": "サポート",
+    "faq": "よくある質問",
+    "contact": "お問い合わせ",
+    "terms": "利用規約",
+    "company": "会社情報",
+    "about": "私たちについて",
+    "blog": "ブログ",
+    "careers": "採用情報",
+    "rights": "All rights reserved.",
+    "privacy": "プライバシーポリシー"
+  },
+  "auth": {
+    "loginTitle": "おかえりなさい",
+    "loginSubtitle": "アカウントにサインイン",
+    "registerTitle": "アカウント作成",
+    "registerSubtitle": "NemoClawクリエイターコミュニティに参加",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "name": "表示名",
+    "loginBtn": "ログイン",
+    "registerBtn": "アカウントを作成",
+    "switchToRegister": "アカウントをお持ちでない方は登録",
+    "switchToLogin": "すでにアカウントをお持ちの方はログイン",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "パスワードを入力",
+    "namePlaceholder": "あなたの名前は？",
+    "loggingIn": "ログイン中...",
+    "registering": "アカウント作成中...",
+    "loginError": "メールアドレスまたはパスワードが正しくありません",
+    "registerError": "登録に失敗しました。もう一度お試しください",
+    "logoutSuccess": "ログアウトしました",
+    "nameRequired": "名前を入力してください"
+  },
+  "dashboard": {
+    "title": "マイデザイン",
+    "subtitle": "保存したすべてのデザイン",
+    "newDesign": "新しいデザイン",
+    "noDesigns": "まだデザインがありません",
+    "noDesignsHint": "スタジオで最初のデザインを作成しましょう！",
+    "goToStudio": "スタジオを開く",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteConfirm": "このデザインを削除しますか？",
+    "createdAt": "作成日",
+    "logout": "ログアウト",
+    "welcome": "おかえりなさい"
+  },
+  "gallery": {
+    "title": "クリエイターギャラリー",
+    "subtitle": "世界中のクリエイターの素晴らしいデザインを発見",
+    "likeCount": "いいね",
+    "viewAll": "すべて見る",
+    "category": {
+      "all": "すべて",
+      "tshirt": "Tシャツ",
+      "mug": "マグカップ",
+      "phone": "スマホケース"
+    },
+    "designTools": "デザインツール",
+    "becomePro": "プロになる",
+    "startCustom": "カスタマイズ開始",
+    "loadMore": "もっと見る"
+  },
+  "pricing": {
+    "title": "シンプルで透明な料金",
+    "subtitle": "無料で始め、必要に応じて拡張。",
+    "monthly": "月払い",
+    "yearly": "年払い",
+    "save": "20%お得",
+    "mostPopular": "人気No.1",
+    "free": {
+      "name": "フリー",
+      "price": "$0",
+      "period": "/ 月",
+      "desc": "始めるのに最適",
+      "cta": "無料で始める"
+    },
+    "pro": {
+      "name": "プロ",
+      "price": "$12",
+      "period": "/ 月",
+      "desc": "本格的なクリエイター向け",
+      "cta": "無料トライアル開始"
+    },
+    "enterprise": {
+      "name": "エンタープライズ",
+      "price": "カスタム",
+      "period": "",
+      "desc": "チームや企業向け",
+      "cta": "営業に連絡"
+    },
+    "designTools": "デザインツール",
+    "gallery": "ギャラリー"
+  },
+  "cart": {
+    "title": "ショッピングカート",
+    "empty": "カートは空です",
+    "emptyHint": "スタジオで製品をデザインしましょう！",
+    "goToStudio": "スタジオを開く",
+    "product": "商品",
+    "quantity": "数量",
+    "price": "単価",
+    "subtotal": "小計",
+    "shipping": "送料",
+    "total": "合計",
+    "checkout": "チェックアウト",
+    "remove": "削除",
+    "free": "無料",
+    "items": "点",
+    "goShopping": "買い物に行く"
+  },
+  "checkout": {
+    "title": "チェックアウト",
+    "shipping": "配送情報",
+    "name": "お名前",
+    "email": "メールアドレス",
+    "address": "住所",
+    "city": "市区町村",
+    "country": "国",
+    "zip": "郵便番号",
+    "payment": "お支払い方法",
+    "card": "クレジット / デビットカード",
+    "cardNumber": "カード番号",
+    "expiry": "有効期限",
+    "cvv": "CVV",
+    "placeOrder": "注文を確定する",
+    "orderSummary": "注文概要",
+    "processing": "処理中..."
+  },
+  "studio": {
+    "title": "デザインスタジオ",
+    "tools": {
+      "select": "選択",
+      "brush": "ブラシ",
+      "text": "テキスト",
+      "rect": "四角形",
+      "circle": "円",
+      "polygon": "多角形",
+      "star": "星",
+      "line": "線",
+      "arrow": "矢印",
+      "image": "画像",
+      "removeBg": "背景削除",
+      "duplicate": "複製",
+      "delete": "削除",
+      "clear": "クリア",
+      "exportJSON": "JSON出力"
+    },
+    "properties": "プロパティ",
+    "layers": "レイヤー",
+    "export": "エクスポート",
+    "exportPNG": "PNGで出力",
+    "exportJSON": "JSONで出力",
+    "clear": "キャンバスをクリア",
+    "removeBackground": "背景を削除",
+    "processing": "処理中...",
+    "preview3D": "3Dプレビュー",
+    "fill": "塗りつぶし",
+    "stroke": "ストローク",
+    "opacity": "不透明度",
+    "shadow": "シャドウ",
+    "gradient": "グラデーション",
+    "filters": "フィルター",
+    "align": "整列",
+    "arrange": "配置",
+    "save": "保存",
+    "untitled": "無題",
+    "noLayers": "レイヤーなし"
+  },
+  "success": {
+    "title": "注文完了！",
+    "subtitle": "ご注文ありがとうございます。すぐに製造を開始します。",
+    "orderNumber": "注文番号",
+    "continueShopping": "ショッピングを続ける",
+    "viewDashboard": "ダッシュボードを見る"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "back": "戻る",
+    "next": "次へ",
+    "close": "閉じる"
+  }
+}

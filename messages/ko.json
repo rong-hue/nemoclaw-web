@@ -1,0 +1,263 @@
+{
+  "nav": {
+    "features": "디자인 도구",
+    "howItWorks": "사용 방법",
+    "gallery": "갤러리",
+    "pricing": "요금제",
+    "login": "로그인 / 회원가입",
+    "studio": "스튜디오"
+  },
+  "home": {
+    "heroTitle1": "모든",
+    "heroTitle2": "디자인 아이디어를",
+    "heroTitle3": "정확하게 포착",
+    "heroSubtitle": "NemoClaw는 독립 크리에이터와 개인 브랜드를 위한 차세대 커스터마이징 플랫폼입니다.",
+    "heroCta": "무료로 디자인 시작",
+    "heroSecondary": "갤러리 둘러보기",
+    "heroStats": {
+      "designers": "활성 디자이너",
+      "products": "커스텀 제품",
+      "rate": "만족도"
+    },
+    "featuresTitle": "모든 크리에이터를 위한 강력한 도구",
+    "featuresSubtitle": "컨셉부터 제품까지, 창의력을 발휘할 수 있는 도구",
+    "features": {
+      "canvas": {
+        "title": "전문 캔버스",
+        "desc": "도형, 텍스트, 그라데이션, 레이어 등을 지원하는 Fabric.js 에디터로 자유롭게 디자인하세요."
+      },
+      "preview3d": {
+        "title": "3D 실시간 미리보기",
+        "desc": "티셔츠, 머그컵, 폰케이스에 디자인을 실시간으로 확인하세요. 보이는 그대로 완성됩니다."
+      },
+      "aiRemoval": {
+        "title": "AI 배경 제거",
+        "desc": "원클릭 클라이언트 사이드 AI로 배경을 제거합니다. 서버 불필요, 빠르고 정확합니다."
+      },
+      "layers": {
+        "title": "레이어 관리",
+        "desc": "잠금, 숨김, 순서 변경으로 복잡한 디자인을 완벽하게 제어하세요."
+      },
+      "export": {
+        "title": "다중 포맷 내보내기",
+        "desc": "고품질 PNG 또는 재사용 가능한 JSON 디자인 파일로 내보내기."
+      },
+      "community": {
+        "title": "크리에이터 커뮤니티",
+        "desc": "갤러리를 둘러보고 다른 크리에이터에게서 영감을 받고 작품을 공유하세요."
+      }
+    },
+    "howTitle": "3단계로 시작하기",
+    "howSteps": {
+      "step1": {
+        "title": "캔버스에서 디자인",
+        "desc": "전문 에디터로 텍스트, 도형, 이미지, AI 기능을 추가하세요."
+      },
+      "step2": {
+        "title": "3D로 미리보기",
+        "desc": "실제 제품에 디자인을 즉시 미리보고 세부 사항을 조정하세요."
+      },
+      "step3": {
+        "title": "주문 및 배송",
+        "desc": "수량을 선택하고 결제를 완료하면 커스텀 제품을 받으실 수 있습니다."
+      }
+    },
+    "ctaTitle": "창작을 시작할 준비가 되셨나요?",
+    "ctaSubtitle": "NemoClaw의 수천 명의 크리에이터와 함께하세요.",
+    "ctaButton": "스튜디오 열기",
+    "ctaSecondary": "요금제 보기"
+  },
+  "footer": {
+    "tagline": "독립 크리에이터를 위한 차세대 커스터마이징 플랫폼.",
+    "product": "제품",
+    "studio": "디자인 스튜디오",
+    "gallery": "갤러리",
+    "pricing": "요금제",
+    "support": "지원",
+    "faq": "자주 묻는 질문",
+    "contact": "문의하기",
+    "terms": "이용약관",
+    "company": "회사",
+    "about": "회사 소개",
+    "blog": "블로그",
+    "careers": "채용",
+    "rights": "All rights reserved.",
+    "privacy": "개인정보 처리방침"
+  },
+  "auth": {
+    "loginTitle": "환영합니다",
+    "loginSubtitle": "계정에 로그인",
+    "registerTitle": "계정 만들기",
+    "registerSubtitle": "NemoClaw 크리에이터 커뮤니티에 가입",
+    "email": "이메일",
+    "password": "비밀번호",
+    "name": "표시 이름",
+    "loginBtn": "로그인",
+    "registerBtn": "계정 만들기",
+    "switchToRegister": "계정이 없으신가요? 가입하기",
+    "switchToLogin": "이미 계정이 있으신가요? 로그인",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "namePlaceholder": "어떻게 불러드릴까요?",
+    "loggingIn": "로그인 중...",
+    "registering": "계정 생성 중...",
+    "loginError": "이메일 또는 비밀번호가 올바르지 않습니다",
+    "registerError": "가입에 실패했습니다. 다시 시도해주세요",
+    "logoutSuccess": "로그아웃되었습니다",
+    "nameRequired": "이름을 입력하세요"
+  },
+  "dashboard": {
+    "title": "내 디자인",
+    "subtitle": "저장된 모든 디자인",
+    "newDesign": "새 디자인",
+    "noDesigns": "아직 디자인이 없습니다",
+    "noDesignsHint": "스튜디오에서 첫 디자인을 만들어보세요!",
+    "goToStudio": "스튜디오 열기",
+    "edit": "편집",
+    "delete": "삭제",
+    "deleteConfirm": "이 디자인을 삭제하시겠습니까?",
+    "createdAt": "생성일",
+    "logout": "로그아웃",
+    "welcome": "환영합니다"
+  },
+  "gallery": {
+    "title": "크리에이터 갤러리",
+    "subtitle": "전 세계 크리에이터의 멋진 디자인을 발견하세요",
+    "likeCount": "좋아요",
+    "viewAll": "전체 보기",
+    "category": {
+      "all": "전체",
+      "tshirt": "티셔츠",
+      "mug": "머그컵",
+      "phone": "폰케이스"
+    },
+    "designTools": "디자인 도구",
+    "becomePro": "프로 되기",
+    "startCustom": "커스터마이징 시작",
+    "loadMore": "더 보기"
+  },
+  "pricing": {
+    "title": "간단하고 투명한 요금제",
+    "subtitle": "무료로 시작하고 필요에 따라 확장하세요.",
+    "monthly": "월간",
+    "yearly": "연간",
+    "save": "20% 절약",
+    "mostPopular": "가장 인기",
+    "free": {
+      "name": "무료",
+      "price": "$0",
+      "period": "/ 월",
+      "desc": "시작하기에 완벽",
+      "cta": "시작하기"
+    },
+    "pro": {
+      "name": "프로",
+      "price": "$12",
+      "period": "/ 월",
+      "desc": "진지한 크리에이터를 위한",
+      "cta": "무료 체험 시작"
+    },
+    "enterprise": {
+      "name": "엔터프라이즈",
+      "price": "맞춤형",
+      "period": "",
+      "desc": "팀과 기업을 위한",
+      "cta": "영업팀 문의"
+    },
+    "designTools": "디자인 도구",
+    "gallery": "갤러리"
+  },
+  "cart": {
+    "title": "장바구니",
+    "empty": "장바구니가 비어있습니다",
+    "emptyHint": "스튜디오에서 제품을 디자인해보세요!",
+    "goToStudio": "스튜디오 열기",
+    "product": "상품",
+    "quantity": "수량",
+    "price": "가격",
+    "subtotal": "소계",
+    "shipping": "배송비",
+    "total": "합계",
+    "checkout": "결제하기",
+    "remove": "제거",
+    "free": "무료",
+    "items": "개 상품",
+    "goShopping": "쇼핑하러 가기"
+  },
+  "checkout": {
+    "title": "결제",
+    "shipping": "배송 정보",
+    "name": "이름",
+    "email": "이메일",
+    "address": "주소",
+    "city": "도시",
+    "country": "국가",
+    "zip": "우편번호",
+    "payment": "결제 방법",
+    "card": "신용카드 / 체크카드",
+    "cardNumber": "카드 번호",
+    "expiry": "유효기간",
+    "cvv": "CVV",
+    "placeOrder": "주문하기",
+    "orderSummary": "주문 요약",
+    "processing": "처리 중..."
+  },
+  "studio": {
+    "title": "디자인 스튜디오",
+    "tools": {
+      "select": "선택",
+      "brush": "브러시",
+      "text": "텍스트",
+      "rect": "사각형",
+      "circle": "원",
+      "polygon": "다각형",
+      "star": "별",
+      "line": "선",
+      "arrow": "화살표",
+      "image": "이미지",
+      "removeBg": "배경 제거",
+      "duplicate": "복제",
+      "delete": "삭제",
+      "clear": "지우기",
+      "exportJSON": "JSON 내보내기"
+    },
+    "properties": "속성",
+    "layers": "레이어",
+    "export": "내보내기",
+    "exportPNG": "PNG로 내보내기",
+    "exportJSON": "JSON으로 내보내기",
+    "clear": "캔버스 지우기",
+    "removeBackground": "배경 제거",
+    "processing": "처리 중...",
+    "preview3D": "3D 미리보기",
+    "fill": "채우기",
+    "stroke": "테두리",
+    "opacity": "불투명도",
+    "shadow": "그림자",
+    "gradient": "그라데이션",
+    "filters": "필터",
+    "align": "정렬",
+    "arrange": "배치",
+    "save": "저장",
+    "untitled": "제목 없음",
+    "noLayers": "레이어 없음"
+  },
+  "success": {
+    "title": "주문 완료!",
+    "subtitle": "주문해 주셔서 감사합니다. 곧 제작을 시작하겠습니다.",
+    "orderNumber": "주문 번호",
+    "continueShopping": "쇼핑 계속하기",
+    "viewDashboard": "대시보드 보기"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "retry": "다시 시도",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "back": "뒤로",
+    "next": "다음",
+    "close": "닫기"
+  }
+}

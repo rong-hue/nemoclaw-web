@@ -1,11 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { cartService, CartItem } from '@/lib/cart';
 
 export default function CartPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('cart');
+
   const [items, setItems] = useState<CartItem[]>([]);
   const router = useRouter();
 
@@ -36,16 +42,16 @@ export default function CartPage() {
           <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-600">
             <ArrowLeft size={22} />
           </button>
-          <h1 className="text-2xl font-bold">购物车</h1>
-          <span className="text-gray-400 text-sm">({items.length} 件商品)</span>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <span className="text-gray-400 text-sm">({items.length} {t("items")})</span>
         </div>
 
         {items.length === 0 ? (
           <div className="text-center py-24">
             <ShoppingBag size={64} className="mx-auto text-gray-200 mb-4" />
-            <p className="text-gray-400 mb-6">购物车空空如也</p>
+            <p className="text-gray-400 mb-6">{t("empty")}</p>
             <Link href="/pricing" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 inline-block">
-              去挑选商品
+              {t("goShopping")}
             </Link>
           </div>
         ) : (
@@ -85,11 +91,11 @@ export default function CartPage() {
                 <h2 className="font-bold text-lg mb-6">订单摘要</h2>
                 <div className="space-y-3 text-sm mb-6">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">商品小计</span>
+                    <span className="text-gray-500">{t("subtotal")}</span>
                     <span>¥{total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">运费</span>
+                    <span className="text-gray-500">{t("shipping")}</span>
                     <span className="text-green-500">免费</span>
                   </div>
                   <div className="border-t pt-3 flex justify-between font-bold text-base">
@@ -98,10 +104,10 @@ export default function CartPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => router.push('/checkout')}
+                  onClick={() => router.push(`/${locale}/checkout`)}
                   className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:opacity-90"
                 >
-                  去结算
+                  {t("checkout")}
                 </button>
                 <Link href="/pricing" className="block text-center text-sm text-gray-400 mt-3 hover:text-gray-600">
                   继续购物

@@ -1,0 +1,263 @@
+{
+  "nav": {
+    "features": "设计工具",
+    "howItWorks": "使用流程",
+    "gallery": "创作者画廊",
+    "pricing": "价格方案",
+    "login": "登录 / 注册",
+    "studio": "设计工坊"
+  },
+  "home": {
+    "heroTitle1": "精准捕捉",
+    "heroTitle2": "你的每一个",
+    "heroTitle3": "设计灵感",
+    "heroSubtitle": "NemoClaw 专为独立创作者和个性品牌打造的下一代定制平台——设计、3D 预览，将你的想象变为现实。",
+    "heroCta": "免费开始设计",
+    "heroSecondary": "探索画廊",
+    "heroStats": {
+      "designers": "活跃设计师",
+      "products": "定制产品",
+      "rate": "满意度"
+    },
+    "featuresTitle": "为每位创作者提供强大工具",
+    "featuresSubtitle": "从创意到产品，每个工具都为释放你的创造力而生",
+    "features": {
+      "canvas": {
+        "title": "专业画布编辑器",
+        "desc": "基于 Fabric.js 的编辑器，支持形状、文字、渐变、图层等，自由设计不受限制。"
+      },
+      "preview3d": {
+        "title": "3D 实时预览",
+        "desc": "实时查看设计效果在T恤、马克杯、手机壳上的呈现，所见即所得。"
+      },
+      "aiRemoval": {
+        "title": "AI 智能抠图",
+        "desc": "一键客户端 AI 去背景，无需服务器，快速、私密、精准。"
+      },
+      "layers": {
+        "title": "图层管理",
+        "desc": "锁定、隐藏、重排图层，完全掌控复杂多元素设计。"
+      },
+      "export": {
+        "title": "多格式导出",
+        "desc": "导出高质量 PNG 或可复用 JSON 设计文件，轻松协作和迭代。"
+      },
+      "community": {
+        "title": "创作者社区",
+        "desc": "浏览画廊，从其他创作者处获取灵感，分享你的作品。"
+      }
+    },
+    "howTitle": "3 步开始创作",
+    "howSteps": {
+      "step1": {
+        "title": "在画布上设计",
+        "desc": "使用专业编辑器添加文字、形状、图片和 AI 功能。"
+      },
+      "step2": {
+        "title": "3D 预览效果",
+        "desc": "即时在真实产品上查看设计效果，调整每个细节。"
+      },
+      "step3": {
+        "title": "下单配送",
+        "desc": "选择数量，完成结算，收到你的定制产品。"
+      }
+    },
+    "ctaTitle": "准备好开始创作了吗？",
+    "ctaSubtitle": "加入 NemoClaw 数千名独立创作者——你的想法值得被看见。",
+    "ctaButton": "立即打开工坊",
+    "ctaSecondary": "查看价格"
+  },
+  "footer": {
+    "tagline": "专为独立创作者打造的下一代定制平台。",
+    "product": "产品",
+    "studio": "设计工坊",
+    "gallery": "创作者画廊",
+    "pricing": "价格方案",
+    "support": "支持",
+    "faq": "常见问题",
+    "contact": "联系我们",
+    "terms": "服务条款",
+    "company": "公司",
+    "about": "关于我们",
+    "blog": "博客",
+    "careers": "加入我们",
+    "rights": "版权所有。",
+    "privacy": "隐私政策"
+  },
+  "auth": {
+    "loginTitle": "欢迎回来",
+    "loginSubtitle": "登录你的账户",
+    "registerTitle": "创建账户",
+    "registerSubtitle": "加入 NemoClaw 创作者社区",
+    "email": "邮箱",
+    "password": "密码",
+    "name": "显示名称",
+    "loginBtn": "登录",
+    "registerBtn": "创建账户",
+    "switchToRegister": "还没有账户？立即注册",
+    "switchToLogin": "已有账户？立即登录",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "输入你的密码",
+    "namePlaceholder": "你希望怎么称呼你？",
+    "loggingIn": "登录中...",
+    "registering": "创建账户中...",
+    "loginError": "邮箱或密码错误",
+    "registerError": "注册失败，请重试",
+    "logoutSuccess": "已成功退出登录",
+    "nameRequired": "请输入姓名"
+  },
+  "dashboard": {
+    "title": "我的设计",
+    "subtitle": "你保存的所有设计作品",
+    "newDesign": "新建设计",
+    "noDesigns": "还没有设计作品",
+    "noDesignsHint": "前往设计工坊创建你的第一个设计吧！",
+    "goToStudio": "打开设计工坊",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定删除这个设计？",
+    "createdAt": "创建于",
+    "logout": "退出登录",
+    "welcome": "欢迎回来"
+  },
+  "gallery": {
+    "title": "创作者画廊",
+    "subtitle": "发现来自全球创作者的精彩设计",
+    "likeCount": "喜欢",
+    "viewAll": "查看全部",
+    "category": {
+      "all": "全部",
+      "tshirt": "T恤",
+      "mug": "马克杯",
+      "phone": "手机壳"
+    },
+    "designTools": "设计工具",
+    "becomePro": "成为专业版",
+    "startCustom": "开始定制",
+    "loadMore": "加载更多"
+  },
+  "pricing": {
+    "title": "简单透明的定价",
+    "subtitle": "免费开始，按需扩展。",
+    "monthly": "按月",
+    "yearly": "按年",
+    "save": "节省 20%",
+    "mostPopular": "最受欢迎",
+    "free": {
+      "name": "免费版",
+      "price": "¥0",
+      "period": "/ 月",
+      "desc": "适合入门体验",
+      "cta": "立即开始"
+    },
+    "pro": {
+      "name": "专业版",
+      "price": "¥88",
+      "period": "/ 月",
+      "desc": "适合认真的创作者",
+      "cta": "开始免费试用"
+    },
+    "enterprise": {
+      "name": "企业版",
+      "price": "定制",
+      "period": "",
+      "desc": "适合团队和企业",
+      "cta": "联系销售"
+    },
+    "designTools": "设计工具",
+    "gallery": "创作者画廊"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty": "购物车还是空的",
+    "emptyHint": "前往设计工坊设计你的产品吧！",
+    "goToStudio": "打开设计工坊",
+    "product": "商品",
+    "quantity": "数量",
+    "price": "单价",
+    "subtotal": "小计",
+    "shipping": "运费",
+    "total": "总计",
+    "checkout": "去结算",
+    "remove": "移除",
+    "free": "免费",
+    "items": "件商品",
+    "goShopping": "去挑选商品"
+  },
+  "checkout": {
+    "title": "结算",
+    "shipping": "收货信息",
+    "name": "姓名",
+    "email": "邮箱",
+    "address": "地址",
+    "city": "城市",
+    "country": "国家/地区",
+    "zip": "邮政编码",
+    "payment": "支付方式",
+    "card": "信用卡 / 借记卡",
+    "cardNumber": "卡号",
+    "expiry": "有效期",
+    "cvv": "CVV",
+    "placeOrder": "提交订单",
+    "orderSummary": "订单摘要",
+    "processing": "处理中..."
+  },
+  "studio": {
+    "title": "设计工坊",
+    "tools": {
+      "select": "选择",
+      "brush": "画笔",
+      "text": "文字",
+      "rect": "矩形",
+      "circle": "圆形",
+      "polygon": "多边形",
+      "star": "星形",
+      "line": "线条",
+      "arrow": "箭头",
+      "image": "图片",
+      "removeBg": "抠图",
+      "duplicate": "复制",
+      "delete": "删除",
+      "clear": "清空",
+      "exportJSON": "导出JSON"
+    },
+    "properties": "属性",
+    "layers": "图层",
+    "export": "导出",
+    "exportPNG": "导出 PNG",
+    "exportJSON": "导出 JSON",
+    "clear": "清空画布",
+    "removeBackground": "AI 抠图",
+    "processing": "处理中...",
+    "preview3D": "3D 预览",
+    "fill": "填充",
+    "stroke": "描边",
+    "opacity": "透明度",
+    "shadow": "阴影",
+    "gradient": "渐变",
+    "filters": "滤镜",
+    "align": "对齐",
+    "arrange": "排列",
+    "save": "保存",
+    "untitled": "未命名作品",
+    "noLayers": "暂无图层"
+  },
+  "success": {
+    "title": "订单已提交！",
+    "subtitle": "感谢你的订单，我们将立即开始生产。",
+    "orderNumber": "订单号",
+    "continueShopping": "继续购物",
+    "viewDashboard": "查看作品中心"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出现了一些错误",
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "back": "返回",
+    "next": "下一步",
+    "close": "关闭"
+  }
+}

@@ -3,6 +3,7 @@
 import { Layers, Sliders, Lock, Unlock, Eye, EyeOff, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, AlignLeft, AlignCenter, AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical } from 'lucide-react';
 import { LayerItem } from './StudioCanvas';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PropsPanel {
   selected: any;
@@ -34,6 +35,7 @@ export default function PropertiesPanel({
   onBringForward, onSendBackward, onBringToFront, onSendToBack,
   onAlignLeft, onAlignCenter, onAlignRight, onAlignTop, onAlignMiddle, onAlignBottom
 }: PropsPanel) {
+  const t = useTranslations('studio');
   const [fillMode, setFillMode] = useState<'solid' | 'gradient'>('solid');
   const [gradientType, setGradientType] = useState<'linear' | 'radial'>('linear');
   const [gradientColors, setGradientColors] = useState(['#f97316', '#fbbf24']);
@@ -53,7 +55,7 @@ export default function PropertiesPanel({
       <div className="flex-1 overflow-y-auto">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
           <Sliders size={15} className="text-orange-400" />
-          <span className="text-sm font-semibold text-slate-200">属性</span>
+          <span className="text-sm font-semibold text-slate-200">{t("properties")}</span>
         </div>
 
         {selected ? (
@@ -68,7 +70,7 @@ export default function PropertiesPanel({
 
             {/* 对齐工具 */}
             <div>
-              <p className="text-xs text-slate-500 mb-2">对齐</p>
+              <p className="text-xs text-slate-500 mb-2">{t("align")}</p>
               <div className="grid grid-cols-3 gap-1">
                 <button onClick={onAlignLeft} className="p-2 bg-slate-800 hover:bg-slate-700 rounded" title="左对齐"><AlignLeft size={16} className="text-slate-400" /></button>
                 <button onClick={onAlignCenter} className="p-2 bg-slate-800 hover:bg-slate-700 rounded" title="水平居中"><AlignCenter size={16} className="text-slate-400" /></button>
@@ -81,7 +83,7 @@ export default function PropertiesPanel({
 
             {/* 图层顺序 */}
             <div>
-              <p className="text-xs text-slate-500 mb-2">图层顺序</p>
+              <p className="text-xs text-slate-500 mb-2">{t("arrange")}</p>
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={onBringToFront} className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded text-xs text-slate-300"><ChevronsUp size={14} />置顶</button>
                 <button onClick={onSendToBack} className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded text-xs text-slate-300"><ChevronsDown size={14} />置底</button>
@@ -93,7 +95,7 @@ export default function PropertiesPanel({
             {selected.type !== 'image' && selected.type !== 'line' && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-slate-500">填充</p>
+                  <p className="text-xs text-slate-500">{t("fill")}</p>
                   <select value={fillMode} onChange={e => setFillMode(e.target.value as any)} className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">
                     <option value="solid">纯色</option>
                     <option value="gradient">渐变</option>
@@ -134,7 +136,7 @@ export default function PropertiesPanel({
 
             {/* 阴影 */}
             <div>
-              <p className="text-xs text-slate-500 mb-2">阴影</p>
+              <p className="text-xs text-slate-500 mb-2">{t("shadow")}</p>
               <div className="space-y-2">
                 <input type="range" min={0} max={50} value={shadowBlur} onChange={e => setShadowBlur(Number(e.target.value))} className="w-full accent-orange-500" />
                 <div className="flex items-center gap-2">
@@ -148,7 +150,7 @@ export default function PropertiesPanel({
             {/* 滤镜（仅图片） */}
             {selected.type === 'image' && (
               <div>
-                <p className="text-xs text-slate-500 mb-2">滤镜</p>
+                <p className="text-xs text-slate-500 mb-2">{t("filters")}</p>
                 <select value={filterType} onChange={e => setFilterType(e.target.value)} className="w-full text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded mb-2">
                   <option value="brightness">亮度</option>
                   <option value="contrast">对比度</option>
@@ -161,7 +163,7 @@ export default function PropertiesPanel({
 
             <div>
               <div className="flex justify-between mb-2">
-                <p className="text-xs text-slate-500">透明度</p>
+                <p className="text-xs text-slate-500">{t("opacity")}</p>
                 <p className="text-xs text-slate-400">{Math.round((selected.opacity ?? 1) * 100)}%</p>
               </div>
               <input type="range" min={0} max={100} defaultValue={Math.round((selected.opacity ?? 1) * 100)} onChange={e => onOpacityChange(Number(e.target.value))} className="w-full accent-orange-500" />
@@ -200,12 +202,12 @@ export default function PropertiesPanel({
       <div className="border-t border-slate-700">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
           <Layers size={15} className="text-orange-400" />
-          <span className="text-sm font-semibold text-slate-200">图层</span>
+          <span className="text-sm font-semibold text-slate-200">{t("layers")}</span>
           <span className="ml-auto text-xs text-slate-500">{layers.length}</span>
         </div>
         <div className="max-h-56 overflow-y-auto">
           {layers.length === 0 ? (
-            <p className="text-slate-600 text-xs text-center py-4">暂无图层</p>
+            <p className="text-slate-600 text-xs text-center py-4">{t("noLayers") || "暂无图层"}</p>
           ) : (
             layers.map((layer, i) => (
               <div key={layer.id} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-800 transition-colors group">

@@ -1,5 +1,7 @@
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { CheckCircle, Package, Home, LayoutDashboard } from 'lucide-react';
 
@@ -28,14 +30,14 @@ function SuccessContent() {
 
         <div className="flex gap-3">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(`/${locale}/`)}
             className="flex-1 flex items-center justify-center gap-2 border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50"
           >
             <Home size={18} />
             回首页
           </button>
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push(`/${locale}/dashboard`)}
             className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-medium hover:opacity-90"
           >
             <LayoutDashboard size={18} />

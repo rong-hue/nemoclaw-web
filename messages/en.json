@@ -1,0 +1,263 @@
+{
+  "nav": {
+    "features": "Design Tools",
+    "howItWorks": "How It Works",
+    "gallery": "Gallery",
+    "pricing": "Pricing",
+    "login": "Sign In / Sign Up",
+    "studio": "Studio"
+  },
+  "home": {
+    "heroTitle1": "Capture Every",
+    "heroTitle2": "Design Idea",
+    "heroTitle3": "Precisely",
+    "heroSubtitle": "NemoClaw is the next-generation customization platform built for independent creators and personal brands — design, preview in 3D, and bring your imagination to life.",
+    "heroCta": "Start Designing Free",
+    "heroSecondary": "Explore Gallery",
+    "heroStats": {
+      "designers": "Active Designers",
+      "products": "Custom Products",
+      "rate": "Satisfaction Rate"
+    },
+    "featuresTitle": "Powerful Tools for Every Creator",
+    "featuresSubtitle": "From concept to product, every tool is built to unleash your creativity",
+    "features": {
+      "canvas": {
+        "title": "Professional Canvas",
+        "desc": "Fabric.js-powered editor with shapes, text, gradients, layers, and more — design freely without limits."
+      },
+      "preview3d": {
+        "title": "3D Live Preview",
+        "desc": "See your design on T-shirts, mugs, and phone cases in real time. What you see is what you get."
+      },
+      "aiRemoval": {
+        "title": "AI Background Removal",
+        "desc": "One-click client-side AI removes backgrounds with no server needed. Fast, private, and accurate."
+      },
+      "layers": {
+        "title": "Layer Management",
+        "desc": "Lock, hide, reorder layers with full control — perfect for complex multi-element designs."
+      },
+      "export": {
+        "title": "Multi-format Export",
+        "desc": "Export as high-quality PNG or reusable JSON design files for easy collaboration and iteration."
+      },
+      "community": {
+        "title": "Creator Community",
+        "desc": "Browse the gallery, get inspired by other creators, and share your own masterpieces."
+      }
+    },
+    "howTitle": "Start Creating in 3 Steps",
+    "howSteps": {
+      "step1": {
+        "title": "Design on Canvas",
+        "desc": "Use the professional editor to add text, shapes, images, and AI-powered features."
+      },
+      "step2": {
+        "title": "Preview in 3D",
+        "desc": "Instantly visualize your design on real products and fine-tune every detail."
+      },
+      "step3": {
+        "title": "Order & Deliver",
+        "desc": "Choose your quantity, complete checkout, and receive your custom products."
+      }
+    },
+    "ctaTitle": "Ready to Start Creating?",
+    "ctaSubtitle": "Join thousands of independent creators on NemoClaw — your ideas deserve to be seen.",
+    "ctaButton": "Open Studio Now",
+    "ctaSecondary": "View Pricing"
+  },
+  "footer": {
+    "tagline": "Next-generation customization platform for independent creators.",
+    "product": "Product",
+    "studio": "Design Studio",
+    "gallery": "Gallery",
+    "pricing": "Pricing",
+    "support": "Support",
+    "faq": "FAQ",
+    "contact": "Contact Us",
+    "terms": "Terms of Service",
+    "company": "Company",
+    "about": "About Us",
+    "blog": "Blog",
+    "careers": "Careers",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Sign in to your account",
+    "registerTitle": "Create Account",
+    "registerSubtitle": "Join the NemoClaw creator community",
+    "email": "Email",
+    "password": "Password",
+    "name": "Display Name",
+    "loginBtn": "Sign In",
+    "registerBtn": "Create Account",
+    "switchToRegister": "Don't have an account? Sign up",
+    "switchToLogin": "Already have an account? Sign in",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "Enter your password",
+    "namePlaceholder": "How should we call you?",
+    "loggingIn": "Signing in...",
+    "registering": "Creating account...",
+    "loginError": "Invalid email or password",
+    "registerError": "Registration failed, please try again",
+    "logoutSuccess": "Logged out successfully",
+    "nameRequired": "Please enter your name"
+  },
+  "dashboard": {
+    "title": "My Designs",
+    "subtitle": "All your saved designs",
+    "newDesign": "New Design",
+    "noDesigns": "No designs yet",
+    "noDesignsHint": "Head to the studio to create your first design!",
+    "goToStudio": "Open Studio",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this design?",
+    "createdAt": "Created",
+    "logout": "Sign Out",
+    "welcome": "Welcome back"
+  },
+  "gallery": {
+    "title": "Creator Gallery",
+    "subtitle": "Discover amazing designs from creators worldwide",
+    "likeCount": "likes",
+    "viewAll": "View All",
+    "category": {
+      "all": "All",
+      "tshirt": "T-Shirts",
+      "mug": "Mugs",
+      "phone": "Phone Cases"
+    },
+    "designTools": "Design Tools",
+    "becomePro": "Go Pro",
+    "startCustom": "Start Customizing",
+    "loadMore": "Load More"
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free. Scale as you grow.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 20%",
+    "mostPopular": "Most Popular",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "/ month",
+      "desc": "Perfect for getting started",
+      "cta": "Get Started"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$12",
+      "period": "/ month",
+      "desc": "For serious creators",
+      "cta": "Start Free Trial"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "period": "",
+      "desc": "For teams and businesses",
+      "cta": "Contact Sales"
+    },
+    "designTools": "Design Tools",
+    "gallery": "Gallery"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "emptyHint": "Visit the studio to design your products!",
+    "goToStudio": "Open Studio",
+    "product": "Product",
+    "quantity": "Quantity",
+    "price": "Price",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "free": "Free",
+    "items": "items",
+    "goShopping": "Go Shopping"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": "Shipping Information",
+    "name": "Full Name",
+    "email": "Email",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "zip": "Postal Code",
+    "payment": "Payment Method",
+    "card": "Credit / Debit Card",
+    "cardNumber": "Card Number",
+    "expiry": "Expiry Date",
+    "cvv": "CVV",
+    "placeOrder": "Place Order",
+    "orderSummary": "Order Summary",
+    "processing": "Processing..."
+  },
+  "studio": {
+    "title": "Design Studio",
+    "tools": {
+      "select": "Select",
+      "brush": "Brush",
+      "text": "Text",
+      "rect": "Rectangle",
+      "circle": "Circle",
+      "polygon": "Polygon",
+      "star": "Star",
+      "line": "Line",
+      "arrow": "Arrow",
+      "image": "Image",
+      "removeBg": "Remove BG",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "clear": "Clear",
+      "exportJSON": "Export JSON"
+    },
+    "properties": "Properties",
+    "layers": "Layers",
+    "export": "Export",
+    "exportPNG": "Export PNG",
+    "exportJSON": "Export JSON",
+    "clear": "Clear Canvas",
+    "removeBackground": "Remove Background",
+    "processing": "Processing...",
+    "preview3D": "3D Preview",
+    "fill": "Fill",
+    "stroke": "Stroke",
+    "opacity": "Opacity",
+    "shadow": "Shadow",
+    "gradient": "Gradient",
+    "filters": "Filters",
+    "align": "Align",
+    "arrange": "Arrange",
+    "save": "Save",
+    "untitled": "Untitled",
+    "noLayers": "No layers yet"
+  },
+  "success": {
+    "title": "Order Placed!",
+    "subtitle": "Thank you for your order. We'll start production right away.",
+    "orderNumber": "Order Number",
+    "continueShopping": "Continue Shopping",
+    "viewDashboard": "View Dashboard"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close"
+  }
+}

@@ -1,10 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { CreditCard, Smartphone, QrCode, CheckCircle } from 'lucide-react';
 import { cartService } from '@/lib/cart';
 
 export default function PaymentPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+
   const [order, setOrder] = useState<any>(null);
   const [method, setMethod] = useState('wechat');
   const [paying, setPaying] = useState(false);
@@ -12,16 +17,16 @@ export default function PaymentPage() {
 
   useEffect(() => {
     const pending = localStorage.getItem('pendingOrder');
-    if (!pending) { router.push('/cart'); return; }
+    if (!pending) { router.push(`/${locale}/cart`); return; }
     setOrder(JSON.parse(pending));
-  }, [router]);
+  }, [router, locale]);
 
   const handlePay = () => {
     setPaying(true);
     setTimeout(() => {
       cartService.clearCart();
       localStorage.removeItem('pendingOrder');
-      router.push('/success?orderId=' + order.orderId);
+      router.push(`/${locale}/success?orderId=${order.orderId}`);
     }, 2000);
   };
 
@@ -45,8 +50,8 @@ export default function PaymentPage() {
 
         <div className="space-y-3 mb-6">
           {[
-            { id: 'wechat', name: '微信支付', icon: Smartphone, color: 'green' },
-            { id: 'alipay', name: '支付宝', icon: QrCode, color: 'blue' },
+            { id: 'wechat', name: 'WeChat Pay', icon: Smartphone, color: 'green' },
+            { id: 'alipay', name: 'Alipay', icon: QrCode, color: 'blue' },
             { id: 'card', name: '银行卡', icon: CreditCard, color: 'purple' }
           ].map(m => (
             <button
@@ -68,7 +73,7 @@ export default function PaymentPage() {
           disabled={paying}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:opacity-90 disabled:opacity-50"
         >
-          {paying ? '支付中...' : '确认支付'}
+          {paying ? 'Processing...' : 'Confirm Payment'}
         </button>
 
         <p className="text-center text-xs text-gray-400 mt-4">

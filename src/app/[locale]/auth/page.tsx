@@ -1,9 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { authService } from '@/lib/auth';
 
 export default function AuthPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('auth');
+
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,9 +24,9 @@ export default function AuthPage() {
     if (isLogin) {
       const user = authService.login(email, password);
       if (user) {
-        router.push('/dashboard');
+        router.push(`/${locale}/dashboard`);
       } else {
-        setError('邮箱或密码错误');
+        setError(t('loginError'));
       }
     } else {
       if (!name) {
@@ -28,7 +34,7 @@ export default function AuthPage() {
         return;
       }
       authService.register(email, password, name);
-      router.push('/dashboard');
+      router.push(`/${locale}/dashboard`);
     }
   };
 
@@ -36,13 +42,13 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          {isLogin ? '登录' : '注册'}
+          {isLogin ? t("loginBtn") : t("registerBtn")}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium mb-2">姓名</label>
+              <label className="block text-sm font-medium mb-2">{t("name")}</label>
               <input
                 type="text"
                 value={name}
@@ -54,7 +60,7 @@ export default function AuthPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-2">邮箱</label>
+            <label className="block text-sm font-medium mb-2">{t("email")}</label>
             <input
               type="email"
               value={email}
@@ -65,7 +71,7 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">密码</label>
+            <label className="block text-sm font-medium mb-2">{t("password")}</label>
             <input
               type="password"
               value={password}
@@ -83,7 +89,7 @@ export default function AuthPage() {
             type="submit"
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:opacity-90"
           >
-            {isLogin ? '登录' : '注册'}
+            {isLogin ? t("loginBtn") : t("registerBtn")}
           </button>
         </form>
 
@@ -93,7 +99,7 @@ export default function AuthPage() {
             onClick={() => setIsLogin(!isLogin)}
             className="text-purple-600 font-semibold ml-1"
           >
-            {isLogin ? '立即注册' : '立即登录'}
+            {isLogin ? t("switchToRegister") : t("switchToLogin")}
           </button>
         </p>
       </div>

@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Box } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
@@ -10,6 +11,8 @@ import dynamic from 'next/dynamic';
 const Preview3D = dynamic(() => import('@/components/Preview3D'), { ssr: false });
 
 export default function StudioPage() {
+  const t = useTranslations('studio');
+  const locale = useLocale();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTool, setActiveTool] = useState('select');
@@ -77,25 +80,22 @@ export default function StudioPage() {
     <div className="h-screen bg-slate-950 flex flex-col overflow-hidden">
       <header className="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+          <Link href={`/${locale}`} className="text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-sm font-bold text-slate-200">设计工坊</h1>
-            <p className="text-xs text-slate-500">未命名作品</p>
+            <h1 className="text-sm font-bold text-slate-200">{t('title')}</h1>
+            <p className="text-xs text-slate-500">{t('untitled') || '未命名作品'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-xs text-slate-500 mr-2">
-            快捷键: <span className="text-slate-400">Del删除</span> | <span className="text-slate-400">⌘D复制</span> | <span className="text-slate-400">⌘S保存</span>
-          </div>
           <button onClick={handleOpen3D} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
             <Box size={16} />
-            3D 预览
+            {t('preview3D')}
           </button>
           <button onClick={handleExport} className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
             <Save size={16} />
-            保存
+            {t('save') || '保存'}
           </button>
         </div>
       </header>

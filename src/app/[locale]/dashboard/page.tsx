@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { authService, User } from '@/lib/auth';
 import { Image, Plus, Heart, Eye, Trash2, LogOut } from 'lucide-react';
 
@@ -21,6 +23,10 @@ const MOCK_ARTWORKS: Artwork[] = [
 ];
 
 export default function DashboardPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('dashboard');
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [artworks] = useState<Artwork[]>(MOCK_ARTWORKS);
@@ -29,7 +35,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
-      router.push('/auth');
+      router.push(`/${locale}/auth`);
     } else {
       setUser(currentUser);
     }
@@ -38,7 +44,7 @@ export default function DashboardPage() {
 
   const handleLogout = () => {
     authService.logout();
-    router.push('/');
+    router.push(`/${locale}/`);
   };
 
   if (loading) {
@@ -96,7 +102,7 @@ export default function DashboardPage() {
 
         {/* 作品列表 */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">我的作品</h2>
+          <h2 className="text-xl font-bold">{t("title")}</h2>
           <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
             <Plus size={16} />
             新建作品

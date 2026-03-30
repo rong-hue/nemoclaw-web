@@ -1,18 +1,24 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, MapPin, User, Phone } from 'lucide-react';
 import { cartService, CartItem } from '@/lib/cart';
 import { authService } from '@/lib/auth';
 
 export default function CheckoutPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('checkout');
+
   const [items, setItems] = useState<CartItem[]>([]);
   const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', note: '' });
   const router = useRouter();
 
   useEffect(() => {
     const cart = cartService.getCart();
-    if (cart.length === 0) { router.push('/cart'); return; }
+    if (cart.length === 0) { router.push(`/${locale}/cart`); return; }
     setItems(cart);
 
     const user = authService.getCurrentUser();
@@ -25,7 +31,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     // 保存订单信息到 localStorage，跳转支付
     localStorage.setItem('pendingOrder', JSON.stringify({ items, form, total, orderId: Date.now().toString() }));
-    router.push('/payment');
+    router.push(`/${locale}/payment`);
   };
 
   return (
@@ -35,12 +41,12 @@ export default function CheckoutPage() {
           <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-600">
             <ArrowLeft size={22} />
           </button>
-          <h1 className="text-2xl font-bold">确认订单</h1>
+          <h1 className="text-2xl font-bold">{t("title") || "Confirm Order"}</h1>
         </div>
 
         {/* 进度条 */}
         <div className="flex items-center justify-center mb-10">
-          {['购物车', '确认订单', '支付', '完成'].map((step, i) => (
+          {['Cart', 'Confirm', 'Payment', 'Done'].map((step, i) => (
             <div key={step} className="flex items-center">
               <div className={`flex items-center gap-2 text-sm font-medium ${i <= 1 ? 'text-purple-600' : 'text-gray-300'}`}>
                 <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${i <= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>{i + 1}</span>
@@ -52,20 +58,20 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
-          {/* 收货信息 */}
+          {/* {t("shipping")} */}
           <div className="md:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="font-bold mb-5 flex items-center gap-2"><MapPin size={18} className="text-purple-500" />收货信息</h2>
+              <h2 className="font-bold mb-5 flex items-center gap-2"><MapPin size={18} className="text-purple-500" />{t("shipping")}</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-500 mb-1">姓名</label>
+                  <label className="block text-sm text-gray-500 mb-1">{t("name")}</label>
                   <div className="relative">
                     <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                     <input
                       className="w-full border rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
                       value={form.name}
                       onChange={e => setForm({ ...form, name: e.target.value })}
-                      placeholder="收货人姓名"
+                      placeholder="Full name"
                       required
                     />
                   </div>
@@ -84,7 +90,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-500 mb-1">城市</label>
+                  <label className="block text-sm text-gray-500 mb-1">{t("city")}</label>
                   <input
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
                     value={form.city}
@@ -94,7 +100,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-500 mb-1">详细地址</label>
+                  <label className="block text-sm text-gray-500 mb-1">{t("address")}</label>
                   <input
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
                     value={form.address}
@@ -118,7 +124,7 @@ export default function CheckoutPage() {
 
             {/* 商品列表 */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="font-bold mb-4">商品清单</h2>
+              <h2 className="font-bold mb-4">{t("orderList") || "Order List"}</h2>
               <div className="space-y-3">
                 {items.map(item => (
                   <div key={item.id} className="flex items-center justify-between text-sm">
@@ -137,17 +143,17 @@ export default function CheckoutPage() {
           {/* 结算面板 */}
           <div className="md:col-span-1">
             <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
-              <h2 className="font-bold text-lg mb-6">支付摘要</h2>
+              <h2 className="font-bold text-lg mb-6">{t("orderSummary")}</h2>
               <div className="space-y-3 text-sm mb-6">
-                <div className="flex justify-between"><span className="text-gray-500">商品合计</span><span>¥{total.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">运费</span><span className="text-green-500">¥0.00</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t("subtotal") || "Subtotal"}</span><span>¥{total.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t("shipping") || "Shipping"}</span><span className="text-green-500">¥0.00</span></div>
                 <div className="border-t pt-3 flex justify-between font-bold text-base">
                   <span>应付金额</span>
                   <span className="text-purple-600 text-xl">¥{total.toFixed(2)}</span>
                 </div>
               </div>
               <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:opacity-90">
-                去支付
+                {t("goPayment") || "Proceed to Payment"}
               </button>
             </div>
           </div>
