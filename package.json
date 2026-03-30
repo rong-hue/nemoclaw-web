@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "pages:build": "next build && npx opennextjs-cloudflare build",
+    "pages:build": "npx opennextjs-cloudflare build",
     "cf:deploy": "npm run pages:build && wrangler pages deploy .open-next/assets --project-name=nemoclaw-web"
   },
   "dependencies": {

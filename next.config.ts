@@ -10,6 +10,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    runtime: 'experimental-edge',
+  },
   webpack: (config: any, { isServer }: { isServer: boolean }) => {
     if (isServer) {
       config.resolve.alias = {
