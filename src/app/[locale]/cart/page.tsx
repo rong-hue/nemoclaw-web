@@ -53,7 +53,7 @@ export default function CartPage() {
           <div className="text-center py-24">
             <ShoppingBag size={64} className="mx-auto text-gray-200 mb-4" />
             <p className="text-gray-400 mb-6">{t("empty")}</p>
-            <Link href="/pricing" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 inline-block">
+            <Link href={`/${locale}/pricing`} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 inline-block">
               {t("goShopping")}
             </Link>
           </div>
@@ -112,7 +112,7 @@ export default function CartPage() {
                 >
                   {t("checkout")}
                 </button>
-                <Link href="/pricing" className="block text-center text-sm text-gray-400 mt-3 hover:text-gray-600">
+                <Link href={`/${locale}/pricing`} className="block text-center text-sm text-gray-400 mt-3 hover:text-gray-600">
                   继续购物
                 </Link>
               </div>

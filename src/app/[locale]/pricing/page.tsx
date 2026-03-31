@@ -80,7 +80,7 @@ export default function Pricing() {
         </div>
         <div className="flex items-center gap-5">
           <CartIcon />
-          <Link href="/auth" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full text-sm font-bold transition-all">
+          <Link href={`/${locale}/auth`} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full text-sm font-bold transition-all">
             {t("startCustom") || "Start Customizing"}
           </Link>
         </div>
