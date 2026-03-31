@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
