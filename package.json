@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "pages:build": "npx opennextjs-cloudflare build",
+    "pages:build": "opennextjs-cloudflare build",
     "cf:deploy": "npm run pages:build && wrangler pages deploy .open-next/assets --project-name=nemoclaw-web"
   },
+  "packageManager": "pnpm@9.15.4",
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",
     "@opennextjs/cloudflare": "^1.18.0",
