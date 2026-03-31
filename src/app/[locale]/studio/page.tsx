@@ -1,6 +1,7 @@
+'use client';
 export const runtime = 'edge';
 
-'use client';
+
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Box } from 'lucide-react';
