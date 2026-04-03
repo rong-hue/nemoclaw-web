@@ -1,21 +1,23 @@
 'use client';
 export const runtime = 'edge';
 
-
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Box } from 'lucide-react';
+import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
 import dynamic from 'next/dynamic';
+import { designsService } from '@/lib/supabase';
 
 const Preview3D = dynamic(() => import('@/components/Preview3D'), { ssr: false });
 
 export default function StudioPage() {
   const t = useTranslations('studio');
   const locale = useLocale();
+  const { data: session } = useSession();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTool, setActiveTool] = useState('select');
@@ -23,6 +25,9 @@ export default function StudioPage() {
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [show3D, setShow3D] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState('');
+  const [designId, setDesignId] = useState<string | undefined>(undefined);
+  const [designTitle, setDesignTitle] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,23 +43,21 @@ export default function StudioPage() {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        handleExport();
+        handleSave();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [session, designId, designTitle]);
 
-  const handleUploadImage = () => {
-    fileInputRef.current?.click();
-  };
+  const handleUploadImage = () => fileInputRef.current?.click();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) canvasRef.current?.uploadImage(file);
   };
 
-  const handleExport = () => {
+  const handleExportJSON = () => {
     const json = canvasRef.current?.exportJSON();
     if (json) {
       const blob = new Blob([json], { type: 'application/json' });
@@ -66,6 +69,38 @@ export default function StudioPage() {
     }
   };
 
+  const handleSave = async () => {
+    const json = canvasRef.current?.exportJSON();
+    if (!json) return;
+
+    // 未登录时降级为本地下载
+    if (!session?.user) {
+      handleExportJSON();
+      return;
+    }
+
+    setSaveStatus('saving');
+    try {
+      const previewUrl = canvasRef.current?.exportImageDataUrl?.() || '';
+      const title = designTitle || t('untitled');
+      const saved = await designsService.save({
+        id: designId,
+        user_id: session.user.id || session.user.email || '',
+        user_email: session.user.email || '',
+        title,
+        canvas_json: json,
+        preview_url: previewUrl,
+      });
+      setDesignId(saved.id);
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (err) {
+      console.error('Save failed:', err);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    }
+  };
+
   const handleOpen3D = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
     setPreviewDataUrl(dataUrl || '');
@@ -74,9 +109,20 @@ export default function StudioPage() {
 
   const handleToolChange = (tool: string) => {
     setActiveTool(tool);
-    if (tool !== 'draw') {
-      canvasRef.current?.disableDrawing();
-    }
+    if (tool !== 'draw') canvasRef.current?.disableDrawing();
+  };
+
+  const saveButtonContent = () => {
+    if (saveStatus === 'saving') return <><Loader2 size={16} className="animate-spin" />{t('saving')}</>;
+    if (saveStatus === 'saved') return <><Check size={16} />{t('saved')}</>;
+    if (saveStatus === 'error') return <><Save size={16} />{t('saveFailed')}</>;
+    return <><Save size={16} />{t('save')}</>;
+  };
+
+  const saveButtonClass = () => {
+    if (saveStatus === 'saved') return 'bg-green-500 hover:bg-green-600';
+    if (saveStatus === 'error') return 'bg-red-500 hover:bg-red-600';
+    return 'bg-orange-500 hover:bg-orange-600';
   };
 
   return (
@@ -88,17 +134,37 @@ export default function StudioPage() {
           </Link>
           <div>
             <h1 className="text-sm font-bold text-slate-200">{t('title')}</h1>
-            <p className="text-xs text-slate-500">{t('untitled') || '未命名作品'}</p>
+            <input
+              type="text"
+              value={designTitle}
+              onChange={e => setDesignTitle(e.target.value)}
+              placeholder={t('untitled')}
+              className="text-xs text-slate-400 bg-transparent border-none outline-none w-40 placeholder:text-slate-600"
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleOpen3D} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+          {session?.user && (
+            <div className="flex items-center gap-2 mr-2">
+              {session.user.image && (
+                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full" />
+              )}
+              <span className="text-xs text-slate-400 hidden md:block">{session.user.name || session.user.email}</span>
+            </div>
+          )}
+          <button
+            onClick={handleOpen3D}
+            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          >
             <Box size={16} />
             {t('preview3D')}
           </button>
-          <button onClick={handleExport} className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
-            <Save size={16} />
-            {t('save') || '保存'}
+          <button
+            onClick={handleSave}
+            disabled={saveStatus === 'saving'}
+            className={`flex items-center gap-2 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 ${saveButtonClass()}`}
+          >
+            {saveButtonContent()}
           </button>
         </div>
       </header>
@@ -118,7 +184,7 @@ export default function StudioPage() {
           onDelete={() => canvasRef.current?.deleteSelected()}
           onDuplicate={() => canvasRef.current?.duplicate()}
           onClear={() => canvasRef.current?.clearCanvas()}
-          onExport={handleExport}
+          onExport={handleExportJSON}
           onExportImage={() => canvasRef.current?.exportImage()}
           activeTool={activeTool}
           setActiveTool={handleToolChange}

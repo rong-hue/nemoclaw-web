@@ -1,137 +1,191 @@
 'use client';
 export const runtime = 'edge';
 
-
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { authService, User } from '@/lib/auth';
-import { Image, Plus, Heart, Eye, Trash2, LogOut } from 'lucide-react';
-
-interface Artwork {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  likes: number;
-  views: number;
-  color: string;
-}
-
-const MOCK_ARTWORKS: Artwork[] = [
-  { id: '1', title: '星空幻想', description: 'AI 生成的星空场景', createdAt: '2026-03-20', likes: 128, views: 1024, color: 'from-indigo-400 to-purple-600' },
-  { id: '2', title: '赛博都市', description: '未来感十足的城市夜景', createdAt: '2026-03-22', likes: 256, views: 2048, color: 'from-cyan-400 to-blue-600' },
-  { id: '3', title: '自然之境', description: '梦幻森林与光影', createdAt: '2026-03-24', likes: 64, views: 512, color: 'from-green-400 to-teal-600' },
-];
+import { useSession, signOut } from 'next-auth/react';
+import { authService } from '@/lib/auth';
+import { designsService } from '@/lib/supabase';
+import { PlusCircle, Pencil, Trash2, LogOut, Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('dashboard');
+  const { data: session, status } = useSession();
 
-  const [user, setUser] = useState<User | null>(null);
+  const [designs, setDesigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [artworks] = useState<Artwork[]>(MOCK_ARTWORKS);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      router.push(`/${locale}/auth`);
-    } else {
-      setUser(currentUser);
-    }
-    setLoading(false);
-  }, [router]);
-
-  const handleLogout = () => {
-    authService.logout();
-    router.push(`/${locale}/`);
+  // 获取用户 ID（兼容 Google OAuth 和 mock 登录）
+  const getUserId = () => {
+    if (session?.user) return session.user.id || session.user.email || '';
+    const localUser = authService.getCurrentUser();
+    return localUser?.email || '';
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-400 text-lg">加载中...</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (status === 'loading') return;
+    const localUser = authService.getCurrentUser();
+    if (!session?.user && !localUser) {
+      router.push(`/${locale}/auth`);
+      return;
+    }
+    loadDesigns();
+  }, [status, session]);
 
-  if (!user) return null;
+  const loadDesigns = async () => {
+    setLoading(true);
+    try {
+      const userId = getUserId();
+      if (!userId) { setLoading(false); return; }
+      const data = await designsService.getByUser(userId);
+      setDesigns(data || []);
+    } catch (err) {
+      console.error('Load designs failed:', err);
+      // 降级：显示本地 mock 数据
+      const localUser = authService.getCurrentUser();
+      setDesigns(localUser?.designs || []);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalLikes = artworks.reduce((sum, a) => sum + a.likes, 0);
-  const totalViews = artworks.reduce((sum, a) => sum + a.views, 0);
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('deleteConfirm'))) return;
+    setDeleting(id);
+    try {
+      await designsService.delete(id);
+      setDesigns(prev => prev.filter(d => d.id !== id));
+    } catch (err) {
+      console.error('Delete failed:', err);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (session?.user) {
+      await signOut({ callbackUrl: `/${locale}` });
+    } else {
+      authService.logout();
+      router.push(`/${locale}`);
+    }
+  };
+
+  const userName = session?.user?.name || session?.user?.email || authService.getCurrentUser()?.name || '';
+  const userAvatar = session?.user?.image || null;
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 顶部导航 */}
       <header className="bg-white border-b px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold">
-            {user.name[0].toUpperCase()}
+        <Link href={`/${locale}`} className="text-2xl font-black tracking-tighter">
+          <span className="text-orange-500">Nemo</span>Claw
+        </Link>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {userAvatar ? (
+              <img src={userAvatar} alt="" className="w-8 h-8 rounded-full" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <span className="text-sm text-gray-600 hidden md:block">{userName}</span>
           </div>
-          <div>
-            <p className="font-semibold">{user.name}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <LogOut size={15} />
+            {t('logout')}
+          </button>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors"
-        >
-          <LogOut size={18} />
-          退出
-        </button>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* 统计卡片 */}
-        <div className="grid grid-cols-3 gap-6 mb-10">
-          {[
-            { label: '作品数量', value: artworks.length, icon: Image },
-            { label: '总获赞', value: totalLikes, icon: Heart },
-            { label: '总浏览', value: totalViews, icon: Eye },
-          ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-white rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-2">
-                <Icon size={20} className="text-purple-500" />
-                <span className="text-gray-500 text-sm">{label}</span>
-              </div>
-              <p className="text-3xl font-bold">{value}</p>
-            </div>
-          ))}
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* 标题行 */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+            <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
+          </div>
+          <Link
+            href={`/${locale}/studio`}
+            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-semibold transition-colors text-sm"
+          >
+            <PlusCircle size={16} />
+            {t('newDesign')}
+          </Link>
         </div>
 
         {/* 作品列表 */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">{t("title")}</h2>
-          <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
-            <Plus size={16} />
-            新建作品
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {artworks.map((artwork) => (
-            <div key={artwork.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className={`h-40 bg-gradient-to-br ${artwork.color}`} />
-              <div className="p-4">
-                <h3 className="font-semibold mb-1">{artwork.title}</h3>
-                <p className="text-sm text-gray-500 mb-3">{artwork.description}</p>
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1"><Heart size={14} /> {artwork.likes}</span>
-                    <span className="flex items-center gap-1"><Eye size={14} /> {artwork.views}</span>
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 size={32} className="animate-spin text-orange-400" />
+          </div>
+        ) : designs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4">
+              <PlusCircle size={28} className="text-orange-400" />
+            </div>
+            <p className="text-gray-500 mb-2">{t('noDesigns')}</p>
+            <p className="text-gray-400 text-sm mb-6">{t('noDesignsHint')}</p>
+            <Link
+              href={`/${locale}/studio`}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-semibold transition-colors text-sm"
+            >
+              {t('goToStudio')}
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {designs.map((design) => (
+              <div key={design.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-shadow">
+                {/* 预览图 */}
+                <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  {design.preview_url ? (
+                    <img
+                      src={design.preview_url}
+                      alt={design.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl">🎨</div>
+                  )}
+                  {/* 悬浮操作按钮 */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <Link
+                      href={`/${locale}/studio?id=${design.id}`}
+                      className="bg-white text-gray-800 p-2 rounded-full hover:bg-orange-50"
+                    >
+                      <Pencil size={16} />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(design.id)}
+                      disabled={deleting === design.id}
+                      className="bg-white text-red-500 p-2 rounded-full hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {deleting === design.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                    </button>
                   </div>
-                  <button className="text-red-400 hover:text-red-600">
-                    <Trash2 size={14} />
-                  </button>
+                </div>
+                {/* 作品信息 */}
+                <div className="p-3">
+                  <p className="text-sm font-medium text-gray-800 truncate">{design.title || t('untitled')}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {new Date(design.updated_at).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
