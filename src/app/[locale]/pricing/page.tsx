@@ -63,7 +63,7 @@ export default function Pricing() {
       image: plan.color,
     });
     window.dispatchEvent(new Event('cartUpdated'));
-    router.push('/cart');
+    router.push(`/${locale}/cart`);
   };
 
   return (
