@@ -260,7 +260,19 @@
     "sendBackward": "背面へ",
     "width": "幅",
     "height": "高さ",
-    "selectObject": "キャンバス上のオブジェクトを選択してプロパティを表示・編集"
+    "selectObject": "キャンバス上のオブジェクトを選択してプロパティを表示・編集",
+    "preview3DTitle": "3Dプレビュー",
+    "dragToRotate": "ドラッグして回転",
+    "dragHint": "🖱️ ドラッグで回転 · デザインが3Dモデルにリアルタイム適用されています",
+    "resetView": "視点リセット",
+    "loadingEngine": "3Dレンダリングエンジンを読み込み中...",
+    "modelTshirt": "Tシャツ",
+    "modelMug": "マグカップ",
+    "modelPhone": "スマホケース",
+    "removeBgSelectFirst": "まず画像を選択してください",
+    "removeBgProcessing": "処理中... 初回はモデルのダウンロード（約5MB）が必要です",
+    "removeBgDone": "背景削除完了！",
+    "removeBgFailed": "背景削除に失敗しました。再試行してください"
   },
   "success": {
     "title": "注文完了！",

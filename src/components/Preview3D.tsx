@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X, RotateCcw, Package } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Preview3DProps {
   canvasDataUrl: string;
@@ -11,6 +12,7 @@ interface Preview3DProps {
 type ModelType = 'tshirt' | 'mug' | 'phone';
 
 export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
+  const t = useTranslations('studio');
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<any>(null);
   const sceneRef = useRef<any>(null);
@@ -218,9 +220,9 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
   }
 
   const models: { key: ModelType; label: string; emoji: string }[] = [
-    { key: 'tshirt', label: 'T恤', emoji: '👕' },
-    { key: 'mug', label: '马克杯', emoji: '☕' },
-    { key: 'phone', label: '手机壳', emoji: '📱' },
+    { key: 'tshirt', label: t('modelTshirt'), emoji: '👕' },
+    { key: 'mug', label: t('modelMug'), emoji: '☕' },
+    { key: 'phone', label: t('modelPhone'), emoji: '📱' },
   ];
 
   return (
@@ -229,8 +231,8 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
       <div className="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
           <Package size={18} className="text-orange-500" />
-          <span className="font-bold text-slate-100">3D 实物预览</span>
-          <span className="text-xs text-slate-500">拖拽旋转查看效果</span>
+          <span className="font-bold text-slate-100">{t('preview3DTitle')}</span>
+          <span className="text-xs text-slate-500">{t('dragToRotate')}</span>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -238,7 +240,7 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
             className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
           >
             <RotateCcw size={14} />
-            重置视角
+            {t('resetView')}
           </button>
           <button
             onClick={onClose}
@@ -272,7 +274,7 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-slate-950">
             <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mb-4" />
-            <p className="text-slate-400 text-sm">正在加载 3D 渲染引擎...</p>
+            <p className="text-slate-400 text-sm">{t('loadingEngine')}</p>
           </div>
         )}
         <div
@@ -290,9 +292,7 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
 
       {/* Footer hint */}
       <div className="h-10 bg-slate-900/50 border-t border-slate-800 flex items-center justify-center shrink-0">
-        <p className="text-xs text-slate-600">
-          🖱️ 拖拽旋转 · 你的设计已实时贴图到 3D 模型上
-        </p>
+        <p className="text-xs text-slate-600">{t('dragHint')}</p>
       </div>
     </div>
   );

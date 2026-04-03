@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Canvas as FabricCanvas, Rect, Circle, Textbox, FabricImage, Polygon, Line, Triangle, Group, Gradient, Shadow } from 'fabric';
+import { useTranslations } from 'next-intl';
 
 export interface CanvasRef {
   addText: () => void;
@@ -57,6 +58,7 @@ interface CanvasProps {
 }
 
 const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange }, ref) => {
+  const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
 
@@ -199,12 +201,12 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       const obj = canvas.getActiveObject() as FabricImage;
       if (!obj || obj.type !== 'image') {
-        alert('请先选择一张图片');
+        alert(t('removeBgSelectFirst'));
         return;
       }
       
       try {
-        alert('正在处理，首次使用需下载模型（约5MB），请稍候...');
+        alert(t('removeBgProcessing'));
         const { removeBackground } = await import('@imgly/background-removal');
         const imgElement = (obj as any).getElement();
         
@@ -226,11 +228,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
           canvas.add(newImg);
           canvas.setActiveObject(newImg);
           canvas.renderAll();
-          alert('抠图完成！');
+          alert(t('removeBgDone'));
         });
       } catch (error) {
-        console.error('抠图失败:', error);
-        alert('抠图失败，请重试');
+        console.error('removeBg error:', error);
+        alert(t('removeBgFailed'));
       }
     },
     setFill: (color: string) => {

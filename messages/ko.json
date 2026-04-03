@@ -260,7 +260,19 @@
     "sendBackward": "뒤로",
     "width": "너비",
     "height": "높이",
-    "selectObject": "캔버스에서 객체를 선택하여 속성 보기 및 편집"
+    "selectObject": "캔버스에서 객체를 선택하여 속성 보기 및 편집",
+    "preview3DTitle": "3D 실물 미리보기",
+    "dragToRotate": "드래그하여 회전",
+    "dragHint": "🖱️ 드래그로 회전 · 디자인이 3D 모델에 실시간 적용됩니다",
+    "resetView": "시점 초기화",
+    "loadingEngine": "3D 렌더링 엔진 로딩 중...",
+    "modelTshirt": "티셔츠",
+    "modelMug": "머그컵",
+    "modelPhone": "폰케이스",
+    "removeBgSelectFirst": "먼저 이미지를 선택하세요",
+    "removeBgProcessing": "처리 중... 첫 사용 시 모델 다운로드(약 5MB)가 필요합니다",
+    "removeBgDone": "배경 제거 완료!",
+    "removeBgFailed": "배경 제거 실패. 다시 시도해주세요"
   },
   "success": {
     "title": "주문 완료!",

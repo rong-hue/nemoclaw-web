@@ -260,7 +260,19 @@
     "sendBackward": "下移",
     "width": "宽",
     "height": "高",
-    "selectObject": "选中画布中的对象查看并编辑属性"
+    "selectObject": "选中画布中的对象查看并编辑属性",
+    "preview3DTitle": "3D 实物预览",
+    "dragToRotate": "拖拽旋转查看效果",
+    "dragHint": "🖱️ 拖拽旋转 · 你的设计已实时贴图到 3D 模型上",
+    "resetView": "重置视角",
+    "loadingEngine": "正在加载 3D 渲染引擎...",
+    "modelTshirt": "T恤",
+    "modelMug": "马克杯",
+    "modelPhone": "手机壳",
+    "removeBgSelectFirst": "请先选择一张图片",
+    "removeBgProcessing": "正在处理，首次使用需下载模型（约5MB），请稍候...",
+    "removeBgDone": "抠图完成！",
+    "removeBgFailed": "抠图失败，请重试"
   },
   "success": {
     "title": "订单已提交！",

@@ -260,7 +260,19 @@
     "sendBackward": "Backward",
     "width": "Width",
     "height": "Height",
-    "selectObject": "Select an object on canvas to view and edit properties"
+    "selectObject": "Select an object on canvas to view and edit properties",
+    "preview3DTitle": "3D Product Preview",
+    "dragToRotate": "Drag to rotate",
+    "dragHint": "🖱️ Drag to rotate · Your design is mapped onto the 3D model",
+    "resetView": "Reset View",
+    "loadingEngine": "Loading 3D render engine...",
+    "modelTshirt": "T-Shirt",
+    "modelMug": "Mug",
+    "modelPhone": "Phone Case",
+    "removeBgSelectFirst": "Please select an image first",
+    "removeBgProcessing": "Processing... First use requires downloading the model (~5MB), please wait",
+    "removeBgDone": "Background removed!",
+    "removeBgFailed": "Background removal failed, please try again"
   },
   "success": {
     "title": "Order Placed!",
