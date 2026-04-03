@@ -106,7 +106,9 @@
     "logoutSuccess": "Logged out successfully",
     "nameRequired": "Please enter your name",
     "switchPromptLogin": "Don't have an account?",
-    "switchPromptRegister": "Already have an account?"
+    "switchPromptRegister": "Already have an account?",
+    "continueWithGoogle": "Continue with Google",
+    "orContinueWith": "or"
   },
   "dashboard": {
     "title": "My Designs",

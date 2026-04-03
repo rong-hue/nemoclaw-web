@@ -106,7 +106,9 @@
     "logoutSuccess": "已成功退出登录",
     "nameRequired": "请输入姓名",
     "switchPromptLogin": "还没有账号？",
-    "switchPromptRegister": "已有账号？"
+    "switchPromptRegister": "已有账号？",
+    "continueWithGoogle": "使用 Google 登录",
+    "orContinueWith": "或"
   },
   "dashboard": {
     "title": "我的设计",

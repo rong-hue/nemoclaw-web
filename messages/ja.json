@@ -106,7 +106,9 @@
     "logoutSuccess": "ログアウトしました",
     "nameRequired": "名前を入力してください",
     "switchPromptLogin": "アカウントをお持ちでない方は",
-    "switchPromptRegister": "すでにアカウントをお持ちの方は"
+    "switchPromptRegister": "すでにアカウントをお持ちの方は",
+    "continueWithGoogle": "Googleで続ける",
+    "orContinueWith": "または"
   },
   "dashboard": {
     "title": "マイデザイン",
