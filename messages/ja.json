@@ -104,7 +104,9 @@
     "loginError": "メールアドレスまたはパスワードが正しくありません",
     "registerError": "登録に失敗しました。もう一度お試しください",
     "logoutSuccess": "ログアウトしました",
-    "nameRequired": "名前を入力してください"
+    "nameRequired": "名前を入力してください",
+    "switchPromptLogin": "アカウントをお持ちでない方は",
+    "switchPromptRegister": "すでにアカウントをお持ちの方は"
   },
   "dashboard": {
     "title": "マイデザイン",
@@ -240,7 +242,25 @@
     "arrange": "配置",
     "save": "保存",
     "untitled": "無題",
-    "noLayers": "レイヤーなし"
+    "noLayers": "レイヤーなし",
+    "type": "タイプ",
+    "solidColor": "単色",
+    "gradientFill": "グラデーション",
+    "linearGradient": "線形",
+    "radialGradient": "放射状",
+    "apply": "適用",
+    "border": "枠線",
+    "blur": "ぼかし",
+    "brightness": "明るさ",
+    "contrast": "コントラスト",
+    "value": "値",
+    "bringToFront": "最前面へ",
+    "sendToBack": "最背面へ",
+    "bringForward": "前面へ",
+    "sendBackward": "背面へ",
+    "width": "幅",
+    "height": "高さ",
+    "selectObject": "キャンバス上のオブジェクトを選択してプロパティを表示・編集"
   },
   "success": {
     "title": "注文完了！",

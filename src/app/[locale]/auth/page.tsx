@@ -33,7 +33,7 @@ export default function AuthPage() {
       }
     } else {
       if (!name) {
-        setError('请输入姓名');
+        setError(t('nameRequired'));
         return;
       }
       authService.register(email, password, name);
@@ -97,7 +97,7 @@ export default function AuthPage() {
         </form>
 
         <p className="text-center mt-6 text-sm">
-          {isLogin ? '还没有账号？' : '已有账号？'}
+          {isLogin ? t("switchPromptLogin") : t("switchPromptRegister")}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-purple-600 font-semibold ml-1"

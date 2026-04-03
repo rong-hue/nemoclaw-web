@@ -104,7 +104,9 @@
     "loginError": "Invalid email or password",
     "registerError": "Registration failed, please try again",
     "logoutSuccess": "Logged out successfully",
-    "nameRequired": "Please enter your name"
+    "nameRequired": "Please enter your name",
+    "switchPromptLogin": "Don't have an account?",
+    "switchPromptRegister": "Already have an account?"
   },
   "dashboard": {
     "title": "My Designs",
@@ -240,7 +242,25 @@
     "arrange": "Arrange",
     "save": "Save",
     "untitled": "Untitled",
-    "noLayers": "No layers yet"
+    "noLayers": "No layers yet",
+    "type": "Type",
+    "solidColor": "Solid",
+    "gradientFill": "Gradient",
+    "linearGradient": "Linear",
+    "radialGradient": "Radial",
+    "apply": "Apply",
+    "border": "Border",
+    "blur": "Blur",
+    "brightness": "Brightness",
+    "contrast": "Contrast",
+    "value": "Value",
+    "bringToFront": "To Front",
+    "sendToBack": "To Back",
+    "bringForward": "Forward",
+    "sendBackward": "Backward",
+    "width": "Width",
+    "height": "Height",
+    "selectObject": "Select an object on canvas to view and edit properties"
   },
   "success": {
     "title": "Order Placed!",

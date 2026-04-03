@@ -104,7 +104,9 @@
     "loginError": "邮箱或密码错误",
     "registerError": "注册失败，请重试",
     "logoutSuccess": "已成功退出登录",
-    "nameRequired": "请输入姓名"
+    "nameRequired": "请输入姓名",
+    "switchPromptLogin": "还没有账号？",
+    "switchPromptRegister": "已有账号？"
   },
   "dashboard": {
     "title": "我的设计",
@@ -240,7 +242,25 @@
     "arrange": "排列",
     "save": "保存",
     "untitled": "未命名作品",
-    "noLayers": "暂无图层"
+    "noLayers": "暂无图层",
+    "type": "类型",
+    "solidColor": "纯色",
+    "gradientFill": "渐变",
+    "linearGradient": "线性渐变",
+    "radialGradient": "径向渐变",
+    "apply": "应用",
+    "border": "边框",
+    "blur": "模糊",
+    "brightness": "亮度",
+    "contrast": "对比度",
+    "value": "值",
+    "bringToFront": "置顶",
+    "sendToBack": "置底",
+    "bringForward": "上移",
+    "sendBackward": "下移",
+    "width": "宽",
+    "height": "高",
+    "selectObject": "选中画布中的对象查看并编辑属性"
   },
   "success": {
     "title": "订单已提交！",

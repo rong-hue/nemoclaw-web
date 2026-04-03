@@ -104,7 +104,9 @@
     "loginError": "이메일 또는 비밀번호가 올바르지 않습니다",
     "registerError": "가입에 실패했습니다. 다시 시도해주세요",
     "logoutSuccess": "로그아웃되었습니다",
-    "nameRequired": "이름을 입력하세요"
+    "nameRequired": "이름을 입력하세요",
+    "switchPromptLogin": "계정이 없으신가요?",
+    "switchPromptRegister": "이미 계정이 있으신가요?"
   },
   "dashboard": {
     "title": "내 디자인",
@@ -240,7 +242,25 @@
     "arrange": "배치",
     "save": "저장",
     "untitled": "제목 없음",
-    "noLayers": "레이어 없음"
+    "noLayers": "레이어 없음",
+    "type": "유형",
+    "solidColor": "단색",
+    "gradientFill": "그라데이션",
+    "linearGradient": "선형",
+    "radialGradient": "방사형",
+    "apply": "적용",
+    "border": "테두리",
+    "blur": "흐림",
+    "brightness": "밝기",
+    "contrast": "대비",
+    "value": "값",
+    "bringToFront": "맨 앞으로",
+    "sendToBack": "맨 뒤로",
+    "bringForward": "앞으로",
+    "sendBackward": "뒤로",
+    "width": "너비",
+    "height": "높이",
+    "selectObject": "캔버스에서 객체를 선택하여 속성 보기 및 편집"
   },
   "success": {
     "title": "주문 완료!",
