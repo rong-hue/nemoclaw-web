@@ -12,5 +12,5 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_XpP_1qTZYyMadlP-ocP0Dg_ZwSEM_ot"
 
 # PayPal (沙盒测试配置，上线时改为 live credentials)
 # 注意：PAYPAL_CLIENT_SECRET 请在 Cloudflare Pages 控制台 → Settings → Secrets 中设置
-PAYPAL_CLIENT_ID = "AZDxjDScFpQtjWTOUtWKbyN_bDt4OgqaF4eYXlewfBP4-8aqPhHjjeg8KimalGeKUHkxPt5mYbABw7eHwZ68"
+PAYPAL_CLIENT_ID = "AZ8h9YAscq1Ylwa8CXOYtzETX1_lLfzQSOHzFXp7G65WGj_b5kfx85jzUhvVCzXJJ37F2C2WS-shnBz4"
 PAYPAL_MODE = "sandbox"
