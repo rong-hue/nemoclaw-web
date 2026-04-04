@@ -401,5 +401,22 @@
     "back": "Back",
     "next": "Next",
     "close": "Close"
+  },
+  "payment": {
+    "payOrder": "Pay Order",
+    "orderNo": "Order No.",
+    "amountDue2": "Amount Due",
+    "payWithPayPal": "Pay with PayPal",
+    "payWithCard": "Pay with Credit Card (Coming Soon)",
+    "payWithWechat": "WeChat Pay (CN Only)",
+    "payWithAlipay": "Alipay (CN Only)",
+    "redirectingPayPal": "Redirecting to PayPal...",
+    "paymentNote": "By paying you agree to our Terms of Service and Privacy Policy",
+    "paymentSuccess": "Payment Successful!",
+    "paymentSuccessNote": "Thank you for your purchase 🎉",
+    "orderProcessing": "Order Processing",
+    "orderDispatch": "We'll dispatch your order within 1–3 business days",
+    "backHome": "Back to Home",
+    "myOrders": "My Orders"
   }
 }

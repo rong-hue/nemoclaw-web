@@ -3,14 +3,14 @@
   "target": "preview",
   "argv": [
     "/usr/bin/node",
-    "/root/.npm/_npx/69f9afb961c37556/node_modules/.bin/vc",
+    "/root/.openclaw/workspace/nemoclaw-web/node_modules/vercel/dist/vc.js",
     "build"
   ],
   "cliVersion": "50.37.3",
   "builds": [
     {
       "require": "@vercel/next",
-      "requirePath": "/root/.npm/_npx/69f9afb961c37556/node_modules/@vercel/next/dist/index",
+      "requirePath": "/root/.openclaw/workspace/nemoclaw-web/node_modules/.pnpm/@vercel+next@4.16.3/node_modules/@vercel/next/dist/index",
       "apiVersion": 2,
       "src": "package.json",
       "use": "@vercel/next",

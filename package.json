@@ -39,5 +39,6 @@
     "typescript": "^5",
     "vercel": "^50.37.3",
     "wrangler": "^4.78.0"
-  }
+  },
+  "buildId": "1775304698"
 }

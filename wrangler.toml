@@ -9,3 +9,8 @@ AUTH_GOOGLE_ID = "636905317102-me0m9tm4cqbj0e3b8nmebrr8ka3r2dta.apps.googleuserc
 AUTH_SECRET = "nemoclaw-super-secret-key-2026-xK9mPqRzWvLnJdTu"
 NEXT_PUBLIC_SUPABASE_URL = "https://zudjabafibyvnpqiroof.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_XpP_1qTZYyMadlP-ocP0Dg_ZwSEM_ot"
+
+# PayPal (沙盒测试配置，上线时改为 live credentials)
+# 注意：PAYPAL_CLIENT_SECRET 请在 Cloudflare Pages 控制台 → Settings → Secrets 中设置
+PAYPAL_CLIENT_ID = "AZDxjDScFpQtjWTOUtWKbyN_bDt4OgqaF4eYXlewfBP4-8aqPhHjjeg8KimalGeKUHkxPt5mYbABw7eHwZ68"
+PAYPAL_MODE = "sandbox"

@@ -399,5 +399,22 @@
     "back": "뒤로",
     "next": "다음",
     "close": "닫기"
+  },
+  "payment": {
+    "payOrder": "주문 결제",
+    "orderNo": "주문 번호",
+    "amountDue2": "결제 금액",
+    "payWithPayPal": "PayPal로 결제",
+    "payWithCard": "신용카드 결제 (출시 예정)",
+    "payWithWechat": "WeChat Pay (중국 전용)",
+    "payWithAlipay": "Alipay (중국 전용)",
+    "redirectingPayPal": "PayPal로 이동 중...",
+    "paymentNote": "결제 시 이용약관 및 개인정보처리방침에 동의하게 됩니다",
+    "paymentSuccess": "결제 완료!",
+    "paymentSuccessNote": "구매해 주셔서 감사합니다 🎉",
+    "orderProcessing": "주문 처리 중",
+    "orderDispatch": "1~3 영업일 이내에 발송해 드립니다",
+    "backHome": "홈으로",
+    "myOrders": "내 주문"
   }
 }

@@ -399,5 +399,22 @@
     "back": "戻る",
     "next": "次へ",
     "close": "閉じる"
+  },
+  "payment": {
+    "payOrder": "注文を支払う",
+    "orderNo": "注文番号",
+    "amountDue2": "支払金額",
+    "payWithPayPal": "PayPalで支払う",
+    "payWithCard": "クレジットカード（近日公開）",
+    "payWithWechat": "WeChat Pay（中国のみ）",
+    "payWithAlipay": "Alipay（中国のみ）",
+    "redirectingPayPal": "PayPalにリダイレクト中...",
+    "paymentNote": "お支払いにより利用規約とプライバシーポリシーに同意したことになります",
+    "paymentSuccess": "お支払い完了！",
+    "paymentSuccessNote": "ご購入ありがとうございます 🎉",
+    "orderProcessing": "注文処理中",
+    "orderDispatch": "1〜3営業日以内に発送いたします",
+    "backHome": "ホームへ",
+    "myOrders": "マイオーダー"
   }
 }
