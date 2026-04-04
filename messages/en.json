@@ -274,7 +274,10 @@
     "remove": "Remove",
     "free": "Free",
     "items": "items",
-    "goShopping": "Go Shopping"
+    "goShopping": "Go Shopping",
+    "orderSummary": "Order Summary",
+    "continueShopping": "Continue Shopping",
+    "freeShipping": "Free"
   },
   "checkout": {
     "title": "Checkout",
@@ -292,7 +295,21 @@
     "cvv": "CVV",
     "placeOrder": "Place Order",
     "orderSummary": "Order Summary",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Your phone number",
+    "cityPlaceholder": "City / District",
+    "addressPlaceholder": "Street address",
+    "note": "Note (optional)",
+    "notePlaceholder": "Any special requirements",
+    "orderList": "Order Items",
+    "amountDue": "Amount Due",
+    "goPayment": "Proceed to Payment",
+    "stepCart": "Cart",
+    "stepConfirm": "Confirm",
+    "stepPayment": "Payment",
+    "stepDone": "Done",
+    "freeShipping": "Free"
   },
   "studio": {
     "title": "Design Studio",

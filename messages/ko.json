@@ -274,7 +274,10 @@
     "remove": "제거",
     "free": "무료",
     "items": "개 상품",
-    "goShopping": "쇼핑하러 가기"
+    "goShopping": "쇼핑하러 가기",
+    "orderSummary": "주문 요약",
+    "continueShopping": "쇼핑 계속하기",
+    "freeShipping": "무료"
   },
   "checkout": {
     "title": "결제",
@@ -292,7 +295,21 @@
     "cvv": "CVV",
     "placeOrder": "주문하기",
     "orderSummary": "주문 요약",
-    "processing": "처리 중..."
+    "processing": "처리 중...",
+    "phone": "전화번호",
+    "phonePlaceholder": "전화번호 입력",
+    "cityPlaceholder": "시/구/동",
+    "addressPlaceholder": "상세 주소",
+    "note": "메모 (선택)",
+    "notePlaceholder": "특별 요청사항을 입력해 주세요",
+    "orderList": "주문 상품",
+    "amountDue": "결제 금액",
+    "goPayment": "결제하기",
+    "stepCart": "장바구니",
+    "stepConfirm": "확인",
+    "stepPayment": "결제",
+    "stepDone": "완료",
+    "freeShipping": "무료"
   },
   "studio": {
     "title": "디자인 스튜디오",

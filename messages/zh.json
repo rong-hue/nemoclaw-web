@@ -274,7 +274,10 @@
     "remove": "移除",
     "free": "免费",
     "items": "件商品",
-    "goShopping": "去挑选商品"
+    "goShopping": "去挑选商品",
+    "orderSummary": "订单摘要",
+    "continueShopping": "继续购物",
+    "freeShipping": "免费"
   },
   "checkout": {
     "title": "结算",
@@ -292,7 +295,21 @@
     "cvv": "CVV",
     "placeOrder": "提交订单",
     "orderSummary": "订单摘要",
-    "processing": "处理中..."
+    "processing": "处理中...",
+    "phone": "手机号",
+    "phonePlaceholder": "手机号码",
+    "cityPlaceholder": "省市区",
+    "addressPlaceholder": "街道门牌号",
+    "note": "备注（选填）",
+    "notePlaceholder": "如有特殊要求，请在此备注",
+    "orderList": "商品列表",
+    "amountDue": "应付金额",
+    "goPayment": "去支付",
+    "stepCart": "购物车",
+    "stepConfirm": "确认订单",
+    "stepPayment": "支付",
+    "stepDone": "完成",
+    "freeShipping": "免费"
   },
   "studio": {
     "title": "设计工坊",

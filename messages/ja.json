@@ -274,7 +274,10 @@
     "remove": "削除",
     "free": "無料",
     "items": "点",
-    "goShopping": "買い物に行く"
+    "goShopping": "買い物に行く",
+    "orderSummary": "注文概要",
+    "continueShopping": "買い物を続ける",
+    "freeShipping": "無料"
   },
   "checkout": {
     "title": "チェックアウト",
@@ -292,7 +295,21 @@
     "cvv": "CVV",
     "placeOrder": "注文を確定する",
     "orderSummary": "注文概要",
-    "processing": "処理中..."
+    "processing": "処理中...",
+    "phone": "電話番号",
+    "phonePlaceholder": "電話番号を入力",
+    "cityPlaceholder": "都市・区",
+    "addressPlaceholder": "番地・建物名",
+    "note": "備考（任意）",
+    "notePlaceholder": "特別なご要望があればご記入ください",
+    "orderList": "注文商品",
+    "amountDue": "お支払い金額",
+    "goPayment": "お支払いへ",
+    "stepCart": "カート",
+    "stepConfirm": "確認",
+    "stepPayment": "支払い",
+    "stepDone": "完了",
+    "freeShipping": "無料"
   },
   "studio": {
     "title": "デザインスタジオ",

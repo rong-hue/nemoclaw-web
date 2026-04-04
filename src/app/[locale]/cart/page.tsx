@@ -1,7 +1,6 @@
 'use client';
 export const runtime = 'edge';
 
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
@@ -14,6 +13,9 @@ export default function CartPage() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('cart');
+
+  // 中文用人民币，其他语言用美元
+  const currency = locale === 'zh' ? '¥' : '$';
 
   const [items, setItems] = useState<CartItem[]>([]);
   const router = useRouter();
@@ -68,7 +70,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold truncate">{item.name}</h3>
-                    <p className="text-purple-600 font-bold mt-1">¥{item.price}</p>
+                    <p className="text-purple-600 font-bold mt-1">{currency}{item.price}</p>
                   </div>
                   {/* 数量控制 */}
                   <div className="flex items-center gap-2 border rounded-lg px-2 py-1">
@@ -80,7 +82,7 @@ export default function CartPage() {
                       <Plus size={15} />
                     </button>
                   </div>
-                  <p className="font-bold w-16 text-right">¥{(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-bold w-20 text-right">{currency}{(item.price * item.quantity).toFixed(2)}</p>
                   <button onClick={() => remove(item.id)} className="text-red-300 hover:text-red-500">
                     <Trash2 size={16} />
                   </button>
@@ -91,19 +93,19 @@ export default function CartPage() {
             {/* 结算面板 */}
             <div className="md:col-span-1">
               <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
-                <h2 className="font-bold text-lg mb-6">订单摘要</h2>
+                <h2 className="font-bold text-lg mb-6">{t("orderSummary")}</h2>
                 <div className="space-y-3 text-sm mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-500">{t("subtotal")}</span>
-                    <span>¥{total.toFixed(2)}</span>
+                    <span>{currency}{total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">{t("shipping")}</span>
-                    <span className="text-green-500">免费</span>
+                    <span className="text-green-500">{t("freeShipping")}</span>
                   </div>
                   <div className="border-t pt-3 flex justify-between font-bold text-base">
-                    <span>合计</span>
-                    <span className="text-purple-600">¥{total.toFixed(2)}</span>
+                    <span>{t("total")}</span>
+                    <span className="text-purple-600">{currency}{total.toFixed(2)}</span>
                   </div>
                 </div>
                 <button
@@ -113,7 +115,7 @@ export default function CartPage() {
                   {t("checkout")}
                 </button>
                 <Link href={`/${locale}/pricing`} className="block text-center text-sm text-gray-400 mt-3 hover:text-gray-600">
-                  继续购物
+                  {t("continueShopping")}
                 </Link>
               </div>
             </div>
