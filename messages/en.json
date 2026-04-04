@@ -169,7 +169,49 @@
       "cta": "Contact Sales"
     },
     "designTools": "Design Tools",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "plans": {
+      "explorer": {
+        "name": "Explorer",
+        "desc": "Perfect for beginners",
+        "features": {
+          "basicCanvasTools": "Basic canvas tools",
+          "templates": "100 free templates",
+          "customLayers": "5 custom layers"
+        },
+        "missing": {
+          "hdExport": "HD watermark-free export",
+          "realTime3D": "3D real-time rendering"
+        },
+        "button": "Start Free"
+      },
+      "creatorPro": {
+        "name": "Creator Pro",
+        "desc": "For independent brands and professionals",
+        "features": {
+          "unlockTools": "Unlock all advanced tools",
+          "commercialAssets": "10,000+ commercial assets",
+          "unlimitedLayers": "Unlimited layers & masks",
+          "vectorExport": "4K vector export",
+          "rendering3D": "3D rendering & lighting"
+        },
+        "button": "Add to Cart"
+      },
+      "studio": {
+        "name": "Studio",
+        "desc": "Team collaboration & bulk production",
+        "features": {
+          "allPro": "All Pro features",
+          "teamAccounts": "5-person team accounts",
+          "assetLibrary": "Shared brand asset library",
+          "apiIntegration": "Factory API integration",
+          "support": "Dedicated customer support"
+        },
+        "button": "Add to Cart"
+      }
+    },
+    "perMonth": "/month",
+    "startCustom": "Start Customizing"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -223,7 +265,8 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "clear": "Clear",
-      "exportJSON": "Export JSON"
+      "exportJSON": "Export JSON",
+      "exportPNG": "Export PNG"
     },
     "properties": "Properties",
     "layers": "Layers",

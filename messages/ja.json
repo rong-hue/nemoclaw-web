@@ -169,7 +169,49 @@
       "cta": "営業に連絡"
     },
     "designTools": "デザインツール",
-    "gallery": "ギャラリー"
+    "gallery": "ギャラリー",
+    "plans": {
+      "explorer": {
+        "name": "エクスプローラー",
+        "desc": "初心者に最適な無料プラン",
+        "features": {
+          "basicCanvasTools": "基本キャンバスツール",
+          "templates": "無料テンプレート100点",
+          "customLayers": "カスタムレイヤー5枚"
+        },
+        "missing": {
+          "hdExport": "HD透かしなし書き出し",
+          "realTime3D": "3Dリアルタイムレンダリング"
+        },
+        "button": "無料で始める"
+      },
+      "creatorPro": {
+        "name": "クリエイターPro",
+        "desc": "独立ブランドやプロフェッショナル向け",
+        "features": {
+          "unlockTools": "全高度ツール解放",
+          "commercialAssets": "商業素材10,000点以上",
+          "unlimitedLayers": "無制限レイヤー&マスク",
+          "vectorExport": "4Kベクター書き出し",
+          "rendering3D": "3Dレンダリング＆ライティング"
+        },
+        "button": "カートに追加"
+      },
+      "studio": {
+        "name": "スタジオ",
+        "desc": "チームコラボと大量生産",
+        "features": {
+          "allPro": "全Proの機能",
+          "teamAccounts": "5名チームアカウント",
+          "assetLibrary": "共有ブランド素材ライブラリ",
+          "apiIntegration": "工場APIとの連携",
+          "support": "専任サポート"
+        },
+        "button": "カートに追加"
+      }
+    },
+    "perMonth": "/月",
+    "startCustom": "カスタマイズ開始"
   },
   "cart": {
     "title": "ショッピングカート",
@@ -223,7 +265,8 @@
       "duplicate": "複製",
       "delete": "削除",
       "clear": "クリア",
-      "exportJSON": "JSON出力"
+      "exportJSON": "JSON出力",
+      "exportPNG": "PNGエクスポート"
     },
     "properties": "プロパティ",
     "layers": "レイヤー",

@@ -169,7 +169,49 @@
       "cta": "联系销售"
     },
     "designTools": "设计工具",
-    "gallery": "创作者画廊"
+    "gallery": "创作者画廊",
+    "plans": {
+      "explorer": {
+        "name": "探索版",
+        "desc": "适合初学者免费体验",
+        "features": {
+          "basicCanvasTools": "基础画布工具",
+          "templates": "100个免费模板",
+          "customLayers": "5个自定义图层"
+        },
+        "missing": {
+          "hdExport": "高清无水印导出",
+          "realTime3D": "3D实时渲染"
+        },
+        "button": "免费开始"
+      },
+      "creatorPro": {
+        "name": "创作者Pro",
+        "desc": "适合独立品牌和专业人士",
+        "features": {
+          "unlockTools": "解锁所有高级工具",
+          "commercialAssets": "10,000+商业素材",
+          "unlimitedLayers": "无限图层与蒙版",
+          "vectorExport": "4K矢量导出",
+          "rendering3D": "3D渲染与光效"
+        },
+        "button": "加入购物车"
+      },
+      "studio": {
+        "name": "工作室版",
+        "desc": "团队协作与批量生产",
+        "features": {
+          "allPro": "所有Pro功能",
+          "teamAccounts": "5人团队账户",
+          "assetLibrary": "共享品牌素材库",
+          "apiIntegration": "工厂API对接",
+          "support": "专属客户支持"
+        },
+        "button": "加入购物车"
+      }
+    },
+    "perMonth": "/月",
+    "startCustom": "开始定制"
   },
   "cart": {
     "title": "购物车",
@@ -223,7 +265,8 @@
       "duplicate": "复制",
       "delete": "删除",
       "clear": "清空",
-      "exportJSON": "导出JSON"
+      "exportJSON": "导出JSON",
+      "exportPNG": "导出PNG"
     },
     "properties": "属性",
     "layers": "图层",

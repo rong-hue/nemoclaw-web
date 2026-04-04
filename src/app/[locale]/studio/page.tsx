@@ -9,10 +9,8 @@ import { useSession } from 'next-auth/react';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
-import dynamic from 'next/dynamic';
+import Preview3D from '@/components/Preview3D';
 import { designsService } from '@/lib/supabase';
-
-const Preview3D = dynamic(() => import('@/components/Preview3D'), { ssr: false });
 
 export default function StudioPage() {
   const t = useTranslations('studio');

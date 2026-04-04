@@ -169,7 +169,49 @@
       "cta": "영업팀 문의"
     },
     "designTools": "디자인 도구",
-    "gallery": "갤러리"
+    "gallery": "갤러리",
+    "plans": {
+      "explorer": {
+        "name": "익스플로러",
+        "desc": "초보자에게 적합한 무료 플랜",
+        "features": {
+          "basicCanvasTools": "기본 캔버스 도구",
+          "templates": "무료 템플릿 100개",
+          "customLayers": "커스텀 레이어 5개"
+        },
+        "missing": {
+          "hdExport": "HD 워터마크 없는 내보내기",
+          "realTime3D": "3D 실시간 렌더링"
+        },
+        "button": "무료 시작"
+      },
+      "creatorPro": {
+        "name": "크리에이터 Pro",
+        "desc": "독립 브랜드 및 전문가용",
+        "features": {
+          "unlockTools": "모든 고급 도구 잠금 해제",
+          "commercialAssets": "상업용 소재 10,000+",
+          "unlimitedLayers": "무제한 레이어 & 마스크",
+          "vectorExport": "4K 벡터 내보내기",
+          "rendering3D": "3D 렌더링 & 조명"
+        },
+        "button": "장바구니에 추가"
+      },
+      "studio": {
+        "name": "스튜디오",
+        "desc": "팀 협업 및 대량 생산",
+        "features": {
+          "allPro": "모든 Pro 기능",
+          "teamAccounts": "5인 팀 계정",
+          "assetLibrary": "공유 브랜드 소재 라이브러리",
+          "apiIntegration": "공장 API 연동",
+          "support": "전담 고객 지원"
+        },
+        "button": "장바구니에 추가"
+      }
+    },
+    "perMonth": "/월",
+    "startCustom": "커스터마이징 시작"
   },
   "cart": {
     "title": "장바구니",
@@ -223,7 +265,8 @@
       "duplicate": "복제",
       "delete": "삭제",
       "clear": "지우기",
-      "exportJSON": "JSON 내보내기"
+      "exportJSON": "JSON 내보내기",
+      "exportPNG": "PNG 내보내기"
     },
     "properties": "속성",
     "layers": "레이어",
