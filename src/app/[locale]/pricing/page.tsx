@@ -1,6 +1,7 @@
 'use client';
 export const runtime = 'edge';
 
+import { useState } from 'react';
 import Link from "next/link";
 import { Check, X, ShoppingCart } from "lucide-react";
 import { cartService } from "@/lib/cart";
@@ -13,6 +14,25 @@ export default function Pricing() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('pricing');
+
+  const [isYearly, setIsYearly] = useState(false);
+
+  // 中文用人民币，其他语言用美元
+  const isCNY = locale === 'zh';
+  const currency = t('currency');
+
+  // 按月/年价格
+  const prices = {
+    explorer: { monthly: 0, yearly: 0 },
+    pro: {
+      monthly: parseInt(t('priceProMonthly')),
+      yearly: parseInt(t('priceProYearly')),
+    },
+    studio: {
+      monthly: parseInt(t('priceStudioMonthly')),
+      yearly: parseInt(t('priceStudioYearly')),
+    },
+  };
 
   const PLANS = [
     {
@@ -30,14 +50,17 @@ export default function Pricing() {
         t('plans.explorer.missing.hdExport'),
         t('plans.explorer.missing.realTime3D'),
       ],
+      hint: t('freeLimitHint'),
       btn: t('plans.explorer.button'),
+      btnTarget: `/${locale}/studio`,
       highlight: false,
+      isCart: false,
     },
     {
       id: 'pro',
       name: t('plans.creatorPro.name'),
       desc: t('plans.creatorPro.desc'),
-      price: 68,
+      price: isYearly ? prices.pro.yearly : prices.pro.monthly,
       color: 'from-orange-400 to-rose-500',
       features: [
         t('plans.creatorPro.features.unlockTools'),
@@ -47,14 +70,17 @@ export default function Pricing() {
         t('plans.creatorPro.features.rendering3D'),
       ],
       missing: [],
+      hint: t('proTrialHint'),
       btn: t('plans.creatorPro.button'),
+      btnTarget: null,
       highlight: true,
+      isCart: true,
     },
     {
       id: 'studio',
       name: t('plans.studio.name'),
       desc: t('plans.studio.desc'),
-      price: 299,
+      price: isYearly ? prices.studio.yearly : prices.studio.monthly,
       color: 'from-purple-400 to-blue-500',
       features: [
         t('plans.studio.features.allPro'),
@@ -64,14 +90,17 @@ export default function Pricing() {
         t('plans.studio.features.support'),
       ],
       missing: [],
+      hint: t('studioOverageHint'),
       btn: t('plans.studio.button'),
+      btnTarget: null,
       highlight: false,
+      isCart: true,
     },
   ];
 
   const handleAddToCart = (plan: typeof PLANS[0]) => {
-    if (plan.price === 0) {
-      router.push(`/${locale}/auth`);
+    if (plan.btnTarget) {
+      router.push(plan.btnTarget);
       return;
     }
     cartService.addItem({
@@ -106,9 +135,34 @@ export default function Pricing() {
 
       {/* 定价主体 */}
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-32">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{t("title")}</h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">{t("subtitle")}</p>
+          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">{t("subtitle")}</p>
+
+          {/* 月付/年付切换 */}
+          <div className="inline-flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full p-1">
+            <button
+              onClick={() => setIsYearly(false)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                !isYearly ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {t("billingMonthly")}
+            </button>
+            <button
+              onClick={() => setIsYearly(true)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                isYearly ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {t("billingYearly")}
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                isYearly ? 'bg-white/20 text-white' : 'bg-green-500/20 text-green-400'
+              }`}>
+                {t("savePercent")}
+              </span>
+            </button>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -129,10 +183,22 @@ export default function Pricing() {
               <div>
                 <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
                 <p className="text-slate-400 mb-6">{plan.desc}</p>
-                <div className="mb-8">
-                  <span className="text-4xl font-extrabold">¥{plan.price}</span>
-                  <span className="text-slate-500">{t("perMonth")}</span>
+
+                {/* 价格展示 */}
+                <div className="mb-2">
+                  <span className="text-4xl font-extrabold">{currency}{plan.price}</span>
+                  <span className="text-slate-500 ml-1">
+                    {plan.price === 0
+                      ? t('perMonth')
+                      : isYearly
+                        ? t('perMonthBilledYearly')
+                        : t('perMonth')}
+                  </span>
                 </div>
+
+                {/* 限制/提示说明 */}
+                <p className="text-xs text-slate-500 mb-6 min-h-[2rem]">{plan.hint}</p>
+
                 <ul className="space-y-4 text-slate-300">
                   {plan.features.map(f => (
                     <li key={f} className="flex items-center gap-3">
@@ -146,6 +212,8 @@ export default function Pricing() {
                   ))}
                 </ul>
               </div>
+
+              {/* 按钮 */}
               <button
                 onClick={() => handleAddToCart(plan)}
                 className={`mt-8 w-full py-3 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
@@ -154,9 +222,19 @@ export default function Pricing() {
                     : 'border border-slate-700 hover:bg-slate-800 text-slate-300'
                 }`}
               >
-                {plan.price > 0 && <ShoppingCart size={16} />}
+                {plan.isCart && plan.price > 0 && <ShoppingCart size={16} />}
                 {plan.btn}
               </button>
+
+              {/* 工作室版超额联系入口 */}
+              {plan.id === 'studio' && (
+                <p className="text-center mt-3 text-xs text-slate-500">
+                  {t('studioOverageHint')} →{' '}
+                  <Link href={`/${locale}/auth`} className="text-orange-400 hover:underline">
+                    {t('contactUs')}
+                  </Link>
+                </p>
+              )}
             </div>
           ))}
         </div>

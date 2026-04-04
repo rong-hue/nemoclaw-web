@@ -215,7 +215,7 @@
           "hdExport": "HD透かしなし書き出し",
           "realTime3D": "3Dリアルタイムレンダリング"
         },
-        "button": "無料で始める"
+        "button": "スタジオへ"
       },
       "creatorPro": {
         "name": "クリエイターPro",
@@ -227,7 +227,7 @@
           "vectorExport": "4Kベクター書き出し",
           "rendering3D": "3Dレンダリング＆ライティング"
         },
-        "button": "カートに追加"
+        "button": "30日間無料で試す"
       },
       "studio": {
         "name": "スタジオ",
@@ -243,7 +243,21 @@
       }
     },
     "perMonth": "/月",
-    "startCustom": "カスタマイズ開始"
+    "startCustom": "カスタマイズ開始",
+    "billingMonthly": "月払い",
+    "billingYearly": "年払い",
+    "savePercent": "20%お得",
+    "freeLimitHint": "透かし付き書き出し・月3作品まで",
+    "proTrialHint": "30日間無料トライアル・いつでもキャンセル可",
+    "studioOverageHint": "5名超の場合はお問い合わせください",
+    "contactUs": "お問い合わせ",
+    "priceExplorerMonthly": "0",
+    "priceProMonthly": "9",
+    "priceProYearly": "7",
+    "priceStudioMonthly": "39",
+    "priceStudioYearly": "31",
+    "currency": "$",
+    "perMonthBilledYearly": "/月（年払い）"
   },
   "cart": {
     "title": "ショッピングカート",

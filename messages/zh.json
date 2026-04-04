@@ -215,7 +215,7 @@
           "hdExport": "高清无水印导出",
           "realTime3D": "3D实时渲染"
         },
-        "button": "免费开始"
+        "button": "直接进入设计工坊"
       },
       "creatorPro": {
         "name": "创作者Pro",
@@ -227,7 +227,7 @@
           "vectorExport": "4K矢量导出",
           "rendering3D": "3D渲染与光效"
         },
-        "button": "加入购物车"
+        "button": "开始30天免费试用"
       },
       "studio": {
         "name": "工作室版",
@@ -243,7 +243,21 @@
       }
     },
     "perMonth": "/月",
-    "startCustom": "开始定制"
+    "startCustom": "开始定制",
+    "billingMonthly": "按月付",
+    "billingYearly": "按年付",
+    "savePercent": "节省 20%",
+    "freeLimitHint": "导出带水印 · 每月最多3个作品",
+    "proTrialHint": "30天免费试用 · 随时可取消",
+    "studioOverageHint": "超过5人？联系我们获取定制方案",
+    "contactUs": "联系我们",
+    "priceExplorerMonthly": "0",
+    "priceProMonthly": "68",
+    "priceProYearly": "54",
+    "priceStudioMonthly": "299",
+    "priceStudioYearly": "239",
+    "currency": "¥",
+    "perMonthBilledYearly": "/月 · 按年计费"
   },
   "cart": {
     "title": "购物车",

@@ -215,7 +215,7 @@
           "hdExport": "HD watermark-free export",
           "realTime3D": "3D real-time rendering"
         },
-        "button": "Start Free"
+        "button": "Start Free in Studio"
       },
       "creatorPro": {
         "name": "Creator Pro",
@@ -227,7 +227,7 @@
           "vectorExport": "4K vector export",
           "rendering3D": "3D rendering & lighting"
         },
-        "button": "Add to Cart"
+        "button": "Start 30-Day Free Trial"
       },
       "studio": {
         "name": "Studio",
@@ -242,8 +242,22 @@
         "button": "Add to Cart"
       }
     },
-    "perMonth": "/month",
-    "startCustom": "Start Customizing"
+    "perMonth": "/mo",
+    "startCustom": "Start Customizing",
+    "billingMonthly": "Monthly",
+    "billingYearly": "Yearly",
+    "savePercent": "Save 20%",
+    "freeLimitHint": "Export with watermark · Max 3 designs/month",
+    "proTrialHint": "30-day free trial · Cancel anytime",
+    "studioOverageHint": "Over 5 members? Contact us for custom plans",
+    "contactUs": "Contact Us",
+    "priceExplorerMonthly": "0",
+    "priceProMonthly": "9",
+    "priceProYearly": "7",
+    "priceStudioMonthly": "39",
+    "priceStudioYearly": "31",
+    "currency": "$",
+    "perMonthBilledYearly": "/mo · billed yearly"
   },
   "cart": {
     "title": "Shopping Cart",
