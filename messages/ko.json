@@ -138,7 +138,39 @@
     "designTools": "디자인 도구",
     "becomePro": "프로 되기",
     "startCustom": "커스터마이징 시작",
-    "loadMore": "더 보기"
+    "loadMore": "더 보기",
+    "works": [
+      {
+        "title": "심해 티셔츠",
+        "author": "크리에이터 Mia",
+        "tag": "의류"
+      },
+      {
+        "title": "네온 시티 폰케이스",
+        "author": "크리에이터 Leo",
+        "tag": "액세서리"
+      },
+      {
+        "title": "미니멀 기하학 토트백",
+        "author": "크리에이터 Zoe",
+        "tag": "일상용품"
+      },
+      {
+        "title": "수묵 산수 머그컵",
+        "author": "크리에이터 Kai",
+        "tag": "홈"
+      },
+      {
+        "title": "사이버펑크 스티커팩",
+        "author": "크리에이터 Nova",
+        "tag": "크리에이티브"
+      },
+      {
+        "title": "빈티지 필름 앨범",
+        "author": "크리에이터 Ren",
+        "tag": "사진"
+      }
+    ]
   },
   "pricing": {
     "title": "간단하고 투명한 요금제",

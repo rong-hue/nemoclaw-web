@@ -138,7 +138,39 @@
     "designTools": "Design Tools",
     "becomePro": "Go Pro",
     "startCustom": "Start Customizing",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "works": [
+      {
+        "title": "Deep Sea T-Shirt",
+        "author": "Creator Mia",
+        "tag": "Apparel"
+      },
+      {
+        "title": "Neon City Phone Case",
+        "author": "Creator Leo",
+        "tag": "Accessories"
+      },
+      {
+        "title": "Minimal Geometry Tote",
+        "author": "Creator Zoe",
+        "tag": "Daily Use"
+      },
+      {
+        "title": "Ink Landscape Mug",
+        "author": "Creator Kai",
+        "tag": "Home"
+      },
+      {
+        "title": "Cyberpunk Sticker Pack",
+        "author": "Creator Nova",
+        "tag": "Creative"
+      },
+      {
+        "title": "Vintage Film Album",
+        "author": "Creator Ren",
+        "tag": "Photography"
+      }
+    ]
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",

@@ -138,7 +138,39 @@
     "designTools": "设计工具",
     "becomePro": "成为专业版",
     "startCustom": "开始定制",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "works": [
+      {
+        "title": "深海T恤",
+        "author": "创作者 Mia",
+        "tag": "服装"
+      },
+      {
+        "title": "霓虹城市手机壳",
+        "author": "创作者 Leo",
+        "tag": "配件"
+      },
+      {
+        "title": "极简几何托特包",
+        "author": "创作者 Zoe",
+        "tag": "日用"
+      },
+      {
+        "title": "水墨山水马克杯",
+        "author": "创作者 Kai",
+        "tag": "家居"
+      },
+      {
+        "title": "赛博朋克贴纸包",
+        "author": "创作者 Nova",
+        "tag": "创意"
+      },
+      {
+        "title": "复古胶片相册",
+        "author": "创作者 Ren",
+        "tag": "摄影"
+      }
+    ]
   },
   "pricing": {
     "title": "简单透明的定价",

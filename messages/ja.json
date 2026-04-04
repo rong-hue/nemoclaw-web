@@ -138,7 +138,39 @@
     "designTools": "デザインツール",
     "becomePro": "プロになる",
     "startCustom": "カスタマイズ開始",
-    "loadMore": "もっと見る"
+    "loadMore": "もっと見る",
+    "works": [
+      {
+        "title": "深海Tシャツ",
+        "author": "クリエイター Mia",
+        "tag": "アパレル"
+      },
+      {
+        "title": "ネオンシティスマホケース",
+        "author": "クリエイター Leo",
+        "tag": "アクセサリー"
+      },
+      {
+        "title": "ミニマル幾何トートバッグ",
+        "author": "クリエイター Zoe",
+        "tag": "日用品"
+      },
+      {
+        "title": "水墨山水マグカップ",
+        "author": "クリエイター Kai",
+        "tag": "ホーム"
+      },
+      {
+        "title": "サイバーパンクステッカー",
+        "author": "クリエイター Nova",
+        "tag": "クリエイティブ"
+      },
+      {
+        "title": "ヴィンテージフィルムアルバム",
+        "author": "クリエイター Ren",
+        "tag": "写真"
+      }
+    ]
   },
   "pricing": {
     "title": "シンプルで透明な料金",
