@@ -17,22 +17,16 @@ export default function Pricing() {
 
   const [isYearly, setIsYearly] = useState(false);
 
-  // 中文用人民币，其他语言用美元
+  // 中文用人民币，其他语言用美元（直接用 locale 判断，不依赖翻译文件）
   const isCNY = locale === 'zh';
-  const currency = t('currency');
+  const currency = isCNY ? '¥' : '$';
+  const perMonthLabel = isCNY ? '/月' : '/mo';
+  const perMonthYearlyLabel = isCNY ? '/月 · 按年计费' : '/mo · billed yearly';
 
-  // 按月/年价格
-  const prices = {
-    explorer: { monthly: 0, yearly: 0 },
-    pro: {
-      monthly: parseInt(t('priceProMonthly')),
-      yearly: parseInt(t('priceProYearly')),
-    },
-    studio: {
-      monthly: parseInt(t('priceStudioMonthly')),
-      yearly: parseInt(t('priceStudioYearly')),
-    },
-  };
+  // 按月/年价格（人民币 vs 美元）
+  const prices = isCNY
+    ? { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 68, yearly: 54 }, studio: { monthly: 299, yearly: 239 } }
+    : { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 9, yearly: 7 }, studio: { monthly: 39, yearly: 31 } };
 
   const PLANS = [
     {
@@ -189,10 +183,10 @@ export default function Pricing() {
                   <span className="text-4xl font-extrabold">{currency}{plan.price}</span>
                   <span className="text-slate-500 ml-1">
                     {plan.price === 0
-                      ? t('perMonth')
+                      ? perMonthLabel
                       : isYearly
-                        ? t('perMonthBilledYearly')
-                        : t('perMonth')}
+                        ? perMonthYearlyLabel
+                        : perMonthLabel}
                   </span>
                 </div>
 
