@@ -1,14 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+}
 
 // 设计作品相关操作
 export const designsService = {
   // 获取用户所有设计
   async getByUser(userId: string) {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from('designs')
       .select('*')
@@ -27,6 +29,7 @@ export const designsService = {
     canvas_json: string;
     preview_url?: string;
   }) {
+    const supabase = getSupabaseClient();
     if (design.id) {
       // 更新
       const { data, error } = await supabase
@@ -56,6 +59,7 @@ export const designsService = {
 
   // 删除设计
   async delete(id: string) {
+    const supabase = getSupabaseClient();
     const { error } = await supabase
       .from('designs')
       .delete()
@@ -68,6 +72,7 @@ export const designsService = {
 export const ordersService = {
   // 获取用户所有订单
   async getByUser(userId: string) {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from('orders')
       .select('*')
@@ -85,6 +90,7 @@ export const ordersService = {
     total: number;
     shipping_info?: any;
   }) {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from('orders')
       .insert(order)
