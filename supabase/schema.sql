@@ -63,3 +63,20 @@ CREATE TRIGGER designs_updated_at
 CREATE TRIGGER orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- 订阅表
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id               TEXT NOT NULL,
+  user_email            TEXT,
+  plan                  TEXT NOT NULL CHECK (plan IN ('early_bird', 'monthly', 'yearly')),
+  status                TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'cancelled', 'expired')),
+  paypal_subscription_id TEXT UNIQUE,
+  is_early_bird         BOOLEAN DEFAULT FALSE,
+  current_period_end    TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_paypal_id ON subscriptions(paypal_subscription_id);

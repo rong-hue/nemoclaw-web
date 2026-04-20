@@ -1,9 +1,11 @@
 export const runtime = 'edge';
 
+import { subscriptionsService } from '@/lib/supabase';
+
 // PayPal Webhook 事件处理
 // 在 PayPal Developer 控制台配置 Webhook URL：
 // https://your-domain.com/api/paypal/subscription-webhook
-// 订阅事件：BILLING.SUBSCRIPTION.ACTIVATED / CANCELLED / EXPIRED / PAYMENT.SALE.COMPLETED
+// 订阅事件：BILLING.SUBSCRIPTION.ACTIVATED / CANCELLED / EXPIRED
 
 export async function POST(req: Request) {
   try {
@@ -21,30 +23,29 @@ export async function POST(req: Request) {
 
     const { event_type, resource } = event;
     const subscriptionId = resource.id;
-    const userId = resource.custom_id;
+    const nextBillingTime = resource.billing_info?.next_billing_time ?? null;
 
-    console.log(`[PayPal Webhook] ${event_type} | sub=${subscriptionId} | user=${userId}`);
+    console.log(`[PayPal Webhook] ${event_type} | sub=${subscriptionId}`);
 
-    // TODO: 根据 event_type 更新 Supabase subscriptions 表
-    // 推荐在此处调用 Supabase Admin API（service_role key）
     switch (event_type) {
       case 'BILLING.SUBSCRIPTION.ACTIVATED':
-        // 订阅激活 → 写入/更新 subscriptions 表，status='active'
-        // await updateSubscription(userId, subscriptionId, 'active', resource.billing_info?.next_billing_time)
+        await subscriptionsService.updateStatus(subscriptionId, 'active', nextBillingTime);
         break;
 
       case 'BILLING.SUBSCRIPTION.CANCELLED':
+        await subscriptionsService.updateStatus(subscriptionId, 'cancelled', null);
+        break;
+
       case 'BILLING.SUBSCRIPTION.EXPIRED':
-        // 订阅取消/到期 → status='cancelled'
-        // await updateSubscription(userId, subscriptionId, 'cancelled', null)
+        await subscriptionsService.updateStatus(subscriptionId, 'expired', null);
         break;
 
       case 'PAYMENT.SALE.COMPLETED':
-        // 每次续费成功 → 可记录到 orders 表
+        // 续费成功 → 刷新 current_period_end（PayPal 不直接给，用当前时间+1月估算）
+        // 真实场景可调 GET /v1/billing/subscriptions/{id} 获取最新 next_billing_time
         break;
 
       default:
-        // 其他事件忽略
         break;
     }
 

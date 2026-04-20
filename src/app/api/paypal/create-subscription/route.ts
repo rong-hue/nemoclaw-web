@@ -1,5 +1,7 @@
 export const runtime = 'edge';
 
+import { subscriptionsService } from '@/lib/supabase';
+
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
@@ -79,6 +81,19 @@ export async function POST(req: Request) {
     };
 
     const approveLink = sub.links.find((l) => l.rel === 'approve')?.href;
+
+    // 立即写入 pending 记录，webhook 激活后更新为 active
+    try {
+      await subscriptionsService.create({
+        user_id: userId,
+        user_email: userEmail,
+        plan: plan as 'early_bird' | 'monthly' | 'yearly',
+        paypal_subscription_id: sub.id,
+      });
+    } catch (dbErr) {
+      // 不阻断主流程，记录日志即可
+      console.error('[create-subscription] DB write failed:', dbErr);
+    }
 
     return Response.json({
       subscriptionId: sub.id,
