@@ -3,8 +3,7 @@ export const runtime = 'edge';
 
 import { useState } from 'react';
 import Link from "next/link";
-import { Check, X, ShoppingCart } from "lucide-react";
-import { cartService } from "@/lib/cart";
+import { Check, X, Zap } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from 'next-intl';
 import CartIcon from "@/components/CartIcon";
@@ -25,8 +24,8 @@ export default function Pricing() {
 
   // 按月/年价格（人民币 vs 美元）
   const prices = isCNY
-    ? { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 68, yearly: 54 }, studio: { monthly: 299, yearly: 239 } }
-    : { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 9, yearly: 7 }, studio: { monthly: 39, yearly: 31 } };
+    ? { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 34, yearly: 54 }, studio: { monthly: 299, yearly: 239 } }
+    : { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 4.9, yearly: 7 }, studio: { monthly: 39, yearly: 31 } };
 
   const PLANS = [
     {
@@ -92,19 +91,43 @@ export default function Pricing() {
     },
   ];
 
-  const handleAddToCart = (plan: typeof PLANS[0]) => {
+  const [loading, setLoading] = useState<string | null>(null);
+
+  // plan id → PayPal plan key
+  const PLAN_KEY_MAP: Record<string, 'early_bird' | 'monthly' | 'yearly'> = {
+    pro: isYearly ? 'yearly' : 'early_bird',
+    studio: isYearly ? 'yearly' : 'early_bird',
+  };
+
+  const handleSubscribe = async (plan: typeof PLANS[0]) => {
     if (plan.btnTarget) {
       router.push(plan.btnTarget);
       return;
     }
-    cartService.addItem({
-      id: plan.id,
-      name: `NemoClaw ${plan.name}`,
-      price: plan.price,
-      image: plan.color,
-    });
-    window.dispatchEvent(new Event('cartUpdated'));
-    router.push(`/${locale}/cart`);
+    if (plan.price === 0) return;
+
+    setLoading(plan.id);
+    try {
+      const res = await fetch('/api/paypal/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: PLAN_KEY_MAP[plan.id] ?? 'early_bird',
+          userId: 'guest',       // TODO: 替换为真实登录用户 ID
+          userEmail: 'user@example.com', // TODO: 替换为真实用户邮箱
+        }),
+      });
+      const data = await res.json() as { approveUrl?: string; error?: string };
+      if (data.approveUrl) {
+        window.location.href = data.approveUrl;
+      } else {
+        alert(data.error ?? 'Something went wrong');
+      }
+    } catch (e) {
+      alert('Network error, please try again');
+    } finally {
+      setLoading(null);
+    }
   };
 
   return (
@@ -131,7 +154,15 @@ export default function Pricing() {
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-32">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{t("title")}</h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">{t("subtitle")}</p>
+          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-6">{t("subtitle")}</p>
+
+          {/* 早鸟 Banner */}
+          {!isYearly && (
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded-full px-5 py-2 mb-6 text-sm font-semibold text-amber-300">
+              <Zap size={14} className="text-amber-400" />
+              Early Bird — $4.9/mo locked forever · First 200 users only
+            </div>
+          )}
 
           {/* 月付/年付切换 */}
           <div className="inline-flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full p-1">
@@ -190,6 +221,14 @@ export default function Pricing() {
                   </span>
                 </div>
 
+                {/* 早鸟原价划线 */}
+                {!isYearly && plan.id === 'pro' && (
+                  <p className="text-xs text-slate-500 mb-1">
+                    <span className="line-through text-slate-600">{currency}9.9/mo</span>
+                    <span className="ml-2 text-amber-400 font-semibold">Early Bird Price 🔒</span>
+                  </p>
+                )}
+
                 {/* 限制/提示说明 */}
                 <p className="text-xs text-slate-500 mb-6 min-h-[2rem]">{plan.hint}</p>
 
@@ -209,15 +248,20 @@ export default function Pricing() {
 
               {/* 按钮 */}
               <button
-                onClick={() => handleAddToCart(plan)}
-                className={`mt-8 w-full py-3 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
+                onClick={() => handleSubscribe(plan)}
+                disabled={loading === plan.id}
+                className={`mt-8 w-full py-3 rounded-full font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                   plan.highlight
                     ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.3)]'
                     : 'border border-slate-700 hover:bg-slate-800 text-slate-300'
                 }`}
               >
-                {plan.isCart && plan.price > 0 && <ShoppingCart size={16} />}
-                {plan.btn}
+                {loading === plan.id ? (
+                  <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  plan.isCart && plan.price > 0 && <Zap size={16} />
+                )}
+                {loading === plan.id ? 'Redirecting...' : plan.btn}
               </button>
 
               {/* 工作室版超额联系入口 */}
