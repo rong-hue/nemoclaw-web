@@ -368,6 +368,7 @@
     "sendBackward": "뒤로",
     "width": "너비",
     "height": "높이",
+    "defaultText": "더블클릭하여 편집",
     "selectObject": "캔버스에서 객체를 선택하여 속성 보기 및 편집",
     "preview3DTitle": "3D 실물 미리보기",
     "dragToRotate": "드래그하여 회전",

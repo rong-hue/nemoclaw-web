@@ -368,6 +368,7 @@
     "sendBackward": "背面へ",
     "width": "幅",
     "height": "高さ",
+    "defaultText": "ダブルクリックして編集",
     "selectObject": "キャンバス上のオブジェクトを選択してプロパティを表示・編集",
     "preview3DTitle": "3Dプレビュー",
     "dragToRotate": "ドラッグして回転",

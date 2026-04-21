@@ -370,6 +370,7 @@
     "sendBackward": "Backward",
     "width": "Width",
     "height": "Height",
+    "defaultText": "Double-click to edit",
     "selectObject": "Select an object on canvas to view and edit properties",
     "preview3DTitle": "3D Product Preview",
     "dragToRotate": "Drag to rotate",

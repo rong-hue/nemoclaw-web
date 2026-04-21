@@ -97,7 +97,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   useImperativeHandle(ref, () => ({
     addText: () => {
       const canvas = fabricRef.current; if (!canvas) return;
-      const text = new Textbox('双击编辑文字', {
+      const text = new Textbox(t('defaultText'), {
         left: 100, top: 100, width: 200,
         fontSize: 24, fill: '#1e293b', fontFamily: 'sans-serif',
       });

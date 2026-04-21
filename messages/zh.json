@@ -371,6 +371,7 @@
     "sendBackward": "下移",
     "width": "宽",
     "height": "高",
+    "defaultText": "双击编辑文字",
     "selectObject": "选中画布中的对象查看并编辑属性",
     "preview3DTitle": "3D 实物预览",
     "dragToRotate": "拖拽旋转查看效果",
