@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'black-forest-labs/FLUX.1-schnell',
+        model: 'Kwai-Kolors/Kolors',
         prompt: fullPrompt,
         negative_prompt: NEGATIVE_PROMPT,
         image_size: `${width}x${height}`,
