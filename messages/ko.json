@@ -381,7 +381,21 @@
     "removeBgSelectFirst": "먼저 이미지를 선택하세요",
     "removeBgProcessing": "처리 중... 첫 사용 시 모델 다운로드(약 5MB)가 필요합니다",
     "removeBgDone": "배경 제거 완료!",
-    "removeBgFailed": "배경 제거 실패. 다시 시도해주세요"
+    "removeBgFailed": "배경 제거 실패. 다시 시도해주세요",
+    "aiGenerate": {
+      "title": "AI 이미지 생성",
+      "selectStyle": "스타일 선택",
+      "styles": {
+        "vintage": "빈티지",
+        "streetwear": "스트리트",
+        "minimalist": "미니멀",
+        "popArt": "팝아트"
+      },
+      "promptLabel": "디자인을 설명해주세요",
+      "promptPlaceholder": "예: 선글라스를 쓴 독수리, 미국 국기 배경...",
+      "generating": "생성 중...",
+      "generate": "생성하기"
+    }
   },
   "success": {
     "title": "주문 완료!",

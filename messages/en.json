@@ -383,7 +383,21 @@
     "removeBgSelectFirst": "Please select an image first",
     "removeBgProcessing": "Processing... First use requires downloading the model (~5MB), please wait",
     "removeBgDone": "Background removed!",
-    "removeBgFailed": "Background removal failed, please try again"
+    "removeBgFailed": "Background removal failed, please try again",
+    "aiGenerate": {
+      "title": "AI Image Generator",
+      "selectStyle": "Select Style",
+      "styles": {
+        "vintage": "Vintage",
+        "streetwear": "Streetwear",
+        "minimalist": "Minimal",
+        "popArt": "Pop Art"
+      },
+      "promptLabel": "Describe your design",
+      "promptPlaceholder": "e.g. An eagle wearing sunglasses with an American flag background...",
+      "generating": "Generating...",
+      "generate": "Generate"
+    }
   },
   "success": {
     "title": "Order Placed!",

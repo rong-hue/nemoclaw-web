@@ -9,14 +9,16 @@ interface AiGeneratePanelProps {
   onClose: () => void;
 }
 
-const STYLES = [
-  { id: 'vintage', label: '复古美式', emoji: '🎸' },
-  { id: 'streetwear', label: '街头潮流', emoji: '🔥' },
-  { id: 'minimalist', label: '极简风格', emoji: '◻️' },
-  { id: 'popArt', label: '波普艺术', emoji: '🎨' },
-];
+const STYLE_IDS = ['vintage', 'streetwear', 'minimalist', 'popArt'] as const;
+const STYLE_EMOJIS: Record<string, string> = {
+  vintage: '🎸',
+  streetwear: '🔥',
+  minimalist: '◻️',
+  popArt: '🎨',
+};
 
 export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGeneratePanelProps) {
+  const t = useTranslations('studio.aiGenerate');
   const [prompt, setPrompt] = useState('');
   const [style, setStyle] = useState('vintage');
   const [loading, setLoading] = useState(false);
@@ -50,7 +52,7 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Wand2 size={20} className="text-orange-400" />
-            <h2 className="text-white font-semibold text-lg">AI 生图</h2>
+            <h2 className="text-white font-semibold text-lg">{t('title')}</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
             <X size={20} />
@@ -59,20 +61,20 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
 
         {/* Style selector */}
         <div className="mb-4">
-          <p className="text-slate-400 text-sm mb-2">选择风格</p>
+          <p className="text-slate-400 text-sm mb-2">{t('selectStyle')}</p>
           <div className="grid grid-cols-4 gap-2">
-            {STYLES.map((s) => (
+            {STYLE_IDS.map((id) => (
               <button
-                key={s.id}
-                onClick={() => setStyle(s.id)}
+                key={id}
+                onClick={() => setStyle(id)}
                 className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all text-xs ${
-                  style === s.id
+                  style === id
                     ? 'border-orange-500 bg-orange-500/10 text-orange-400'
                     : 'border-slate-700 text-slate-400 hover:border-slate-500'
                 }`}
               >
-                <span className="text-xl">{s.emoji}</span>
-                <span>{s.label}</span>
+                <span className="text-xl">{STYLE_EMOJIS[id]}</span>
+                <span>{t(`styles.${id}`)}</span>
               </button>
             ))}
           </div>
@@ -80,11 +82,11 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
 
         {/* Prompt input */}
         <div className="mb-4">
-          <p className="text-slate-400 text-sm mb-2">描述你想要的图案</p>
+          <p className="text-slate-400 text-sm mb-2">{t('promptLabel')}</p>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="例如：一只戴墨镜的老鹰，背景是美国国旗..."
+            placeholder={t('promptPlaceholder')}
             className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm placeholder-slate-500 resize-none focus:outline-none focus:border-orange-500 transition-colors"
             rows={3}
           />
@@ -103,12 +105,12 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
           {loading ? (
             <>
               <Loader2 size={18} className="animate-spin" />
-              生成中...
+              {t('generating')}
             </>
           ) : (
             <>
               <Wand2 size={18} />
-              生成图案
+              {t('generate')}
             </>
           )}
         </button>

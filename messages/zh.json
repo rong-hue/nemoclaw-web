@@ -384,7 +384,21 @@
     "removeBgSelectFirst": "请先选择一张图片",
     "removeBgProcessing": "正在处理，首次使用需下载模型（约5MB），请稍候...",
     "removeBgDone": "抠图完成！",
-    "removeBgFailed": "抠图失败，请重试"
+    "removeBgFailed": "抠图失败，请重试",
+    "aiGenerate": {
+      "title": "AI 生图",
+      "selectStyle": "选择风格",
+      "styles": {
+        "vintage": "复古美式",
+        "streetwear": "街头潮流",
+        "minimalist": "极简风格",
+        "popArt": "波普艺术"
+      },
+      "promptLabel": "描述你想要的图案",
+      "promptPlaceholder": "例如：一只戴墨镜的老鹰，背景是美国国旗...",
+      "generating": "生成中...",
+      "generate": "生成图案"
+    }
   },
   "success": {
     "title": "订单已提交！",
