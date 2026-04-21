@@ -1,6 +1,6 @@
 'use client';
 
-import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors } from 'lucide-react';
+import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface ToolbarProps {
@@ -12,6 +12,7 @@ interface ToolbarProps {
   onAddLine: () => void;
   onAddArrow: () => void;
   onUploadImage: () => void;
+  onAiGenerate: () => void;
   onEnableDrawing: () => void;
   onRemoveBackground: () => void;
   onDelete: () => void;
@@ -25,7 +26,7 @@ interface ToolbarProps {
 
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
-  onUploadImage, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
+  onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
   activeTool, setActiveTool
 }: ToolbarProps) {
   const t = useTranslations('studio.tools');
@@ -42,6 +43,7 @@ export default function Toolbar({
     { id: 'line', icon: <Minus size={18} />, label: t('line'), action: () => { setActiveTool('line'); onAddLine(); } },
     { id: 'arrow', icon: <ArrowRight size={18} />, label: t('arrow'), action: () => { setActiveTool('arrow'); onAddArrow(); } },
     { id: 'image', icon: <ImagePlus size={18} />, label: t('image'), action: () => { setActiveTool('image'); onUploadImage(); } },
+    { id: 'ai', icon: <Wand2 size={18} />, label: 'AI生图', action: () => { setActiveTool('ai'); onAiGenerate(); } },
     { id: 'divider2', icon: null, label: '', action: () => {}, divider: true },
     { id: 'removebg', icon: <Scissors size={18} />, label: t('removeBg') || '抠图', action: onRemoveBackground },
     { id: 'duplicate', icon: <Copy size={18} />, label: t('duplicate') || '复制', action: onDuplicate },

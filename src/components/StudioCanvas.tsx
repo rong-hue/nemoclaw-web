@@ -17,6 +17,7 @@ export interface CanvasRef {
   deleteSelected: () => void;
   clearCanvas: () => void;
   uploadImage: (file: File) => void;
+  addImageFromUrl: (url: string) => void;
   removeBackground: () => Promise<void>;
   setFill: (color: string) => void;
   setGradient: (type: 'linear' | 'radial', colors: string[]) => void;
@@ -192,6 +193,14 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       const url = URL.createObjectURL(file);
       FabricImage.fromURL(url).then((img) => {
+        img.scaleToWidth(200);
+        (img as any).__id = Date.now().toString();
+        canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();
+      });
+    },
+    addImageFromUrl: (url: string) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
         img.scaleToWidth(200);
         (img as any).__id = Date.now().toString();
         canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();

@@ -10,6 +10,7 @@ import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
 import Preview3D from '@/components/Preview3D';
+import AiGeneratePanel from '@/components/AiGeneratePanel';
 import { designsService } from '@/lib/supabase';
 
 export default function StudioPage() {
@@ -26,6 +27,7 @@ export default function StudioPage() {
   const [designId, setDesignId] = useState<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -177,6 +179,7 @@ export default function StudioPage() {
           onAddLine={() => canvasRef.current?.addLine()}
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
+          onAiGenerate={() => setShowAiPanel(true)}
           onEnableDrawing={() => canvasRef.current?.enableDrawing()}
           onRemoveBackground={() => canvasRef.current?.removeBackground()}
           onDelete={() => canvasRef.current?.deleteSelected()}
@@ -233,6 +236,17 @@ export default function StudioPage() {
         <Preview3D
           canvasDataUrl={previewDataUrl}
           onClose={() => setShow3D(false)}
+        />
+      )}
+
+      {showAiPanel && (
+        <AiGeneratePanel
+          onImageGenerated={(url) => {
+            canvasRef.current?.addImageFromUrl(url);
+            setShowAiPanel(false);
+            setActiveTool('select');
+          }}
+          onClose={() => { setShowAiPanel(false); setActiveTool('select'); }}
         />
       )}
     </div>
