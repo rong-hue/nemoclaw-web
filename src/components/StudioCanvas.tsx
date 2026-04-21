@@ -201,7 +201,16 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     addImageFromUrl: (url: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
       FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
-        img.scaleToWidth(200);
+        const maxSize = Math.min(canvas.width!, canvas.height!, 300);
+        if (img.width! > img.height!) {
+          img.scaleToWidth(maxSize);
+        } else {
+          img.scaleToHeight(maxSize);
+        }
+        img.set({
+          left: (canvas.width! - img.getScaledWidth()) / 2,
+          top: (canvas.height! - img.getScaledHeight()) / 2,
+        });
         (img as any).__id = Date.now().toString();
         canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();
       });
