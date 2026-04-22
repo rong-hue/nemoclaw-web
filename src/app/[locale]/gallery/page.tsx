@@ -184,7 +184,7 @@ export default function Gallery() {
                 {t(`artworkTitles.${selected.id}`)}
               </h3>
               <Link
-                href={`/${locale}/studio`}
+                href={`/${locale}/studio?artwork=${encodeURIComponent(selected.file)}`}
                 className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl transition-colors"
               >
                 <Wand2 size={18} />

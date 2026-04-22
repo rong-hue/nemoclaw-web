@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
@@ -19,6 +20,7 @@ export default function StudioPage() {
   const { data: session } = useSession();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
   const [activeTool, setActiveTool] = useState('select');
   const [selected, setSelected] = useState<any>(null);
   const [layers, setLayers] = useState<LayerItem[]>([]);
@@ -28,6 +30,17 @@ export default function StudioPage() {
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showAiPanel, setShowAiPanel] = useState(false);
+
+  // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
+  useEffect(() => {
+    const artworkUrl = searchParams?.get('artwork');
+    if (!artworkUrl) return;
+    // 等画布初始化完成后再加载
+    const timer = setTimeout(() => {
+      canvasRef.current?.addImageFromUrl(decodeURIComponent(artworkUrl));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchParams]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
