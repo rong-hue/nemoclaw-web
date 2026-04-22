@@ -65,7 +65,10 @@
     "ctaTitle": "Ready to Start Creating?",
     "ctaSubtitle": "Join thousands of independent creators on NemoClaw — your ideas deserve to be seen.",
     "ctaButton": "Open Studio Now",
-    "ctaSecondary": "View Pricing"
+    "ctaSecondary": "View Pricing",
+    "galleryTitle": "Eastern Aesthetics Gallery",
+    "gallerySubtitle": "AI-generated artwork inspired by Tang, Song, Guochao, and Ink Wash traditions — ready to print.",
+    "galleryViewAll": "View All 50 Artworks"
   },
   "footer": {
     "tagline": "Next-generation customization platform for independent creators.",

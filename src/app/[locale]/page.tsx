@@ -151,6 +151,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Gallery 预览 */}
+      <section className="py-24 border-t border-slate-800/50" id="gallery-preview">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('home.galleryTitle')}</h2>
+            <p className="text-slate-400 max-w-xl mx-auto">{t('home.gallerySubtitle')}</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+            {[
+              '/artworks-thumb/tang/tang_01.webp',
+              '/artworks-thumb/ink/ink_01.webp',
+              '/artworks-thumb/guochao/guochao_01.webp',
+              '/artworks-thumb/song/song_01.webp',
+              '/artworks-thumb/tang/tang_05.webp',
+              '/artworks-thumb/ink/ink_07.webp',
+              '/artworks-thumb/guochao/guochao_05.webp',
+              '/artworks-thumb/song/song_03.webp',
+            ].map((src, i) => (
+              <Link key={i} href={`/${locale}/gallery`} className="group relative aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-orange-500/50 transition-all hover:-translate-y-1">
+                <img src={src} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all" />
+              </Link>
+            ))}
+          </div>
+          <div className="text-center">
+            <Link
+              href={`/${locale}/gallery`}
+              className="inline-flex items-center gap-2 border border-slate-600 hover:border-orange-500 text-slate-300 hover:text-white px-8 py-3 rounded-full font-semibold transition-all"
+            >
+              {t('home.galleryViewAll')} <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Banner */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-orange-500/20 via-rose-500/10 to-purple-500/20 border border-orange-500/20 p-12 text-center">

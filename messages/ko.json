@@ -65,7 +65,10 @@
     "ctaTitle": "창작을 시작할 준비가 되셨나요?",
     "ctaSubtitle": "NemoClaw의 수천 명의 크리에이터와 함께하세요.",
     "ctaButton": "스튜디오 열기",
-    "ctaSecondary": "요금제 보기"
+    "ctaSecondary": "요금제 보기",
+    "galleryTitle": "동양 미학 갤러리",
+    "gallerySubtitle": "AI 생성 당풍·송운·궈차오·수묵 아트워크 — 티셔츠, 토트백에 바로 인쇄 가능.",
+    "galleryViewAll": "전체 50개 작품 보기"
   },
   "footer": {
     "tagline": "독립 크리에이터를 위한 차세대 커스터마이징 플랫폼.",

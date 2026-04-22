@@ -65,7 +65,10 @@
     "ctaTitle": "准备好开始创作了吗？",
     "ctaSubtitle": "加入 NemoClaw 数千名独立创作者——你的想法值得被看见。",
     "ctaButton": "立即打开工坊",
-    "ctaSecondary": "查看价格"
+    "ctaSecondary": "查看价格",
+    "galleryTitle": "东方美学画廊",
+    "gallerySubtitle": "AI 生成的唐风、宋韵、国潮、水墨图案，可直接印制在 T 恤、帆布包、手机壳上。",
+    "galleryViewAll": "查看全部 50 件作品"
   },
   "footer": {
     "tagline": "专为独立创作者打造的下一代定制平台。",
