@@ -116,7 +116,7 @@ export default function Gallery() {
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
               }`}
             >
-              {t(`styles.${s}`)}
+              {t(`filter.${s}`)}
             </button>
           ))}
         </div>
