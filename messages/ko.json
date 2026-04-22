@@ -302,7 +302,12 @@
     ],
     "trustPaypal": "PayPal 보안 결제",
     "trustCancel": "언제든지 취소",
-    "trustRefund": "7일 환불 보장"
+    "trustRefund": "7일 환불 보장",
+    "earlyBirdBanner": "얼리버드 — $4.9/월 영구 고정 · 선착순 200명",
+    "earlyBirdSpotsLeft": "🔥 {spots}자리 남음",
+    "earlyBirdPrice": "얼리버드 가격 🔒",
+    "redirecting": "리디렉션 중...",
+    "originalPrice": "정가"
   },
   "cart": {
     "title": "장바구니",

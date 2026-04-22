@@ -302,7 +302,12 @@
     ],
     "trustPaypal": "PayPal Secured",
     "trustCancel": "Cancel Anytime",
-    "trustRefund": "7-Day Refund"
+    "trustRefund": "7-Day Refund",
+    "earlyBirdBanner": "Early Bird — $4.9/mo locked forever · First 200 users only",
+    "earlyBirdSpotsLeft": "🔥 Only {spots} spots left",
+    "earlyBirdPrice": "Early Bird Price 🔒",
+    "redirecting": "Redirecting...",
+    "originalPrice": "Original"
   },
   "cart": {
     "title": "Shopping Cart",

@@ -11,25 +11,6 @@ import CartIcon from "@/components/CartIcon";
 
 const EARLY_BIRD_SPOTS_LEFT = 47;
 
-const FAQ_ITEMS = [
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Yes, cancel anytime from your dashboard. No questions asked.',
-  },
-  {
-    q: 'Is my payment secure?',
-    a: 'All payments processed by PayPal. We never store your card info.',
-  },
-  {
-    q: "What's the Early Bird price?",
-    a: 'First 200 subscribers lock in $4.9/mo forever, even after we raise prices.',
-  },
-  {
-    q: 'Do you offer refunds?',
-    a: "Yes, full refund within 7 days if you're not satisfied.",
-  },
-];
-
 export default function Pricing() {
   const router = useRouter();
   const params = useParams();
@@ -182,10 +163,10 @@ export default function Pricing() {
             <div className="flex flex-col items-center gap-2 mb-6">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded-full px-5 py-2 text-sm font-semibold text-amber-300">
                 <Zap size={14} className="text-amber-400" />
-                Early Bird — $4.9/mo locked forever · First 200 users only
+                {t('earlyBirdBanner')}
               </div>
               <div className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1 text-xs font-bold text-red-400">
-                🔥 Only {EARLY_BIRD_SPOTS_LEFT} spots left
+                {t('earlyBirdSpotsLeft', { spots: EARLY_BIRD_SPOTS_LEFT })}
               </div>
             </div>
           )}
@@ -252,7 +233,7 @@ export default function Pricing() {
                 {!isYearly && plan.id === 'pro' && (
                   <p className="text-xs text-slate-500 mb-1">
                     <span className="line-through text-slate-600">{currency}9.9/mo</span>
-                    <span className="ml-2 text-amber-400 font-semibold">Early Bird Price 🔒</span>
+                    <span className="ml-2 text-amber-400 font-semibold">{t('earlyBirdPrice')}</span>
                   </p>
                 )}
 
@@ -288,7 +269,7 @@ export default function Pricing() {
                 ) : (
                   plan.isCart && plan.price > 0 && <Zap size={16} />
                 )}
-                {loading === plan.id ? 'Redirecting...' : plan.btn}
+                {loading === plan.id ? t('redirecting') : plan.btn}
               </button>
 
               {/* 工作室版超额联系入口 */}
@@ -306,9 +287,9 @@ export default function Pricing() {
 
         {/* FAQ 区块 */}
         <div className="max-w-2xl mx-auto mt-24">
-          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">{t('faqTitle')}</h2>
           <div className="space-y-3">
-            {FAQ_ITEMS.map((item, i) => (
+            {(t.raw('faq') as Array<{q: string; a: string}>).map((item, i) => (
               <div
                 key={i}
                 className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden"
@@ -336,17 +317,17 @@ export default function Pricing() {
         <div className="flex flex-wrap items-center justify-center gap-6 mt-16 text-sm text-slate-500">
           <div className="flex items-center gap-2">
             <Shield size={16} className="text-blue-400" />
-            <span>PayPal Secured</span>
+            <span>{t('trustPaypal')}</span>
           </div>
           <div className="w-px h-4 bg-slate-700 hidden sm:block" />
           <div className="flex items-center gap-2">
             <X size={16} className="text-slate-400" />
-            <span>Cancel Anytime</span>
+            <span>{t('trustCancel')}</span>
           </div>
           <div className="w-px h-4 bg-slate-700 hidden sm:block" />
           <div className="flex items-center gap-2">
             <RefreshCw size={16} className="text-green-400" />
-            <span>7-Day Refund</span>
+            <span>{t('trustRefund')}</span>
           </div>
         </div>
       </div>

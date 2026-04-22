@@ -302,7 +302,12 @@
     ],
     "trustPaypal": "PayPal 安全決済",
     "trustCancel": "いつでもキャンセル",
-    "trustRefund": "7日間返金保証"
+    "trustRefund": "7日間返金保証",
+    "earlyBirdBanner": "アーリーバード — $4.9/月永久固定 · 先着200名限定",
+    "earlyBirdSpotsLeft": "🔥 残り {spots} 枠",
+    "earlyBirdPrice": "アーリーバード価格 🔒",
+    "redirecting": "リダイレクト中...",
+    "originalPrice": "通常価格"
   },
   "cart": {
     "title": "ショッピングカート",

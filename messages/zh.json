@@ -302,7 +302,12 @@
     ],
     "trustPaypal": "PayPal 安全支付",
     "trustCancel": "随时取消",
-    "trustRefund": "7天退款保障"
+    "trustRefund": "7天退款保障",
+    "earlyBirdBanner": "早鸟特惠 — $4.9/月永久锁定 · 仅限前200名",
+    "earlyBirdSpotsLeft": "🔥 仅剩 {spots} 个名额",
+    "earlyBirdPrice": "早鸟价格 🔒",
+    "redirecting": "跳转中...",
+    "originalPrice": "原价"
   },
   "cart": {
     "title": "购物车",
