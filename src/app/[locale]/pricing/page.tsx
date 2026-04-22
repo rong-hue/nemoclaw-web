@@ -3,26 +3,48 @@ export const runtime = 'edge';
 
 import { useState } from 'react';
 import Link from "next/link";
-import { Check, X, Zap } from "lucide-react";
+import { Check, X, Zap, Shield, RefreshCw } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import CartIcon from "@/components/CartIcon";
+
+const EARLY_BIRD_SPOTS_LEFT = 47;
+
+const FAQ_ITEMS = [
+  {
+    q: 'Can I cancel anytime?',
+    a: 'Yes, cancel anytime from your dashboard. No questions asked.',
+  },
+  {
+    q: 'Is my payment secure?',
+    a: 'All payments processed by PayPal. We never store your card info.',
+  },
+  {
+    q: "What's the Early Bird price?",
+    a: 'First 200 subscribers lock in $4.9/mo forever, even after we raise prices.',
+  },
+  {
+    q: 'Do you offer refunds?',
+    a: "Yes, full refund within 7 days if you're not satisfied.",
+  },
+];
 
 export default function Pricing() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('pricing');
+  const { data: session } = useSession();
 
   const [isYearly, setIsYearly] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // 中文用人民币，其他语言用美元（直接用 locale 判断，不依赖翻译文件）
   const isCNY = locale === 'zh';
   const currency = isCNY ? '¥' : '$';
   const perMonthLabel = isCNY ? '/月' : '/mo';
   const perMonthYearlyLabel = isCNY ? '/月 · 按年计费' : '/mo · billed yearly';
 
-  // 按月/年价格（人民币 vs 美元）
   const prices = isCNY
     ? { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 34, yearly: 54 }, studio: { monthly: 299, yearly: 239 } }
     : { explorer: { monthly: 0, yearly: 0 }, pro: { monthly: 4.9, yearly: 7 }, studio: { monthly: 39, yearly: 31 } };
@@ -93,7 +115,6 @@ export default function Pricing() {
 
   const [loading, setLoading] = useState<string | null>(null);
 
-  // plan id → PayPal plan key
   const PLAN_KEY_MAP: Record<string, 'early_bird' | 'monthly' | 'yearly'> = {
     pro: isYearly ? 'yearly' : 'early_bird',
     studio: isYearly ? 'yearly' : 'early_bird',
@@ -113,8 +134,8 @@ export default function Pricing() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan: PLAN_KEY_MAP[plan.id] ?? 'early_bird',
-          userId: 'guest',       // TODO: 替换为真实登录用户 ID
-          userEmail: 'user@example.com', // TODO: 替换为真实用户邮箱
+          userId: session?.user?.email ?? session?.user?.name ?? 'guest',
+          userEmail: session?.user?.email ?? 'guest@example.com',
         }),
       });
       const data = await res.json() as { approveUrl?: string; error?: string };
@@ -156,11 +177,16 @@ export default function Pricing() {
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{t("title")}</h1>
           <p className="text-slate-400 text-lg max-w-xl mx-auto mb-6">{t("subtitle")}</p>
 
-          {/* 早鸟 Banner */}
+          {/* 早鸟 Banner + 倒计时 badge */}
           {!isYearly && (
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded-full px-5 py-2 mb-6 text-sm font-semibold text-amber-300">
-              <Zap size={14} className="text-amber-400" />
-              Early Bird — $4.9/mo locked forever · First 200 users only
+            <div className="flex flex-col items-center gap-2 mb-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded-full px-5 py-2 text-sm font-semibold text-amber-300">
+                <Zap size={14} className="text-amber-400" />
+                Early Bird — $4.9/mo locked forever · First 200 users only
+              </div>
+              <div className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1 text-xs font-bold text-red-400">
+                🔥 Only {EARLY_BIRD_SPOTS_LEFT} spots left
+              </div>
             </div>
           )}
 
@@ -190,6 +216,7 @@ export default function Pricing() {
           </div>
         </div>
 
+        {/* 套餐卡片 */}
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {PLANS.map((plan) => (
             <div
@@ -275,6 +302,52 @@ export default function Pricing() {
               )}
             </div>
           ))}
+        </div>
+
+        {/* FAQ 区块 */}
+        <div className="max-w-2xl mx-auto mt-24">
+          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item, i) => (
+              <div
+                key={i}
+                className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-slate-200 hover:text-white transition-colors"
+                >
+                  <span>{item.q}</span>
+                  <span className={`text-slate-500 transition-transform duration-200 ${openFaq === i ? 'rotate-45' : ''}`}>
+                    +
+                  </span>
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-4 text-slate-400 text-sm leading-relaxed">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 底部信任徽章 */}
+        <div className="flex flex-wrap items-center justify-center gap-6 mt-16 text-sm text-slate-500">
+          <div className="flex items-center gap-2">
+            <Shield size={16} className="text-blue-400" />
+            <span>PayPal Secured</span>
+          </div>
+          <div className="w-px h-4 bg-slate-700 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <X size={16} className="text-slate-400" />
+            <span>Cancel Anytime</span>
+          </div>
+          <div className="w-px h-4 bg-slate-700 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <RefreshCw size={16} className="text-green-400" />
+            <span>7-Day Refund</span>
+          </div>
         </div>
       </div>
     </div>

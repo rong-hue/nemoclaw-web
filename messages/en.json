@@ -280,7 +280,29 @@
     "priceStudioMonthly": "39",
     "priceStudioYearly": "31",
     "currency": "$",
-    "perMonthBilledYearly": "/mo · billed yearly"
+    "perMonthBilledYearly": "/mo · billed yearly",
+    "faqTitle": "Frequently Asked Questions",
+    "faq": [
+      {
+        "q": "Can I cancel anytime?",
+        "a": "Yes, cancel anytime from your dashboard. No questions asked, no hidden fees."
+      },
+      {
+        "q": "Is my payment secure?",
+        "a": "All payments are processed by PayPal. We never store your card information."
+      },
+      {
+        "q": "What's the Early Bird price?",
+        "a": "First 200 subscribers lock in $4.9/mo forever — even after we raise prices. This is a lifetime rate."
+      },
+      {
+        "q": "Do you offer refunds?",
+        "a": "Yes. Full refund within 7 days if you're not satisfied, no questions asked."
+      }
+    ],
+    "trustPaypal": "PayPal Secured",
+    "trustCancel": "Cancel Anytime",
+    "trustRefund": "7-Day Refund"
   },
   "cart": {
     "title": "Shopping Cart",

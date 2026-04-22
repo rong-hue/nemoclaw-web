@@ -280,7 +280,29 @@
     "priceStudioMonthly": "299",
     "priceStudioYearly": "239",
     "currency": "¥",
-    "perMonthBilledYearly": "/月 · 按年计费"
+    "perMonthBilledYearly": "/月 · 按年计费",
+    "faqTitle": "常见问题",
+    "faq": [
+      {
+        "q": "可以随时取消吗？",
+        "a": "可以，随时在控制台取消，无需理由，无隐藏费用。"
+      },
+      {
+        "q": "支付安全吗？",
+        "a": "所有支付通过 PayPal 处理，我们不存储您的银行卡信息。"
+      },
+      {
+        "q": "早鸟价格是什么？",
+        "a": "前 200 名订阅者永久锁定 $4.9/月，即使后续涨价也不受影响。"
+      },
+      {
+        "q": "支持退款吗？",
+        "a": "支持，7天内不满意全额退款，无需理由。"
+      }
+    ],
+    "trustPaypal": "PayPal 安全支付",
+    "trustCancel": "随时取消",
+    "trustRefund": "7天退款保障"
   },
   "cart": {
     "title": "购物车",
