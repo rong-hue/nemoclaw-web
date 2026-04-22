@@ -38,7 +38,7 @@ export default function StudioPage() {
     // 等画布初始化完成后再加载
     const timer = setTimeout(() => {
       canvasRef.current?.addImageFromUrl(decodeURIComponent(artworkUrl));
-    }, 500);
+    }, 800);
     return () => clearTimeout(timer);
   }, [searchParams]);
 

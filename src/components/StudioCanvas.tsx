@@ -200,19 +200,25 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     addImageFromUrl: (url: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
-        const maxSize = Math.min(canvas.width!, canvas.height!, 300);
+      FabricImage.fromURL(url).then((img) => {
+        const cw = canvas.width!;
+        const ch = canvas.height!;
+        const maxSize = Math.min(cw, ch, 400);
         if (img.width! > img.height!) {
           img.scaleToWidth(maxSize);
         } else {
           img.scaleToHeight(maxSize);
         }
         img.set({
-          left: (canvas.width! - img.getScaledWidth()) / 2,
-          top: (canvas.height! - img.getScaledHeight()) / 2,
+          left: (cw - img.getScaledWidth()) / 2,
+          top: (ch - img.getScaledHeight()) / 2,
+          originX: 'left',
+          originY: 'top',
         });
         (img as any).__id = Date.now().toString();
         canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();
+      }).catch((err) => {
+        console.error('addImageFromUrl failed:', err);
       });
     },
     removeBackground: async () => {
