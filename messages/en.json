@@ -125,52 +125,72 @@
     "welcome": "Welcome back"
   },
   "gallery": {
-    "title": "Creator Gallery",
-    "subtitle": "Discover amazing designs from creators worldwide",
-    "likeCount": "likes",
-    "viewAll": "View All",
-    "category": {
-      "all": "All",
-      "tshirt": "T-Shirts",
-      "mug": "Mugs",
-      "phone": "Phone Cases"
-    },
+    "title": "Eastern Aesthetics Gallery",
+    "subtitle": "AI-generated Eastern aesthetics artwork — ready to print on T-shirts, tote bags, and phone cases",
     "designTools": "Design Tools",
     "becomePro": "Go Pro",
     "startCustom": "Start Customizing",
-    "loadMore": "Load More",
-    "works": [
-      {
-        "title": "Deep Sea T-Shirt",
-        "author": "Creator Mia",
-        "tag": "Apparel"
-      },
-      {
-        "title": "Neon City Phone Case",
-        "author": "Creator Leo",
-        "tag": "Accessories"
-      },
-      {
-        "title": "Minimal Geometry Tote",
-        "author": "Creator Zoe",
-        "tag": "Daily Use"
-      },
-      {
-        "title": "Ink Landscape Mug",
-        "author": "Creator Kai",
-        "tag": "Home"
-      },
-      {
-        "title": "Cyberpunk Sticker Pack",
-        "author": "Creator Nova",
-        "tag": "Creative"
-      },
-      {
-        "title": "Vintage Film Album",
-        "author": "Creator Ren",
-        "tag": "Photography"
-      }
-    ]
+    "filter": {
+      "all": "All Styles",
+      "tang": "Tang Dynasty",
+      "song": "Song Dynasty",
+      "guochao": "Guochao",
+      "ink": "Ink Wash"
+    },
+    "customize": "Customize This",
+    "close": "Close",
+    "artworkTitle": {
+      "tang_01": "Golden Dragon & Peony",
+      "tang_02": "Phoenix & Cloud Scrolls",
+      "tang_03": "Mandarin Ducks & Lotus",
+      "tang_04": "Peony & Butterfly",
+      "tang_05": "Nine Dragons Robe",
+      "tang_06": "Golden Koi & Waves",
+      "tang_07": "Celestial Maiden",
+      "tang_08": "Treasure & Peonies",
+      "tang_09": "Armored Foo Dog",
+      "tang_10": "Plum Blossom & Oriole",
+      "tang_11": "Eight Auspicious Mandala",
+      "tang_12": "Tang Dynasty Tiger",
+      "tang_13": "Palace Lantern Festival",
+      "song_01": "Pine on Misty Peak",
+      "song_02": "Plum Blossom Branch",
+      "song_03": "Bamboo in Morning Mist",
+      "song_04": "Wild Orchid on Rock",
+      "song_05": "Chrysanthemum Study",
+      "song_06": "Distant Mountains",
+      "song_07": "Lotus Pond at Dusk",
+      "song_08": "Sparrow on Branch",
+      "song_09": "Autumn Reeds",
+      "song_10": "Moonlit Pavilion",
+      "song_11": "Carp in Still Water",
+      "song_12": "Winter Plum",
+      "guochao_01": "Dragon Street Style",
+      "guochao_02": "Cyber Phoenix",
+      "guochao_03": "Neon Cloud Pattern",
+      "guochao_04": "Hanzi Streetwear",
+      "guochao_05": "Tiger Guochao",
+      "guochao_06": "Lotus Punk",
+      "guochao_07": "Ancient Meets Future",
+      "guochao_08": "Red Lantern Neon",
+      "guochao_09": "Koi Graffiti",
+      "guochao_10": "Yin Yang Cyber",
+      "guochao_11": "Forbidden City Remix",
+      "guochao_12": "Cloud Nine Street",
+      "guochao_13": "Dragon Ball Energy",
+      "ink_01": "Splashed Ink Landscape",
+      "ink_02": "Zen Brushstroke",
+      "ink_03": "Abstract Ink Wash",
+      "ink_04": "Distant Mountains & Mist",
+      "ink_05": "Bamboo Shadow",
+      "ink_06": "Ink Koi Swirl",
+      "ink_07": "Bamboo in Rain",
+      "ink_08": "Ink Eagle Soaring",
+      "ink_09": "Hidden Dragon in Ink",
+      "ink_10": "Cliff Pine",
+      "ink_11": "Ink Portrait",
+      "ink_12": "Moonlit Ink River"
+    }
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
