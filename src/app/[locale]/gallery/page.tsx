@@ -132,7 +132,7 @@ export default function Gallery() {
               className="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-orange-500/50 transition-all hover:-translate-y-1 cursor-pointer aspect-square"
             >
               <Image
-                src={artwork.file}
+                src={artwork.file.replace('/artworks/', '/artworks-thumb/').replace('.png', '.webp')}
                 alt={t(`artworkTitles.${artwork.id}`)}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -161,7 +161,7 @@ export default function Gallery() {
           >
             <div className="relative aspect-square">
               <Image
-                src={selected.file}
+                src={selected.file.replace('.png', '.webp')}
                 alt={t(`artworkTitles.${selected.id}`)}
                 fill
                 className="object-cover"
@@ -184,7 +184,7 @@ export default function Gallery() {
                 {t(`artworkTitles.${selected.id}`)}
               </h3>
               <Link
-                href={`/${locale}/studio?artwork=${encodeURIComponent(selected.file)}`}
+                href={`/${locale}/studio?artwork=${encodeURIComponent(selected.file.replace('.png', '.webp'))}`}
                 className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl transition-colors"
               >
                 <Wand2 size={18} />
