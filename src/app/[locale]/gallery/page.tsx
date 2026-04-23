@@ -144,6 +144,10 @@ export default function Gallery() {
                   {t(`styleLabels.${artwork.style}`)}
                 </span>
               </div>
+              {/* 图片名称 */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 pointer-events-none">
+                <p className="text-xs text-white/90 font-medium truncate">{t(`artworkTitles.${artwork.id}`)}</p>
+              </div>
             </div>
           ))}
         </div>
