@@ -540,5 +540,23 @@
     "orderDispatch": "1〜3営業日以内に発送いたします",
     "backHome": "ホームへ",
     "myOrders": "マイオーダー"
+  },
+  "waitlist": {
+    "badge": "もうすぐリリース · アーリーバード受付中",
+    "headline": "AIで東洋美学を\nクリエイト",
+    "subheadline": "ウェイトリストに登録して、NemoClaw Cultureへの最初のアクセスを手に入れましょう。",
+    "earlyBirdTitle": "アーリーバード特典",
+    "perk1": "$4.9/月の永久固定価格（通常価格 $9.9/月）",
+    "perk2": "先着200名限定",
+    "perk3": "新機能への優先アクセス",
+    "placeholder": "メールアドレスを入力",
+    "cta": "ウェイトリストに登録",
+    "privacy": "スパムなし。いつでも退会可能。",
+    "stat1": "50作品",
+    "stat2": "4言語対応",
+    "stat3": "AI搭載",
+    "successTitle": "登録完了！🎉",
+    "successDesc": "確認メールをご確認ください。リリース時にお知らせします。",
+    "exploreGallery": "ギャラリーを見る"
   }
 }

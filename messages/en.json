@@ -542,5 +542,23 @@
     "orderDispatch": "We'll dispatch your order within 1–3 business days",
     "backHome": "Back to Home",
     "myOrders": "My Orders"
+  },
+  "waitlist": {
+    "badge": "Coming Soon · Early Bird Open",
+    "headline": "Create Eastern Aesthetics\nWith AI",
+    "subheadline": "Join the waitlist and be the first to access NemoClaw Culture — the AI-powered platform for Eastern aesthetics creation.",
+    "earlyBirdTitle": "Early Bird Exclusive Benefits",
+    "perk1": "$4.9/month locked forever (regular price $9.9/month)",
+    "perk2": "First 200 users only — limited spots",
+    "perk3": "Priority access to all new features",
+    "placeholder": "Enter your email address",
+    "cta": "Join Waitlist",
+    "privacy": "No spam. Unsubscribe anytime.",
+    "stat1": "50 Artworks",
+    "stat2": "4 Languages",
+    "stat3": "AI Powered",
+    "successTitle": "You're on the list! 🎉",
+    "successDesc": "Check your inbox for a confirmation email. We'll notify you when we launch.",
+    "exploreGallery": "Explore the Gallery"
   }
 }
