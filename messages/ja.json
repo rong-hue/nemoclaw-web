@@ -437,7 +437,8 @@
       "delete": "削除",
       "clear": "クリア",
       "exportJSON": "JSON出力",
-      "exportPNG": "PNGエクスポート"
+      "exportPNG": "PNGエクスポート",
+      "aiGenerate": "AI生成"
     },
     "properties": "プロパティ",
     "layers": "レイヤー",

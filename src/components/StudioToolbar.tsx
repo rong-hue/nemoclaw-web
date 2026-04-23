@@ -1,7 +1,6 @@
 'use client';
 
 import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -22,36 +21,37 @@ interface ToolbarProps {
   onExportImage: () => void;
   activeTool: string;
   setActiveTool: (t: string) => void;
+  toolLabels?: Record<string, string>;
 }
 
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
   onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
-  activeTool, setActiveTool
+  activeTool, setActiveTool, toolLabels = {}
 }: ToolbarProps) {
-  const t = useTranslations('studio.tools');
+  const L = (key: string, fallback: string) => toolLabels[key] || fallback;
   
   const tools = [
-    { id: 'select', icon: <MousePointer size={18} />, label: t('select'), action: () => setActiveTool('select') },
-    { id: 'draw', icon: <Pencil size={18} />, label: t('brush'), action: () => { setActiveTool('draw'); onEnableDrawing(); } },
+    { id: 'select', icon: <MousePointer size={18} />, label: L('select', 'Select'), action: () => setActiveTool('select') },
+    { id: 'draw', icon: <Pencil size={18} />, label: L('brush', 'Brush'), action: () => { setActiveTool('draw'); onEnableDrawing(); } },
     { id: 'divider1', icon: null, label: '', action: () => {}, divider: true },
-    { id: 'text', icon: <Type size={18} />, label: t('text'), action: () => { setActiveTool('text'); onAddText(); } },
-    { id: 'rect', icon: <Square size={18} />, label: t('rect'), action: () => { setActiveTool('rect'); onAddRect(); } },
-    { id: 'circle', icon: <Circle size={18} />, label: t('circle'), action: () => { setActiveTool('circle'); onAddCircle(); } },
-    { id: 'polygon', icon: <Pentagon size={18} />, label: t('polygon'), action: () => { setActiveTool('polygon'); onAddPolygon(); } },
-    { id: 'star', icon: <Star size={18} />, label: t('star'), action: () => { setActiveTool('star'); onAddStar(); } },
-    { id: 'line', icon: <Minus size={18} />, label: t('line'), action: () => { setActiveTool('line'); onAddLine(); } },
-    { id: 'arrow', icon: <ArrowRight size={18} />, label: t('arrow'), action: () => { setActiveTool('arrow'); onAddArrow(); } },
-    { id: 'image', icon: <ImagePlus size={18} />, label: t('image'), action: () => { setActiveTool('image'); onUploadImage(); } },
-    { id: 'ai', icon: <Wand2 size={18} />, label: 'AI生图', action: () => { setActiveTool('ai'); onAiGenerate(); } },
+    { id: 'text', icon: <Type size={18} />, label: L('text', 'Text'), action: () => { setActiveTool('text'); onAddText(); } },
+    { id: 'rect', icon: <Square size={18} />, label: L('rect', 'Rect'), action: () => { setActiveTool('rect'); onAddRect(); } },
+    { id: 'circle', icon: <Circle size={18} />, label: L('circle', 'Circle'), action: () => { setActiveTool('circle'); onAddCircle(); } },
+    { id: 'polygon', icon: <Pentagon size={18} />, label: L('polygon', 'Polygon'), action: () => { setActiveTool('polygon'); onAddPolygon(); } },
+    { id: 'star', icon: <Star size={18} />, label: L('star', 'Star'), action: () => { setActiveTool('star'); onAddStar(); } },
+    { id: 'line', icon: <Minus size={18} />, label: L('line', 'Line'), action: () => { setActiveTool('line'); onAddLine(); } },
+    { id: 'arrow', icon: <ArrowRight size={18} />, label: L('arrow', 'Arrow'), action: () => { setActiveTool('arrow'); onAddArrow(); } },
+    { id: 'image', icon: <ImagePlus size={18} />, label: L('image', 'Image'), action: () => { setActiveTool('image'); onUploadImage(); } },
+    { id: 'ai', icon: <Wand2 size={18} />, label: L('aiGenerate', 'AI'), action: () => { setActiveTool('ai'); onAiGenerate(); } },
     { id: 'divider2', icon: null, label: '', action: () => {}, divider: true },
-    { id: 'removebg', icon: <Scissors size={18} />, label: t('removeBg') || '抠图', action: onRemoveBackground },
-    { id: 'duplicate', icon: <Copy size={18} />, label: t('duplicate') || '复制', action: onDuplicate },
-    { id: 'delete', icon: <Trash2 size={18} />, label: t('delete') || '删除', action: onDelete },
-    { id: 'clear', icon: <RotateCcw size={18} />, label: t('clear') || '清空', action: onClear },
+    { id: 'removebg', icon: <Scissors size={18} />, label: L('removeBg', 'BG'), action: onRemoveBackground },
+    { id: 'duplicate', icon: <Copy size={18} />, label: L('duplicate', 'Copy'), action: onDuplicate },
+    { id: 'delete', icon: <Trash2 size={18} />, label: L('delete', 'Del'), action: onDelete },
+    { id: 'clear', icon: <RotateCcw size={18} />, label: L('clear', 'Clear'), action: onClear },
     { id: 'divider3', icon: null, label: '', action: () => {}, divider: true },
-    { id: 'export', icon: <Download size={18} />, label: t('exportJSON') || '导出JSON', action: onExport },
-    { id: 'exportImg', icon: <Image size={18} />, label: t('exportPNG') || '导出图片', action: onExportImage },
+    { id: 'export', icon: <Download size={18} />, label: L('exportJSON', 'JSON'), action: onExport },
+    { id: 'exportImg', icon: <Image size={18} />, label: L('exportPNG', 'PNG'), action: onExportImage },
   ];
 
   return (

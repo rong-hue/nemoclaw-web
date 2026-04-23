@@ -437,7 +437,8 @@
       "delete": "Delete",
       "clear": "Clear",
       "exportJSON": "Export JSON",
-      "exportPNG": "Export PNG"
+      "exportPNG": "Export PNG",
+      "aiGenerate": "AI Art"
     },
     "properties": "Properties",
     "layers": "Layers",

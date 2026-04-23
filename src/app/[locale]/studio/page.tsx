@@ -202,6 +202,25 @@ export default function StudioPage() {
           onExportImage={() => canvasRef.current?.exportImage()}
           activeTool={activeTool}
           setActiveTool={handleToolChange}
+          toolLabels={{
+            select: t('tools.select'),
+            brush: t('tools.brush'),
+            text: t('tools.text'),
+            rect: t('tools.rect'),
+            circle: t('tools.circle'),
+            polygon: t('tools.polygon'),
+            star: t('tools.star'),
+            line: t('tools.line'),
+            arrow: t('tools.arrow'),
+            image: t('tools.image'),
+            aiGenerate: t('tools.aiGenerate'),
+            removeBg: t('tools.removeBg'),
+            duplicate: t('tools.duplicate'),
+            delete: t('tools.delete'),
+            clear: t('tools.clear'),
+            exportJSON: t('tools.exportJSON'),
+            exportPNG: t('tools.exportPNG'),
+          }}
         />
 
         <div className="flex-1 flex items-center justify-center bg-slate-800 p-8">

@@ -437,7 +437,8 @@
       "delete": "删除",
       "clear": "清空",
       "exportJSON": "导出JSON",
-      "exportPNG": "导出PNG"
+      "exportPNG": "导出PNG",
+      "aiGenerate": "AI生图"
     },
     "properties": "属性",
     "layers": "图层",
