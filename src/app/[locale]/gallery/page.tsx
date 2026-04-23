@@ -192,7 +192,7 @@ export default function Gallery() {
                 className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl transition-colors"
               >
                 <Wand2 size={18} />
-                {t('customizeThis')}
+                {t('customize')}
               </Link>
             </div>
           </div>
