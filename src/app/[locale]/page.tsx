@@ -116,6 +116,10 @@ export default function Home() {
             {t('home.heroSecondary')}
           </button>
         </div>
+        <Link href={`/${locale}/waitlist`}
+          className="mt-4 inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 text-sm font-semibold transition-colors underline underline-offset-4">
+          <Zap size={14} /> {t('home.joinWaitlist') ?? 'Join the Waitlist →'}
+        </Link>
         <p className="mt-10 text-slate-600 text-sm">{t('home.heroStats.designers')}: <span className="text-slate-400 font-semibold">1,000+</span></p>
       </main>
 

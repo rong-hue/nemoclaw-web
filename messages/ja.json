@@ -68,7 +68,8 @@
     "ctaSecondary": "料金を見る",
     "galleryTitle": "東洋美学ギャラリー",
     "gallerySubtitle": "AI生成の唐風・宋韻・国潮・水墨アート — Tシャツやトートバッグに印刷可能。",
-    "galleryViewAll": "全50作品を見る"
+    "galleryViewAll": "全50作品を見る",
+    "joinWaitlist": "ウェイトリストに参加 →"
   },
   "footer": {
     "tagline": "独立クリエイターのための次世代カスタマイズプラットフォーム。",
@@ -365,7 +366,8 @@
     "earlyBirdSpotsLeft": "🔥 残り {spots} 枠",
     "earlyBirdPrice": "アーリーバード価格 🔒",
     "redirecting": "リダイレクト中...",
-    "originalPrice": "通常価格"
+    "originalPrice": "通常価格",
+    "joinWaitlist": "ウェイトリスト参加"
   },
   "cart": {
     "title": "ショッピングカート",

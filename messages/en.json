@@ -68,7 +68,8 @@
     "ctaSecondary": "View Pricing",
     "galleryTitle": "Eastern Aesthetics Gallery",
     "gallerySubtitle": "AI-generated artwork inspired by Tang, Song, Guochao, and Ink Wash traditions — ready to print.",
-    "galleryViewAll": "View All 50 Artworks"
+    "galleryViewAll": "View All 50 Artworks",
+    "joinWaitlist": "Join the Waitlist →"
   },
   "footer": {
     "tagline": "Next-generation customization platform for independent creators.",
@@ -365,7 +366,8 @@
     "earlyBirdSpotsLeft": "🔥 Only {spots} spots left",
     "earlyBirdPrice": "Early Bird Price 🔒",
     "redirecting": "Redirecting...",
-    "originalPrice": "Original"
+    "originalPrice": "Original",
+    "joinWaitlist": "Join Waitlist"
   },
   "cart": {
     "title": "Shopping Cart",

@@ -146,6 +146,9 @@ export default function Pricing() {
         </div>
         <div className="flex items-center gap-5">
           <CartIcon />
+          <Link href={`/${locale}/waitlist`} className="border border-orange-500/60 hover:border-orange-500 text-orange-400 hover:text-orange-300 px-5 py-2 rounded-full text-sm font-bold transition-all">
+            {t("joinWaitlist") ?? 'Join Waitlist'}
+          </Link>
           <Link href={`/${locale}/auth`} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full text-sm font-bold transition-all">
             {t("startCustom")}
           </Link>

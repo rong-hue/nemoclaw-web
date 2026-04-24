@@ -68,7 +68,8 @@
     "ctaSecondary": "요금제 보기",
     "galleryTitle": "동양 미학 갤러리",
     "gallerySubtitle": "AI 생성 당풍·송운·궈차오·수묵 아트워크 — 티셔츠, 토트백에 바로 인쇄 가능.",
-    "galleryViewAll": "전체 50개 작품 보기"
+    "galleryViewAll": "전체 50개 작품 보기",
+    "joinWaitlist": "대기자 명단 참여 →"
   },
   "footer": {
     "tagline": "독립 크리에이터를 위한 차세대 커스터마이징 플랫폼.",
@@ -365,7 +366,8 @@
     "earlyBirdSpotsLeft": "🔥 {spots}자리 남음",
     "earlyBirdPrice": "얼리버드 가격 🔒",
     "redirecting": "리디렉션 중...",
-    "originalPrice": "정가"
+    "originalPrice": "정가",
+    "joinWaitlist": "대기자 명단 참여"
   },
   "cart": {
     "title": "장바구니",
