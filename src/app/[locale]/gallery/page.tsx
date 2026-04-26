@@ -184,9 +184,12 @@ export default function Gallery() {
                   {t(`styleLabels.${selected.style}`)}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white mb-4">
+              <h3 className="text-lg font-bold text-white mb-2">
                 {t(`artworkTitles.${selected.id}`)}
               </h3>
+              <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                {t(`artworkStories.${selected.id}`)}
+              </p>
               <Link
                 href={`/${locale}/studio?artwork=${encodeURIComponent(selected.file.replace('.png', '.webp'))}`}
                 className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl transition-colors"
