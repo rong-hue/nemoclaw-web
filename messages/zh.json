@@ -563,5 +563,154 @@
     "successTitle": "已成功加入！🎉",
     "successDesc": "请查收确认邮件，我们正式上线时会第一时间通知你。",
     "exploreGallery": "探索作品画廊"
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "lastUpdated": "最后更新：2026年4月",
+    "intro": "NemoClaw Culture 致力于保护您的隐私。本政策说明我们收集哪些数据、如何使用以及您的权利。",
+    "s1Title": "1. 我们收集的信息",
+    "s1Body": "当您注册或加入候补名单时，我们会收集您的邮箱地址。如果您使用 Google 登录，我们会获取您的姓名和头像。支付交易由 PayPal 处理，我们不存储您的银行卡信息。",
+    "s2Title": "2. 数据使用方式",
+    "s2Body": "您的数据用于提供和改进服务、发送交易邮件以及回复支持请求。我们不会将您的数据出售给第三方。",
+    "s3Title": "3. 数据存储",
+    "s3Body": "用户数据存储在 Supabase（托管于 AWS ap-northeast-1）。设计文件安全存储，仅您本人可访问。",
+    "s4Title": "4. 第三方服务",
+    "s4Body": "我们使用 Google OAuth 进行身份验证、PayPal 处理支付、Resend 发送邮件、Cloudflare 提供托管服务。",
+    "s5Title": "5. 您的权利",
+    "s5Body": "您可以随时通过发送邮件至 hello@nemoclaw-web.com 申请删除账户和数据，我们将在30天内处理。",
+    "s6Title": "6. 联系方式",
+    "s6Body": "如有隐私相关问题，请联系 hello@nemoclaw-web.com。"
+  },
+  "terms": {
+    "title": "服务条款",
+    "lastUpdated": "最后更新：2026年4月",
+    "intro": "使用 NemoClaw Culture 即表示您同意本服务条款，请仔细阅读。",
+    "s1Title": "1. 服务使用",
+    "s1Body": "NemoClaw Culture 提供 AI 驱动的设计平台，供个人和商业创作使用。您须年满13岁方可使用本服务。",
+    "s2Title": "2. 用户内容与版权",
+    "s2Body": "您保留所创作设计的所有权。上传内容即表示您确认拥有使用该内容的权利。",
+    "s3Title": "3. AI 生成内容",
+    "s3Body": "AI 生成的图像供您使用。您有责任确保 AI 生成内容的使用符合您所在地区的适用法律。",
+    "s4Title": "4. 订阅与支付",
+    "s4Body": "订阅通过 PayPal 按月或按年计费。早鸟价格在订阅有效期内永久锁定。您可随时在控制台取消订阅。",
+    "s5Title": "5. 退款政策",
+    "s5Body": "购买后7天内如不满意，可申请全额退款。请发送邮件至 hello@nemoclaw-web.com 申请退款。",
+    "s6Title": "6. 禁止行为",
+    "s6Body": "您不得使用 NemoClaw 创作违法、有害、诽谤性或侵犯第三方知识产权的内容。",
+    "s7Title": "7. 责任限制",
+    "s7Body": "NemoClaw Culture 按现状提供服务。对于因使用本服务而产生的任何间接损害，我们不承担责任。",
+    "s8Title": "8. 联系方式",
+    "s8Body": "如有条款相关问题，请联系 hello@nemoclaw-web.com。"
+  },
+  "faq": {
+    "title": "常见问题",
+    "subtitle": "关于 NemoClaw Culture 您需要了解的一切。",
+    "items": [
+      {
+        "q": "NemoClaw Culture 是什么？",
+        "a": "NemoClaw Culture 是一个 AI 驱动的东方美学创作平台。在专业画布上设计、生成 AI 图案、3D 预览，并印制在定制产品上。"
+      },
+      {
+        "q": "有免费方案吗？",
+        "a": "有！探索版完全免费，包含基础画布工具、100个模板和最多5个图层。升级到 Pro 可解锁全部功能。"
+      },
+      {
+        "q": "早鸟价格是什么？",
+        "a": "前200名订阅者永久锁定 4.9美元/月，即使后续涨价也不受影响，这是终身价格。"
+      },
+      {
+        "q": "可以随时取消订阅吗？",
+        "a": "可以，随时在控制台取消，无需理由，无隐藏费用。取消后可继续使用至当前计费周期结束。"
+      },
+      {
+        "q": "支持退款吗？",
+        "a": "支持，购买后7天内不满意可申请全额退款。发送邮件至 hello@nemoclaw-web.com 即可。"
+      },
+      {
+        "q": "支付安全吗？",
+        "a": "所有支付通过 PayPal 处理，我们不在服务器上存储您的银行卡信息。"
+      },
+      {
+        "q": "支持哪些语言？",
+        "a": "NemoClaw Culture 支持英语、简体中文、日语和韩语。"
+      },
+      {
+        "q": "AI 生成的设计可以商用吗？",
+        "a": "创作者 Pro 订阅者可获得平台上所有 AI 生成设计的商业授权。"
+      }
+    ],
+    "stillHaveQuestions": "还有其他问题？",
+    "contactUs": "联系我们"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "我们很乐意听到您的声音，发送消息后我们将在24小时内回复。",
+    "nameLabel": "您的姓名",
+    "namePlaceholder": "您希望我们怎么称呼您？",
+    "emailLabel": "邮箱地址",
+    "emailPlaceholder": "your@email.com",
+    "subjectLabel": "主题",
+    "subjectPlaceholder": "这是关于什么的？",
+    "messageLabel": "消息内容",
+    "messagePlaceholder": "告诉我们您需要什么帮助...",
+    "send": "发送消息",
+    "sending": "发送中...",
+    "successTitle": "消息已发送！",
+    "successDesc": "感谢您的联系，我们将在24小时内回复您的邮件。",
+    "orEmail": "或直接发送邮件至",
+    "infoTitle": "联系方式",
+    "infoEmail": "hello@nemoclaw-web.com",
+    "infoResponse": "回复时间：24小时内",
+    "infoSupport": "支持时间：周一至周五 9:00-18:00 CST"
+  },
+  "about": {
+    "title": "关于 NemoClaw Culture",
+    "heroHeadline": "连接东方美学与全球创作者",
+    "heroSub": "我们相信传统东方艺术属于全世界，而 AI 是那座桥梁。",
+    "storyTitle": "我们的故事",
+    "storyBody": "NemoClaw Culture 源于一个简单的问题：为什么全球创作者很难接触和重新演绎东方艺术的丰富视觉遗产？我们从一人工作室起步，将 AI 生成、专业设计工具和按需印刷整合到一个平台。",
+    "missionTitle": "我们的使命",
+    "missionBody": "赋能全球独立创作者发现、创作和分享东方美学——一次一个设计。",
+    "valuesTitle": "我们的价值观",
+    "value1Title": "文化尊重",
+    "value1Body": "我们以深度和真实性来颂扬东方艺术传统，而非将其作为一种潮流。",
+    "value2Title": "创作者优先",
+    "value2Body": "每一个功能都为创作者而生——快速、直观、强大。",
+    "value3Title": "开放与全球化",
+    "value3Body": "支持4种语言，为全球创作者而设计。",
+    "teamTitle": "由创作者构建，为创作者服务",
+    "teamBody": "我们是一个小而充满热情的团队。如果您认同我们的愿景，欢迎联系我们。",
+    "ctaTitle": "准备好开始创作了吗？",
+    "ctaButton": "打开设计工坊",
+    "ctaSecondary": "探索画廊"
+  },
+  "blog": {
+    "title": "博客",
+    "subtitle": "来自 NemoClaw Culture 团队的故事、教程和更新。",
+    "comingSoonTitle": "即将上线",
+    "comingSoonBody": "我们正在撰写关于东方美学、AI 艺术创作和创作者故事的文章。加入候补名单，第一时间获取发布通知。",
+    "joinWaitlist": "加入候补名单",
+    "categories": {
+      "all": "全部",
+      "culture": "文化",
+      "tutorials": "教程",
+      "updates": "更新"
+    }
+  },
+  "careers": {
+    "title": "加入我们",
+    "subtitle": "与我们一起构建东方美学创作的未来。",
+    "introTitle": "小团队，持续成长",
+    "introBody": "NemoClaw Culture 目前是一个精简的 AI 辅助一人工作室。我们暂时没有全职职位，但始终欢迎合作者、贡献者和创意伙伴。",
+    "openRolesTitle": "开放合作",
+    "role1Title": "东方艺术顾问",
+    "role1Body": "深入了解唐、宋、明代艺术和文化背景，帮助我们确保内容的真实性和深度。",
+    "role2Title": "创作者合作",
+    "role2Body": "希望在平台上展示作品并触达全球受众的独立艺术家和设计师。",
+    "role3Title": "社区运营",
+    "role3Body": "帮助在 Instagram、Pinterest 等平台上发展和维护 NemoClaw 创作者社区。",
+    "howTitle": "感兴趣？",
+    "howBody": "发送邮件至 hello@nemoclaw-web.com，主题写合作，告诉我们关于您自己的故事。",
+    "contactButton": "联系我们"
   }
 }

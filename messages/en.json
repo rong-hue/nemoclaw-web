@@ -562,5 +562,154 @@
     "successTitle": "You're on the list! 🎉",
     "successDesc": "Check your inbox for a confirmation email. We'll notify you when we launch.",
     "exploreGallery": "Explore the Gallery"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 2026",
+    "intro": "NemoClaw Culture (\"we\", \"us\", or \"our\") is committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.",
+    "s1Title": "1. Information We Collect",
+    "s1Body": "We collect your email address when you sign up or join the waitlist. If you sign in with Google, we receive your name and profile picture. Payment transactions are handled by PayPal — we never store your card details. We also collect basic usage analytics (page views, feature usage) via Cloudflare Analytics.",
+    "s2Title": "2. How We Use Your Data",
+    "s2Body": "Your data is used to provide and improve our services, send transactional emails (order confirmations, waitlist updates), and respond to support requests. We do not sell your data to third parties.",
+    "s3Title": "3. Data Storage",
+    "s3Body": "User data is stored in Supabase (hosted on AWS ap-northeast-1). Design files are stored securely and only accessible by you.",
+    "s4Title": "4. Third-Party Services",
+    "s4Body": "We use Google OAuth for authentication, PayPal for payments, Resend for transactional email, and Cloudflare for hosting and analytics. Each service has its own privacy policy.",
+    "s5Title": "5. Your Rights",
+    "s5Body": "You may request deletion of your account and data at any time by emailing hello@nemoclaw-web.com. We will process your request within 30 days.",
+    "s6Title": "6. Contact",
+    "s6Body": "For privacy-related questions, contact us at hello@nemoclaw-web.com."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 2026",
+    "intro": "By using NemoClaw Culture, you agree to these Terms of Service. Please read them carefully.",
+    "s1Title": "1. Use of Service",
+    "s1Body": "NemoClaw Culture provides an AI-powered design platform for personal and commercial creative use. You must be 13 years or older to use this service.",
+    "s2Title": "2. User Content & Copyright",
+    "s2Body": "You retain ownership of all designs you create. By uploading content, you confirm you have the rights to use it. You grant NemoClaw a limited license to display your designs within the platform.",
+    "s3Title": "3. AI-Generated Content",
+    "s3Body": "AI-generated images are provided for your use. You are responsible for ensuring your use of AI-generated content complies with applicable laws in your jurisdiction.",
+    "s4Title": "4. Subscriptions & Payments",
+    "s4Body": "Subscriptions are billed monthly or annually via PayPal. Early Bird pricing is locked for the lifetime of your subscription. You may cancel at any time from your dashboard.",
+    "s5Title": "5. Refund Policy",
+    "s5Body": "We offer a full refund within 7 days of purchase if you are not satisfied. Contact hello@nemoclaw-web.com to request a refund.",
+    "s6Title": "6. Prohibited Use",
+    "s6Body": "You may not use NemoClaw to create content that is illegal, harmful, defamatory, or infringes on third-party intellectual property rights.",
+    "s7Title": "7. Limitation of Liability",
+    "s7Body": "NemoClaw Culture is provided \"as is\". We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.",
+    "s8Title": "8. Contact",
+    "s8Body": "For questions about these terms, contact hello@nemoclaw-web.com."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about NemoClaw Culture.",
+    "items": [
+      {
+        "q": "What is NemoClaw Culture?",
+        "a": "NemoClaw Culture is an AI-powered platform for creating Eastern aesthetics artwork. Design on a professional canvas, generate AI art, preview in 3D, and print on custom products."
+      },
+      {
+        "q": "Is there a free plan?",
+        "a": "Yes! The Explorer plan is completely free. You get access to basic canvas tools, 100 templates, and up to 5 layers. Upgrade to Pro for unlimited features."
+      },
+      {
+        "q": "What is the Early Bird price?",
+        "a": "The first 200 subscribers lock in $4.9/month forever — even after we raise prices. This is a lifetime rate that never changes."
+      },
+      {
+        "q": "Can I cancel my subscription anytime?",
+        "a": "Yes, cancel anytime from your dashboard. No questions asked, no hidden fees. Your access continues until the end of the billing period."
+      },
+      {
+        "q": "Do you offer refunds?",
+        "a": "Yes. Full refund within 7 days of purchase if you're not satisfied. Email hello@nemoclaw-web.com to request one."
+      },
+      {
+        "q": "Is my payment secure?",
+        "a": "All payments are processed by PayPal. We never store your card information on our servers."
+      },
+      {
+        "q": "What languages are supported?",
+        "a": "NemoClaw Culture supports English, Chinese (Simplified), Japanese, and Korean."
+      },
+      {
+        "q": "Can I use AI-generated designs commercially?",
+        "a": "Creator Pro subscribers receive a commercial license for all AI-generated designs created on the platform."
+      }
+    ],
+    "stillHaveQuestions": "Still have questions?",
+    "contactUs": "Contact Us"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We'd love to hear from you. Send us a message and we'll get back within 24 hours.",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "How should we call you?",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "What's this about?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us how we can help...",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "successTitle": "Message sent!",
+    "successDesc": "Thanks for reaching out. We'll reply to your email within 24 hours.",
+    "orEmail": "Or email us directly at",
+    "infoTitle": "Get in Touch",
+    "infoEmail": "hello@nemoclaw-web.com",
+    "infoResponse": "Response time: within 24 hours",
+    "infoSupport": "Support hours: Mon–Fri, 9am–6pm CST"
+  },
+  "about": {
+    "title": "About NemoClaw Culture",
+    "heroHeadline": "Bridging Eastern Aesthetics\nand Global Creators",
+    "heroSub": "We believe traditional Eastern art belongs to the world — and AI is the bridge.",
+    "storyTitle": "Our Story",
+    "storyBody": "NemoClaw Culture was born from a simple question: why is it so hard for global creators to access and remix the rich visual heritage of Eastern art?\n\nWe started as a one-person studio, combining AI generation, professional design tools, and print-on-demand fulfillment into a single platform. Our mission is to make Eastern aesthetics — Tang dynasty patterns, Song dynasty minimalism, Guochao street culture, and ink wash traditions — accessible, remixable, and wearable for creators everywhere.",
+    "missionTitle": "Our Mission",
+    "missionBody": "Empower independent creators worldwide to discover, create, and share Eastern aesthetics — one design at a time.",
+    "valuesTitle": "What We Stand For",
+    "value1Title": "Cultural Respect",
+    "value1Body": "We celebrate Eastern art traditions with depth and authenticity, not as a trend.",
+    "value2Title": "Creator First",
+    "value2Body": "Every feature is built for creators — fast, intuitive, and powerful.",
+    "value3Title": "Open & Global",
+    "value3Body": "Available in 4 languages, designed for creators everywhere.",
+    "teamTitle": "Built by Creators, for Creators",
+    "teamBody": "We're a small, passionate team. If you share our vision, we'd love to hear from you.",
+    "ctaTitle": "Ready to Create?",
+    "ctaButton": "Open Studio",
+    "ctaSecondary": "Explore Gallery"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Stories, tutorials, and updates from the NemoClaw Culture team.",
+    "comingSoonTitle": "Coming Soon",
+    "comingSoonBody": "We're working on articles about Eastern aesthetics, AI art creation, and creator stories. Subscribe to the waitlist to be notified when we publish.",
+    "joinWaitlist": "Join the Waitlist",
+    "categories": {
+      "all": "All",
+      "culture": "Culture",
+      "tutorials": "Tutorials",
+      "updates": "Updates"
+    }
+  },
+  "careers": {
+    "title": "Careers",
+    "subtitle": "Join us in building the future of Eastern aesthetics creation.",
+    "introTitle": "We're a Small Team, Growing",
+    "introBody": "NemoClaw Culture is currently a lean, AI-assisted one-person studio. We're not hiring full-time roles right now — but we're always open to collaborators, contributors, and creative partners.",
+    "openRolesTitle": "Open to Collaboration",
+    "role1Title": "Eastern Art Consultant",
+    "role1Body": "Deep knowledge of Tang, Song, Ming dynasty art and cultural context. Help us ensure authenticity and depth in our content.",
+    "role2Title": "Creator Partnerships",
+    "role2Body": "Independent artists and designers who want to feature their work on the platform and reach a global audience.",
+    "role3Title": "Community Builder",
+    "role3Body": "Help grow and nurture the NemoClaw creator community on Instagram, Pinterest, and beyond.",
+    "howTitle": "Interested?",
+    "howBody": "Send us a note at hello@nemoclaw-web.com with the subject line \"Collaboration\" and tell us about yourself.",
+    "contactButton": "Get in Touch"
   }
 }

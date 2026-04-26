@@ -140,12 +140,36 @@
       "dest": "/[locale]?nxtPlocale=$nxtPlocale"
     },
     {
+      "src": "^/(?<nxtPlocale>[^/]+?)/about(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/about.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/about(?:/)?$",
+      "dest": "/[locale]/about?nxtPlocale=$nxtPlocale"
+    },
+    {
       "src": "^/(?<nxtPlocale>[^/]+?)/auth(?:\\.rsc)(?:/)?$",
       "dest": "/[locale]/auth.rsc?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/auth(?:/)?$",
       "dest": "/[locale]/auth?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/blog(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/blog.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/blog(?:/)?$",
+      "dest": "/[locale]/blog?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/careers(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/careers.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/careers(?:/)?$",
+      "dest": "/[locale]/careers?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/cart(?:\\.rsc)(?:/)?$",
@@ -164,12 +188,28 @@
       "dest": "/[locale]/checkout?nxtPlocale=$nxtPlocale"
     },
     {
+      "src": "^/(?<nxtPlocale>[^/]+?)/contact(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/contact.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/contact(?:/)?$",
+      "dest": "/[locale]/contact?nxtPlocale=$nxtPlocale"
+    },
+    {
       "src": "^/(?<nxtPlocale>[^/]+?)/dashboard(?:\\.rsc)(?:/)?$",
       "dest": "/[locale]/dashboard.rsc?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/dashboard(?:/)?$",
       "dest": "/[locale]/dashboard?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/faq(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/faq.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/faq(?:/)?$",
+      "dest": "/[locale]/faq?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/gallery(?:\\.rsc)(?:/)?$",
@@ -196,12 +236,28 @@
       "dest": "/[locale]/pricing?nxtPlocale=$nxtPlocale"
     },
     {
+      "src": "^/(?<nxtPlocale>[^/]+?)/privacy(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/privacy.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/privacy(?:/)?$",
+      "dest": "/[locale]/privacy?nxtPlocale=$nxtPlocale"
+    },
+    {
       "src": "^/(?<nxtPlocale>[^/]+?)/studio(?:\\.rsc)(?:/)?$",
       "dest": "/[locale]/studio.rsc?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/studio(?:/)?$",
       "dest": "/[locale]/studio?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/subscription/success(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/subscription/success.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/subscription/success(?:/)?$",
+      "dest": "/[locale]/subscription/success?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/success(?:\\.rsc)(?:/)?$",
@@ -212,10 +268,26 @@
       "dest": "/[locale]/success?nxtPlocale=$nxtPlocale"
     },
     {
+      "src": "^/(?<nxtPlocale>[^/]+?)/terms(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/terms.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/terms(?:/)?$",
+      "dest": "/[locale]/terms?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/waitlist(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/waitlist.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/waitlist(?:/)?$",
+      "dest": "/[locale]/waitlist?nxtPlocale=$nxtPlocale"
+    },
+    {
       "handle": "hit"
     },
     {
-      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|OXyF79XQsaVKkD_MuQfus)/.+",
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|KDb0sLpAx6mf_OxEtwsMn)/.+",
       "headers": {
         "cache-control": "public,max-age=31536000,immutable"
       },

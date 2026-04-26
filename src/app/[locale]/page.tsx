@@ -228,18 +228,18 @@ export default function Home() {
             <div>
               <h4 className="text-slate-200 font-semibold text-sm mb-4">{t('footer.support')}</h4>
               <ul className="space-y-3 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.faq')}</a></li>
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.contact')}</a></li>
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.terms')}</a></li>
+                <li><Link href={`/${locale}/faq`} className="hover:text-slate-300 transition-colors">{t('footer.faq')}</Link></li>
+                <li><Link href={`/${locale}/contact`} className="hover:text-slate-300 transition-colors">{t('footer.contact')}</Link></li>
+                <li><Link href={`/${locale}/terms`} className="hover:text-slate-300 transition-colors">{t('footer.terms')}</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-slate-200 font-semibold text-sm mb-4">{t('footer.company')}</h4>
               <ul className="space-y-3 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.about')}</a></li>
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.blog')}</a></li>
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.careers')}</a></li>
-                <li><a href="#" className="hover:text-slate-300 transition-colors">{t('footer.privacy')}</a></li>
+                <li><Link href={`/${locale}/about`} className="hover:text-slate-300 transition-colors">{t('footer.about')}</Link></li>
+                <li><Link href={`/${locale}/blog`} className="hover:text-slate-300 transition-colors">{t('footer.blog')}</Link></li>
+                <li><Link href={`/${locale}/careers`} className="hover:text-slate-300 transition-colors">{t('footer.careers')}</Link></li>
+                <li><Link href={`/${locale}/privacy`} className="hover:text-slate-300 transition-colors">{t('footer.privacy')}</Link></li>
               </ul>
             </div>
           </div>

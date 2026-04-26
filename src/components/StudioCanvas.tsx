@@ -192,7 +192,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     uploadImage: (file: File) => {
       const canvas = fabricRef.current; if (!canvas) return;
       const url = URL.createObjectURL(file);
-      FabricImage.fromURL(url).then((img) => {
+      FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
         img.scaleToWidth(200);
         (img as any).__id = Date.now().toString();
         canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();
@@ -200,7 +200,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     addImageFromUrl: (url: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      FabricImage.fromURL(url).then((img) => {
+      FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
         const cw = canvas.width!;
         const ch = canvas.height!;
         const maxSize = Math.min(cw, ch, 400);
@@ -232,20 +232,41 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       try {
         alert(t('removeBgProcessing'));
         const { removeBackground } = await import('@imgly/background-removal');
-        const imgElement = (obj as any).getElement();
         
-        const blob = await removeBackground(imgElement, {
-          output: { format: 'image/png', quality: 0.8 }
+        // 将图片先转为 blob，避免 canvas tainted 问题
+        const imgElement = (obj as any).getElement() as HTMLImageElement;
+        const offscreen = document.createElement('canvas');
+        offscreen.width = imgElement.naturalWidth || imgElement.width;
+        offscreen.height = imgElement.naturalHeight || imgElement.height;
+        const ctx = offscreen.getContext('2d')!;
+        ctx.drawImage(imgElement, 0, 0);
+        const sourceBlob = await new Promise<Blob>((resolve) =>
+          offscreen.toBlob((b) => resolve(b!), 'image/png')
+        );
+        
+        const blob = await removeBackground(sourceBlob, {
+          output: { format: 'image/png', quality: 0.8 },
+          // 使用官方 CDN，resources.json 包含完整模型资源
+          publicPath: 'https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/',
         });
         
         const url = URL.createObjectURL(blob);
         
-        FabricImage.fromURL(url).then((newImg) => {
+        FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((newImg) => {
+          // 保留原图的完整变换，确保位置和大小不变
+          const br = obj.getBoundingRect();
+          const scaleX = br.width / newImg.width!;
+          const scaleY = br.height / newImg.height!;
           newImg.set({
-            left: obj.left,
-            top: obj.top,
-            scaleX: obj.scaleX,
-            scaleY: obj.scaleY,
+            left: br.left,
+            top: br.top,
+            scaleX,
+            scaleY,
+            angle: obj.angle,
+            flipX: obj.flipX,
+            flipY: obj.flipY,
+            originX: 'left',
+            originY: 'top',
           });
           (newImg as any).__id = Date.now().toString();
           canvas.remove(obj);
