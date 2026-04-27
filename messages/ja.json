@@ -252,6 +252,22 @@
       "ink_10": "崖の松",
       "ink_11": "墨絵肖像",
       "ink_12": "月夜の墨川"
+    },
+    "topic": {
+      "all": "すべてのテーマ",
+      "dragon": "龍",
+      "phoenix": "鳳凰",
+      "floral": "花柄",
+      "landscape": "山水",
+      "bird": "鳥",
+      "fish": "魚",
+      "beast": "霊獣",
+      "figure": "人物",
+      "plant": "植物",
+      "auspicious": "吉祥文様",
+      "geometric": "幾何学模様",
+      "abstract": "抽象",
+      "streetwear": "ストリートウェア"
     }
   },
   "pricing": {

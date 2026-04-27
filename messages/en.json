@@ -305,6 +305,22 @@
       "ink_10": "The cliff pine is the ink wash painter's ultimate subject — a tree that grows where nothing should grow, shaped by wind into something more beautiful than any cultivated garden tree. Song Dynasty painters climbed mountains to study these trees, finding in their twisted forms a model for how adversity creates character rather than destroying it.",
       "ink_11": "Ink portraiture in the Chinese tradition was less concerned with physical likeness than with capturing the subject's qi — their vital energy, their essential character. A great ink portrait might look nothing like its subject to a stranger, but the subject's friends would recognize it immediately. The face was a map of the inner life.",
       "ink_12": "The moonlit river was the ink wash painter's meditation on time. Water moves; the moon's reflection moves with it; the painter's brush moves across paper. Three kinds of movement, three kinds of time, captured in a single image that is itself already past by the time the ink dries. Su Shi wrote: 'The river flows on, but it is never gone.'"
+    },
+    "topic": {
+      "all": "All Topics",
+      "dragon": "Dragon",
+      "phoenix": "Phoenix",
+      "floral": "Floral",
+      "landscape": "Landscape",
+      "bird": "Bird",
+      "fish": "Fish",
+      "beast": "Beast",
+      "figure": "Figure",
+      "plant": "Plant",
+      "auspicious": "Auspicious",
+      "geometric": "Geometric",
+      "abstract": "Abstract",
+      "streetwear": "Streetwear"
     }
   },
   "pricing": {

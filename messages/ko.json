@@ -252,6 +252,22 @@
       "ink_10": "절벽 소나무",
       "ink_11": "수묵 초상",
       "ink_12": "달밤 먹강"
+    },
+    "topic": {
+      "all": "모든 주제",
+      "dragon": "용",
+      "phoenix": "봉황",
+      "floral": "꽃",
+      "landscape": "산수",
+      "bird": "새",
+      "fish": "물고기",
+      "beast": "서수",
+      "figure": "인물",
+      "plant": "식물",
+      "auspicious": "길상 문양",
+      "geometric": "기하학 패턴",
+      "abstract": "추상",
+      "streetwear": "스트리트웨어"
     }
   },
   "pricing": {

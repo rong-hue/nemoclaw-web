@@ -252,6 +252,22 @@
       "ink_10": "悬崖古松",
       "ink_11": "水墨人像",
       "ink_12": "月夜墨河"
+    },
+    "topic": {
+      "all": "全部主题",
+      "dragon": "龙",
+      "phoenix": "凤凰",
+      "floral": "花卉",
+      "landscape": "山水",
+      "bird": "飞鸟",
+      "fish": "鱼",
+      "beast": "瑞兽",
+      "figure": "人物",
+      "plant": "植物",
+      "auspicious": "吉祥纹样",
+      "geometric": "几何图案",
+      "abstract": "抽象",
+      "streetwear": "街头潮流"
     }
   },
   "pricing": {
