@@ -188,10 +188,10 @@ export default function Gallery() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-slate-900 rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl border border-slate-700"
+            className="bg-slate-900 rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="relative aspect-square">
+            <div className="relative h-56 sm:h-72 shrink-0">
               <Image
                 src={selected.file.replace('.png', '.webp')}
                 alt={t(`artworkTitles.${selected.id}`)}
@@ -206,7 +206,7 @@ export default function Gallery() {
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <span className="text-xs font-semibold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full">
                   {t(`styleLabels.${selected.style}`)}
