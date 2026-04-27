@@ -184,48 +184,59 @@ export default function Gallery() {
       {/* 详情弹窗 */}
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-slate-900 rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col"
+            className="bg-slate-900 w-full sm:max-w-lg sm:mx-4 sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-700/60 flex flex-col max-h-[92vh]"
             onClick={e => e.stopPropagation()}
           >
-            <div className="relative h-56 sm:h-72 shrink-0">
+            {/* 图片区域 */}
+            <div className="relative w-full aspect-[4/3] rounded-t-3xl overflow-hidden shrink-0">
               <Image
                 src={selected.file.replace('.png', '.webp')}
                 alt={t(`artworkTitles.${selected.id}`)}
                 fill
                 className="object-cover"
-                sizes="512px"
+                sizes="(max-width: 640px) 100vw, 512px"
               />
+              {/* 顶部渐变遮罩 */}
+              <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent" />
+              {/* 关闭按钮 */}
               <button
                 onClick={() => setSelected(null)}
-                className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition-colors"
+                className="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors backdrop-blur-sm"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="flex items-center gap-2 flex-wrap mb-2">
-                <span className="text-xs font-semibold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full">
+              {/* 风格标签浮在图片左下角 */}
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-semibold text-white bg-orange-500 px-2.5 py-1 rounded-full shadow">
                   {t(`styleLabels.${selected.style}`)}
                 </span>
                 {selected.tags.map(tag => (
-                  <span key={tag} className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">
+                  <span key={tag} className="text-xs text-white/90 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-full">
                     {t(`topic.${tag}`)}
                   </span>
                 ))}
               </div>
+            </div>
+
+            {/* 内容区域（可滚动） */}
+            <div className="overflow-y-auto flex-1 px-5 pt-4 pb-2">
               <h3 className="text-lg font-bold text-white mb-2">
                 {t(`artworkTitles.${selected.id}`)}
               </h3>
-              <p className="text-sm text-slate-400 leading-relaxed mb-4">
+              <p className="text-sm text-slate-400 leading-relaxed">
                 {t(`artworkStories.${selected.id}`)}
               </p>
+            </div>
+
+            {/* 底部按钮（固定不滚动） */}
+            <div className="px-5 py-4 shrink-0">
               <Link
                 href={`/${locale}/studio?artwork=${encodeURIComponent(selected.file.replace('.png', '.webp'))}`}
-                className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl transition-colors"
+                className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-[0_0_20px_rgba(249,115,22,0.3)]"
               >
                 <Wand2 size={18} />
                 {t('customize')}
