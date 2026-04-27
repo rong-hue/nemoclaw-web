@@ -192,12 +192,12 @@ export default function Gallery() {
             onClick={e => e.stopPropagation()}
           >
             {/* 图片区域 */}
-            <div className="relative w-full aspect-[4/3] rounded-t-3xl overflow-hidden shrink-0">
+            <div className="relative w-full aspect-square bg-slate-950 rounded-t-3xl overflow-hidden shrink-0">
               <Image
                 src={selected.file.replace('.png', '.webp')}
                 alt={t(`artworkTitles.${selected.id}`)}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="(max-width: 640px) 100vw, 512px"
               />
               {/* 顶部渐变遮罩 */}
