@@ -223,7 +223,7 @@ export default function Gallery() {
             </div>
 
             {/* 内容区域（可滚动） */}
-            <div className="overflow-y-auto flex-1 px-5 pt-4 pb-2">
+            <div className="overflow-y-auto flex-1 min-h-0 px-5 pt-4 pb-2">
               <h3 className="text-lg font-bold text-white mb-2">
                 {t(`artworkTitles.${selected.id}`)}
               </h3>
