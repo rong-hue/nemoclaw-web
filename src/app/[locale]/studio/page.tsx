@@ -13,6 +13,7 @@ import PropertiesPanel from '@/components/StudioProperties';
 import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
 import StampPanel from '@/components/StampPanel';
+import StampCursor from '@/components/StampCursor';
 import { designsService, subscriptionsService } from '@/lib/supabase';
 import type { Stamp } from '@/lib/stamps';
 
@@ -35,6 +36,9 @@ export default function StudioPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showStampPanel, setShowStampPanel] = useState(false);
   const [activeStampId, setActiveStampId] = useState<string | null>(null);
+  const [activeStampSrc, setActiveStampSrc] = useState<string | null>(null);
+  const [stampCursorParams, setStampCursorParams] = useState<{ size: number; angle: number }>({ size: 120, angle: 0 });
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvasW, setCanvasW] = useState(600);
   const [canvasH, setCanvasH] = useState(500);
   const [customW, setCustomW] = useState('600');
@@ -177,6 +181,8 @@ export default function StudioPage() {
 
   const handleStampSelect = (stamp: Stamp, size: number, angle: number) => {
     setActiveStampId(stamp.id);
+    setActiveStampSrc(stamp.src);
+    setStampCursorParams({ size, angle });
     canvasRef.current?.enableStampMode(stamp.src, size, angle);
   };
 
@@ -290,7 +296,10 @@ export default function StudioPage() {
               handleToolChange('select');
             }}
             activeStampId={activeStampId}
-            onParamsChange={(size, angle) => canvasRef.current?.updateStampParams(size, angle)}
+            onParamsChange={(size, angle) => {
+              canvasRef.current?.updateStampParams(size, angle);
+              setStampCursorParams({ size, angle });
+            }}
           />
         )}
 
@@ -338,7 +347,11 @@ export default function StudioPage() {
             <span className="text-slate-500 text-xs ml-1">{canvasW} × {canvasH} px</span>
           </div>
           {/* 画布区域 */}
-          <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+          <div
+            ref={canvasContainerRef}
+            className="flex-1 flex items-center justify-center p-8 overflow-auto relative"
+            style={{ cursor: showStampPanel && activeStampSrc ? 'none' : 'default' }}
+          >
             <StudioCanvas
               ref={canvasRef}
               onSelectionChange={setSelected}
@@ -346,6 +359,14 @@ export default function StudioPage() {
               initialWidth={canvasW}
               initialHeight={canvasH}
             />
+            {showStampPanel && activeStampSrc && (
+              <StampCursor
+                src={activeStampSrc}
+                size={stampCursorParams.size}
+                angle={stampCursorParams.angle}
+                containerRef={canvasContainerRef}
+              />
+            )}
           </div>
         </div>
 
