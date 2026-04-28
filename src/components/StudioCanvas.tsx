@@ -83,6 +83,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       backgroundColor: '#ffffff',
     });
     fabricRef.current = canvas;
+    canvas.renderAll(); // 立即渲染白色背景，避免初始显示透明/深色
 
     canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
