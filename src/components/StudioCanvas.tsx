@@ -47,6 +47,7 @@ export interface CanvasRef {
   enableStampMode: (src: string, size: number, angle: number) => void;
   disableStampMode: () => void;
   updateStampParams: (size: number, angle: number) => void;
+  stampAt: (x: number, y: number, options?: { src?: string; size?: number; angle?: number; jitter?: boolean }) => Promise<void>;
 }
 
 export interface LayerItem {
@@ -105,6 +106,48 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
     return () => { canvas.dispose(); };
   }, []);
+
+  // 核心盖章逻辑，供 enableStampMode handler 和 stampAt 共用
+  const doStampAt = (
+    canvas: any,
+    x: number,
+    y: number,
+    src: string,
+    size: number,
+    angle: number,
+    jitter = true,
+  ): Promise<void> => {
+    const jx = jitter ? (Math.random() - 0.5) * 2 : 0;
+    const jy = jitter ? (Math.random() - 0.5) * 2 : 0;
+    const ja = jitter ? (Math.random() - 0.5) * 1.5 : 0;
+    return FabricImage.fromURL(src, { crossOrigin: 'anonymous' }).then((img) => {
+      const scale = size / Math.max(img.width ?? size, img.height ?? size);
+      img.set({
+        left: x - size / 2 + jx,
+        top: y - size / 2 + jy,
+        scaleX: scale,
+        scaleY: scale,
+        angle: angle + ja,
+        globalCompositeOperation: 'multiply' as any,
+      });
+      (img as any).__id = `stamp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      (img as any).__isStamp = true;
+      canvas.add(img);
+      return new Promise<void>((resolve) => {
+        img.animate({ scaleX: scale * 0.92, scaleY: scale * 0.92 }, {
+          duration: 80,
+          onChange: () => canvas.renderAll(),
+          onComplete: () => {
+            img.animate({ scaleX: scale, scaleY: scale }, {
+              duration: 80,
+              onChange: () => canvas.renderAll(),
+              onComplete: () => { syncLayers(canvas); resolve(); },
+            });
+          },
+        });
+      });
+    });
+  };
 
   useImperativeHandle(ref, () => ({
     addText: () => {
@@ -474,41 +517,9 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
       const handler = (opt: any) => {
         if (!stampModeRef.current.active) return;
-        // Fabric v7: scenePoint is available directly on the event options
         const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
         const { src: s, size: sz, angle: ag } = stampModeRef.current;
-        // 轻微随机抖动，模拟手盖印章的不精准感
-        const jitter = 2;
-        const jx = (Math.random() - 0.5) * jitter;
-        const jy = (Math.random() - 0.5) * jitter;
-        const ja = (Math.random() - 0.5) * 1.5;
-        FabricImage.fromURL(s, { crossOrigin: 'anonymous' }).then((img) => {
-          const scale = sz / Math.max(img.width ?? sz, img.height ?? sz);
-          img.set({
-            left: pointer.x - sz / 2 + jx,
-            top: pointer.y - sz / 2 + jy,
-            scaleX: scale,
-            scaleY: scale,
-            angle: ag + ja,
-            // multiply 混合模式：白色背景变透明，深色纹样保留，天然印章叠色感
-            globalCompositeOperation: 'multiply' as any,
-          });
-          (img as any).__id = `stamp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-          (img as any).__isStamp = true;
-          canvas.add(img);
-          // 盘章按下弹跳动画： scale 1 → 0.92 → 1
-          img.animate({ scaleX: scale * 0.92, scaleY: scale * 0.92 }, {
-            duration: 80,
-            onChange: () => canvas.renderAll(),
-            onComplete: () => {
-              img.animate({ scaleX: scale, scaleY: scale }, {
-                duration: 80,
-                onChange: () => canvas.renderAll(),
-                onComplete: () => syncLayers(canvas),
-              });
-            },
-          });
-          // 非 Shift 键盘章后自动退出印章模式
+        doStampAt(canvas, pointer.x, pointer.y, s, sz, ag).then(() => {
           if (!(opt.e as MouseEvent).shiftKey) {
             stampModeRef.current.active = false;
             canvas.defaultCursor = 'default';
@@ -537,6 +548,17 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     updateStampParams: (size: number, angle: number) => {
       stampModeRef.current.size = size;
       stampModeRef.current.angle = angle;
+    },
+
+    stampAt: (x: number, y: number, options?: { src?: string; size?: number; angle?: number; jitter?: boolean }): Promise<void> => {
+      const canvas = fabricRef.current;
+      if (!canvas) return Promise.resolve();
+      const src = options?.src ?? stampModeRef.current.src;
+      const size = options?.size ?? stampModeRef.current.size;
+      const angle = options?.angle ?? stampModeRef.current.angle;
+      const jitter = options?.jitter ?? true;
+      if (!src) return Promise.resolve();
+      return doStampAt(canvas, x, y, src, size, angle, jitter);
     },
   }));
 
