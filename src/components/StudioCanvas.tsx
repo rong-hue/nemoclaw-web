@@ -43,6 +43,7 @@ export interface CanvasRef {
   exportJSON: () => string;
   exportImage: () => void;
   exportImageDataUrl: () => string;
+  resizeCanvas: (width: number, height: number) => void;
 }
 
 export interface LayerItem {
@@ -56,9 +57,11 @@ export interface LayerItem {
 interface CanvasProps {
   onSelectionChange: (obj: any) => void;
   onLayersChange: (layers: LayerItem[]) => void;
+  initialWidth?: number;
+  initialHeight?: number;
 }
 
-const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange }, ref) => {
+const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange, initialWidth = 600, initialHeight = 500 }, ref) => {
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
@@ -78,8 +81,8 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   useEffect(() => {
     if (!canvasEl.current) return;
     const canvas = new FabricCanvas(canvasEl.current, {
-      width: 600,
-      height: 500,
+      width: initialWidth,
+      height: initialHeight,
       backgroundColor: '#ffffff',
     });
     fabricRef.current = canvas;
@@ -441,6 +444,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     exportImageDataUrl: () => {
       const canvas = fabricRef.current; if (!canvas) return '';
       return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+    },
+    resizeCanvas: (width: number, height: number) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      canvas.setDimensions({ width, height });
+      canvas.renderAll();
     },
   }));
 

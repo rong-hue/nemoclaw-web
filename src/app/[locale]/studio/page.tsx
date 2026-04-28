@@ -30,6 +30,25 @@ export default function StudioPage() {
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showAiPanel, setShowAiPanel] = useState(false);
+  const [canvasW, setCanvasW] = useState(600);
+  const [canvasH, setCanvasH] = useState(500);
+  const [customW, setCustomW] = useState('600');
+  const [customH, setCustomH] = useState('500');
+
+  const PRESETS = [
+    { label: 'Custom', w: 0, h: 0 },
+    { label: 'Square 1:1', w: 800, h: 800 },
+    { label: 'Portrait 4:5', w: 800, h: 1000 },
+    { label: 'Story 9:16', w: 720, h: 1280 },
+    { label: 'Landscape 16:9', w: 1280, h: 720 },
+    { label: 'A4', w: 794, h: 1123 },
+  ];
+
+  const applySize = (w: number, h: number) => {
+    setCanvasW(w); setCanvasH(h);
+    setCustomW(String(w)); setCustomH(String(h));
+    canvasRef.current?.resizeCanvas(w, h);
+  };
 
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
@@ -223,12 +242,59 @@ export default function StudioPage() {
           }}
         />
 
-        <div className="flex-1 flex items-center justify-center bg-slate-800 p-8">
-          <StudioCanvas
-            ref={canvasRef}
-            onSelectionChange={setSelected}
-            onLayersChange={setLayers}
-          />
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-800">
+          {/* 画布尺寸控制栏 */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-b border-slate-700 flex-wrap">
+            {PRESETS.map((p) => (
+              <button
+                key={p.label}
+                onClick={() => p.w ? applySize(p.w, p.h) : undefined}
+                className={`text-xs px-2 py-1 rounded transition-all ${
+                  p.w === canvasW && p.h === canvasH
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+            <div className="flex items-center gap-1 ml-2">
+              <input
+                type="number" min={100} max={4000}
+                value={customW}
+                onChange={(e) => setCustomW(e.target.value)}
+                className="w-16 text-xs bg-slate-700 text-white border border-slate-600 rounded px-2 py-1 outline-none focus:border-orange-500"
+              />
+              <span className="text-slate-500 text-xs">×</span>
+              <input
+                type="number" min={100} max={4000}
+                value={customH}
+                onChange={(e) => setCustomH(e.target.value)}
+                className="w-16 text-xs bg-slate-700 text-white border border-slate-600 rounded px-2 py-1 outline-none focus:border-orange-500"
+              />
+              <button
+                onClick={() => {
+                  const w = Math.min(4000, Math.max(100, Number(customW)));
+                  const h = Math.min(4000, Math.max(100, Number(customH)));
+                  applySize(w, h);
+                }}
+                className="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition-all"
+              >
+                Apply
+              </button>
+            </div>
+            <span className="text-slate-500 text-xs ml-1">{canvasW} × {canvasH} px</span>
+          </div>
+          {/* 画布区域 */}
+          <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+            <StudioCanvas
+              ref={canvasRef}
+              onSelectionChange={setSelected}
+              onLayersChange={setLayers}
+              initialWidth={canvasW}
+              initialHeight={canvasH}
+            />
+          </div>
         </div>
 
         <PropertiesPanel
