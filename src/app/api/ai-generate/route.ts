@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { auth } from '@/auth';
 import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
 
