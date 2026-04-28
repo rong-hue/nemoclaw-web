@@ -8,9 +8,10 @@ interface StampPanelProps {
   onStampSelect: (stamp: Stamp, size: number, angle: number) => void;
   onClose: () => void;
   activeStampId: string | null;
+  onParamsChange?: (size: number, angle: number) => void;
 }
 
-export default function StampPanel({ onStampSelect, onClose, activeStampId }: StampPanelProps) {
+export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange }: StampPanelProps) {
   const [category, setCategory] = useState<StampCategory>('tang');
   const [size, setSize] = useState(120);
   const [angle, setAngle] = useState(0);
@@ -82,7 +83,7 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId }: St
           </div>
           <input
             type="range" min={40} max={300} value={size}
-            onChange={e => setSize(Number(e.target.value))}
+            onChange={e => { const v = Number(e.target.value); setSize(v); onParamsChange?.(v, angle); }}
             className="w-full accent-orange-500 h-1.5"
           />
         </div>
@@ -96,11 +97,11 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId }: St
           <div className="flex items-center gap-2">
             <input
               type="range" min={-180} max={180} value={angle}
-              onChange={e => setAngle(Number(e.target.value))}
+              onChange={e => { const v = Number(e.target.value); setAngle(v); onParamsChange?.(size, v); }}
               className="flex-1 accent-orange-500 h-1.5"
             />
             <button
-              onClick={() => setAngle(0)}
+              onClick={() => { setAngle(0); onParamsChange?.(size, 0); }}
               className="text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-600 hover:border-slate-400 transition-colors"
             >
               重置

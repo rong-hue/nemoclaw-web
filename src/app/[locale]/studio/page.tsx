@@ -290,6 +290,7 @@ export default function StudioPage() {
               handleToolChange('select');
             }}
             activeStampId={activeStampId}
+            onParamsChange={(size, angle) => canvasRef.current?.updateStampParams(size, angle)}
           />
         )}
 
