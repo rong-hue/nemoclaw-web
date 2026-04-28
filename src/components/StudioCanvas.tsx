@@ -44,6 +44,9 @@ export interface CanvasRef {
   exportImage: () => void;
   exportImageDataUrl: () => string;
   resizeCanvas: (width: number, height: number) => void;
+  enableStampMode: (src: string, size: number, angle: number) => void;
+  disableStampMode: () => void;
+  updateStampParams: (size: number, angle: number) => void;
 }
 
 export interface LayerItem {
@@ -65,6 +68,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
+  // 印章模式状态
+  const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number }>({
+    active: false, src: '', size: 120, angle: 0,
+  });
+  const stampHandlerRef = useRef<((opt: any) => void) | null>(null);
 
   const syncLayers = (canvas: FabricCanvas) => {
     const layers: LayerItem[] = canvas.getObjects().map((obj: any, i) => ({
@@ -450,7 +458,88 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       canvas.setDimensions({ width, height });
       canvas.renderAll();
     },
+
+    // 印章模式
+    enableStampMode: (src: string, size: number, angle: number) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      // 移除旧监听器
+      if (stampHandlerRef.current) {
+        canvas.off('mouse:down', stampHandlerRef.current);
+      }
+      stampModeRef.current = { active: true, src, size, angle };
+      canvas.isDrawingMode = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.hoverCursor = 'crosshair';
+      canvas.selection = false;
+
+      const handler = (opt: any) => {
+        if (!stampModeRef.current.active) return;
+        // Fabric v7: scenePoint is available directly on the event options
+        const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
+        const { src: s, size: sz, angle: ag } = stampModeRef.current;
+        // 轻微随机抖动，模拟手盖印章的不精准感
+        const jitter = 2;
+        const jx = (Math.random() - 0.5) * jitter;
+        const jy = (Math.random() - 0.5) * jitter;
+        const ja = (Math.random() - 0.5) * 1.5;
+        FabricImage.fromURL(s, { crossOrigin: 'anonymous' }).then((img) => {
+          const scale = sz / Math.max(img.width ?? sz, img.height ?? sz);
+          img.set({
+            left: pointer.x - sz / 2 + jx,
+            top: pointer.y - sz / 2 + jy,
+            scaleX: scale,
+            scaleY: scale,
+            angle: ag + ja,
+            // multiply 混合模式：白色背景变透明，深色纹样保留，天然印章叠色感
+            globalCompositeOperation: 'multiply' as any,
+          });
+          (img as any).__id = `stamp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+          (img as any).__isStamp = true;
+          canvas.add(img);
+          // 盘章按下弹跳动画： scale 1 → 0.92 → 1
+          img.animate({ scaleX: scale * 0.92, scaleY: scale * 0.92 }, {
+            duration: 80,
+            onChange: () => canvas.renderAll(),
+            onComplete: () => {
+              img.animate({ scaleX: scale, scaleY: scale }, {
+                duration: 80,
+                onChange: () => canvas.renderAll(),
+                onComplete: () => syncLayers(canvas),
+              });
+            },
+          });
+          // 非 Shift 键盘章后自动退出印章模式
+          if (!(opt.e as MouseEvent).shiftKey) {
+            stampModeRef.current.active = false;
+            canvas.defaultCursor = 'default';
+            canvas.hoverCursor = 'move';
+            canvas.selection = true;
+          }
+        });
+      };
+
+      stampHandlerRef.current = handler;
+      canvas.on('mouse:down', handler);
+    },
+
+    disableStampMode: () => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      stampModeRef.current.active = false;
+      if (stampHandlerRef.current) {
+        canvas.off('mouse:down', stampHandlerRef.current);
+        stampHandlerRef.current = null;
+      }
+      canvas.defaultCursor = 'default';
+      canvas.hoverCursor = 'move';
+      canvas.selection = true;
+    },
+
+    updateStampParams: (size: number, angle: number) => {
+      stampModeRef.current.size = size;
+      stampModeRef.current.angle = angle;
+    },
   }));
+
 
   return (
     <div className="shadow-2xl rounded-xl overflow-hidden border border-slate-700">

@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Wand2, X, Loader2 } from 'lucide-react';
+import { Wand2, X, Loader2, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
 
 interface AiGeneratePanelProps {
   onImageGenerated: (url: string) => void;
@@ -19,10 +21,17 @@ const STYLE_EMOJIS: Record<string, string> = {
 
 export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGeneratePanelProps) {
   const t = useTranslations('studio.aiGenerate');
+  const locale = useLocale();
   const [prompt, setPrompt] = useState('');
   const [style, setStyle] = useState('vintage');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [quota, setQuota] = useState<{ used: number; limit: number; isPro: boolean } | null>(null);
+
+  // 生图成功后更新配额显示
+  function updateQuota(used: number, limit: number, isPro = false) {
+    setQuota({ used, limit, isPro });
+  }
 
   async function handleGenerate() {
     if (!prompt.trim()) return;
@@ -34,16 +43,39 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, style, width: 512, height: 512 }),
       });
-      const data = await res.json() as { url?: string; error?: string };
+      const data = await res.json() as {
+        url?: string;
+        error?: string;
+        used?: number;
+        limit?: number;
+        isPro?: boolean;
+      };
+
+      if (res.status === 429) {
+        // 配额超限
+        updateQuota(data.used ?? 0, data.limit ?? 3, data.isPro ?? false);
+        setError('quota_exceeded');
+        return;
+      }
+
       if (!res.ok || !data.url) throw new Error(data.error ?? 'Generation failed');
+
+      if (data.used !== undefined && data.limit !== undefined) {
+        updateQuota(data.used, data.limit, data.isPro ?? false);
+      }
       onImageGenerated(data.url);
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed');
+      if ((err as Error).message !== 'quota_exceeded') {
+        setError(err instanceof Error ? err.message : 'Failed');
+      }
     } finally {
       setLoading(false);
     }
   }
+
+  const isQuotaExceeded = error === 'quota_exceeded';
+  const remaining = quota ? quota.limit - quota.used : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -59,61 +91,110 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
           </button>
         </div>
 
-        {/* Style selector */}
-        <div className="mb-4">
-          <p className="text-slate-400 text-sm mb-2">{t('selectStyle')}</p>
-          <div className="grid grid-cols-4 gap-2">
-            {STYLE_IDS.map((id) => (
-              <button
-                key={id}
-                onClick={() => setStyle(id)}
-                className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all text-xs ${
-                  style === id
-                    ? 'border-orange-500 bg-orange-500/10 text-orange-400'
-                    : 'border-slate-700 text-slate-400 hover:border-slate-500'
-                }`}
+        {/* 配额超限提示 */}
+        {isQuotaExceeded ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">⚡</div>
+            <p className="text-white font-semibold mb-1">
+              {quota?.isPro ? 'Monthly limit reached' : 'Free quota used up'}
+            </p>
+            <p className="text-slate-400 text-sm mb-4">
+              {quota?.isPro
+                ? `You've used all ${quota.limit} generations this month.`
+                : `Free plan includes ${quota?.limit ?? 3} AI generations/month.`}
+            </p>
+            {!quota?.isPro && (
+              <Link
+                href={`/${locale}/pricing`}
+                onClick={onClose}
+                className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
               >
-                <span className="text-xl">{STYLE_EMOJIS[id]}</span>
-                <span>{t(`styles.${id}`)}</span>
-              </button>
-            ))}
+                <Zap size={16} />
+                Upgrade to Pro
+              </Link>
+            )}
           </div>
-        </div>
+        ) : (
+          <>
+            {/* 配额进度条 */}
+            {quota && (
+              <div className="mb-4 bg-slate-800 rounded-xl p-3">
+                <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+                  <span>This month</span>
+                  <span>{quota.used} / {quota.limit} {quota.isPro ? '(Pro)' : '(Free)'}</span>
+                </div>
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-orange-500 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, (quota.used / quota.limit) * 100)}%` }}
+                  />
+                </div>
+                {!quota.isPro && remaining !== null && remaining <= 1 && (
+                  <p className="text-xs text-orange-400 mt-1.5">
+                    {remaining === 0 ? 'No generations left' : `${remaining} generation left`} —{' '}
+                    <Link href={`/${locale}/pricing`} onClick={onClose} className="underline">Upgrade</Link>
+                  </p>
+                )}
+              </div>
+            )}
 
-        {/* Prompt input */}
-        <div className="mb-4">
-          <p className="text-slate-400 text-sm mb-2">{t('promptLabel')}</p>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={t('promptPlaceholder')}
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm placeholder-slate-500 resize-none focus:outline-none focus:border-orange-500 transition-colors"
-            rows={3}
-          />
-        </div>
+            {/* Style selector */}
+            <div className="mb-4">
+              <p className="text-slate-400 text-sm mb-2">{t('selectStyle')}</p>
+              <div className="grid grid-cols-4 gap-2">
+                {STYLE_IDS.map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => setStyle(id)}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all text-xs ${
+                      style === id
+                        ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                        : 'border-slate-700 text-slate-400 hover:border-slate-500'
+                    }`}
+                  >
+                    <span className="text-xl">{STYLE_EMOJIS[id]}</span>
+                    <span>{t(`styles.${id}`)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {error && (
-          <p className="text-red-400 text-sm mb-3">{error}</p>
+            {/* Prompt input */}
+            <div className="mb-4">
+              <p className="text-slate-400 text-sm mb-2">{t('promptLabel')}</p>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={t('promptPlaceholder')}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm placeholder-slate-500 resize-none focus:outline-none focus:border-orange-500 transition-colors"
+                rows={3}
+              />
+            </div>
+
+            {error && error !== 'quota_exceeded' && (
+              <p className="text-red-400 text-sm mb-3">{error}</p>
+            )}
+
+            {/* Generate button */}
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !prompt.trim()}
+              className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  {t('generating')}
+                </>
+              ) : (
+                <>
+                  <Wand2 size={18} />
+                  {t('generate')}
+                </>
+              )}
+            </button>
+          </>
         )}
-
-        {/* Generate button */}
-        <button
-          onClick={handleGenerate}
-          disabled={loading || !prompt.trim()}
-          className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              {t('generating')}
-            </>
-          ) : (
-            <>
-              <Wand2 size={18} />
-              {t('generate')}
-            </>
-          )}
-        </button>
       </div>
     </div>
   );

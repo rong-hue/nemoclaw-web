@@ -509,7 +509,8 @@
       "clear": "Clear",
       "exportJSON": "Export JSON",
       "exportPNG": "Export PNG",
-      "aiGenerate": "AI Art"
+      "aiGenerate": "AI Art",
+      "stamp": "Stamp"
     },
     "properties": "Properties",
     "layers": "Layers",

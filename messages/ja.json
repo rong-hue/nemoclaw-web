@@ -456,7 +456,8 @@
       "clear": "クリア",
       "exportJSON": "JSON出力",
       "exportPNG": "PNGエクスポート",
-      "aiGenerate": "AI生成"
+      "aiGenerate": "AI生成",
+      "stamp": "スタンプ"
     },
     "properties": "プロパティ",
     "layers": "レイヤー",

@@ -456,7 +456,8 @@
       "clear": "지우기",
       "exportJSON": "JSON 내보내기",
       "exportPNG": "PNG 내보내기",
-      "aiGenerate": "AI생성"
+      "aiGenerate": "AI생성",
+      "stamp": "도장"
     },
     "properties": "속성",
     "layers": "레이어",

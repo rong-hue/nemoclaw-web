@@ -1,6 +1,6 @@
 'use client';
 
-import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2 } from 'lucide-react';
+import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2, Stamp } from 'lucide-react';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -19,6 +19,7 @@ interface ToolbarProps {
   onClear: () => void;
   onExport: () => void;
   onExportImage: () => void;
+  onStamp?: () => void;
   activeTool: string;
   setActiveTool: (t: string) => void;
   toolLabels?: Record<string, string>;
@@ -27,6 +28,7 @@ interface ToolbarProps {
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
   onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
+  onStamp,
   activeTool, setActiveTool, toolLabels = {}
 }: ToolbarProps) {
   const L = (key: string, fallback: string) => toolLabels[key] || fallback;
@@ -34,6 +36,7 @@ export default function Toolbar({
   const tools = [
     { id: 'select', icon: <MousePointer size={18} />, label: L('select', 'Select'), action: () => setActiveTool('select') },
     { id: 'draw', icon: <Pencil size={18} />, label: L('brush', 'Brush'), action: () => { setActiveTool('draw'); onEnableDrawing(); } },
+    { id: 'stamp', icon: <Stamp size={18} />, label: L('stamp', '印章'), action: () => { setActiveTool('stamp'); onStamp?.(); } },
     { id: 'divider1', icon: null, label: '', action: () => {}, divider: true },
     { id: 'text', icon: <Type size={18} />, label: L('text', 'Text'), action: () => { setActiveTool('text'); onAddText(); } },
     { id: 'rect', icon: <Square size={18} />, label: L('rect', 'Rect'), action: () => { setActiveTool('rect'); onAddRect(); } },
@@ -67,6 +70,8 @@ export default function Toolbar({
             className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all shrink-0 ${
               activeTool === tool.id
                 ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                : tool.id === 'stamp'
+                ? 'text-purple-400 hover:bg-purple-500/10 hover:text-purple-300'
                 : tool.id === 'delete' || tool.id === 'clear'
                 ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
                 : tool.id === 'export' || tool.id === 'exportImg'

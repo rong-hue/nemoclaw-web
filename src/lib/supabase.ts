@@ -169,3 +169,42 @@ export const subscriptionsService = {
     if (error) throw error;
   },
 };
+
+// ── AI 使用配额 ──────────────────────────────────────────────────────────────
+// Supabase 建表 SQL（在 SQL Editor 执行一次）：
+//   create table if not exists ai_usage (
+//     id uuid primary key default gen_random_uuid(),
+//     user_id text not null,
+//     type text not null default 'generate',
+//     created_at timestamptz not null default now()
+//   );
+//   create index if not exists ai_usage_user_created on ai_usage (user_id, created_at);
+//   alter table ai_usage enable row level security;
+//   create policy "insert" on ai_usage for insert with check (true);
+//   create policy "select" on ai_usage for select using (true);
+
+export const FREE_MONTHLY_LIMIT = 3;
+export const PRO_MONTHLY_LIMIT = 50;
+
+export const aiUsageService = {
+  /** 查询用户本月已用次数（在 API Route 服务端调用） */
+  async getMonthlyCount(userId: string): Promise<number> {
+    const supabase = getSupabaseClient();
+    const start = new Date();
+    start.setDate(1); start.setHours(0, 0, 0, 0);
+    const { count, error } = await supabase
+      .from('ai_usage')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('created_at', start.toISOString());
+    if (error) throw error;
+    return count ?? 0;
+  },
+
+  /** 记录一次使用（在 API Route 服务端调用） */
+  async record(userId: string, type = 'generate'): Promise<void> {
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.from('ai_usage').insert({ user_id: userId, type });
+    if (error) throw error;
+  },
+};

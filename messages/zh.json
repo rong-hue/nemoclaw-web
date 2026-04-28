@@ -456,7 +456,8 @@
       "clear": "清空",
       "exportJSON": "导出JSON",
       "exportPNG": "导出PNG",
-      "aiGenerate": "AI生图"
+      "aiGenerate": "AI生图",
+      "stamp": "印章"
     },
     "properties": "属性",
     "layers": "图层",

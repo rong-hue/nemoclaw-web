@@ -12,7 +12,9 @@ import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
 import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
-import { designsService } from '@/lib/supabase';
+import StampPanel from '@/components/StampPanel';
+import { designsService, subscriptionsService } from '@/lib/supabase';
+import type { Stamp } from '@/lib/stamps';
 
 export default function StudioPage() {
   const t = useTranslations('studio');
@@ -30,6 +32,9 @@ export default function StudioPage() {
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showAiPanel, setShowAiPanel] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showStampPanel, setShowStampPanel] = useState(false);
+  const [activeStampId, setActiveStampId] = useState<string | null>(null);
   const [canvasW, setCanvasW] = useState(600);
   const [canvasH, setCanvasH] = useState(500);
   const [customW, setCustomW] = useState('600');
@@ -100,6 +105,28 @@ export default function StudioPage() {
     }
   };
 
+  const handleExportImage = async () => {
+    const userId = session?.user?.id || session?.user?.email || '';
+    if (userId) {
+      const activeSub = await subscriptionsService.getActiveByUser(userId).catch(() => null);
+      if (!activeSub) {
+        // 免费用户：限制 800px 导出
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const dataUrl = canvas.exportImageDataUrl();
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = `design-${Date.now()}-preview.png`;
+          a.click();
+          setShowUpgradeModal(true);
+        }
+        return;
+      }
+    }
+    // 订阅用户或未登录：正常导出
+    canvasRef.current?.exportImage();
+  };
+
   const handleSave = async () => {
     const json = canvasRef.current?.exportJSON();
     if (!json) return;
@@ -141,6 +168,16 @@ export default function StudioPage() {
   const handleToolChange = (tool: string) => {
     setActiveTool(tool);
     if (tool !== 'draw') canvasRef.current?.disableDrawing();
+    if (tool !== 'stamp') {
+      canvasRef.current?.disableStampMode();
+      setShowStampPanel(false);
+      setActiveStampId(null);
+    }
+  };
+
+  const handleStampSelect = (stamp: Stamp, size: number, angle: number) => {
+    setActiveStampId(stamp.id);
+    canvasRef.current?.enableStampMode(stamp.src, size, angle);
   };
 
   const saveButtonContent = () => {
@@ -215,9 +252,10 @@ export default function StudioPage() {
           onRemoveBackground={() => canvasRef.current?.removeBackground()}
           onDelete={() => canvasRef.current?.deleteSelected()}
           onDuplicate={() => canvasRef.current?.duplicate()}
+          onStamp={() => { handleToolChange('stamp'); setShowStampPanel(true); }}
           onClear={() => canvasRef.current?.clearCanvas()}
           onExport={handleExportJSON}
-          onExportImage={() => canvasRef.current?.exportImage()}
+          onExportImage={handleExportImage}
           activeTool={activeTool}
           setActiveTool={handleToolChange}
           toolLabels={{
@@ -240,6 +278,20 @@ export default function StudioPage() {
             exportPNG: t('tools.exportPNG'),
           }}
         />
+
+        {/* 印章面板 */}
+        {showStampPanel && (
+          <StampPanel
+            onStampSelect={handleStampSelect}
+            onClose={() => {
+              setShowStampPanel(false);
+              setActiveStampId(null);
+              canvasRef.current?.disableStampMode();
+              handleToolChange('select');
+            }}
+            activeStampId={activeStampId}
+          />
+        )}
 
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-800">
           {/* 画布尺寸控制栏 */}
@@ -345,6 +397,34 @@ export default function StudioPage() {
           }}
           onClose={() => { setShowAiPanel(false); setActiveTool('select'); }}
         />
+      )}
+
+      {/* 下载权限升级提示弹窗 */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
+            <div className="text-4xl mb-3">📸</div>
+            <p className="text-white font-semibold mb-1">Preview downloaded</p>
+            <p className="text-slate-400 text-sm mb-5">
+              Upgrade to Pro to export full-resolution PNG without limits.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-600 text-slate-300 text-sm hover:border-slate-400 transition-colors"
+              >
+                Maybe later
+              </button>
+              <Link
+                href={`/${locale}/pricing`}
+                onClick={() => setShowUpgradeModal(false)}
+                className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-white text-sm font-semibold transition-colors"
+              >
+                Upgrade to Pro
+              </Link>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
