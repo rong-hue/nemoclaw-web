@@ -36,7 +36,6 @@ export default function StudioPage() {
   const [customH, setCustomH] = useState('500');
 
   const PRESETS = [
-    { label: 'Custom', w: 0, h: 0 },
     { label: 'Square 1:1', w: 800, h: 800 },
     { label: 'Portrait 4:5', w: 800, h: 1000 },
     { label: 'Story 9:16', w: 720, h: 1280 },
@@ -248,7 +247,7 @@ export default function StudioPage() {
             {PRESETS.map((p) => (
               <button
                 key={p.label}
-                onClick={() => p.w ? applySize(p.w, p.h) : undefined}
+                onClick={() => applySize(p.w, p.h)}
                 className={`text-xs px-2 py-1 rounded transition-all ${
                   p.w === canvasW && p.h === canvasH
                     ? 'bg-orange-500 text-white'
