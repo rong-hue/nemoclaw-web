@@ -586,7 +586,8 @@
       "opacity": "Ink Density",
       "gap": "Break Gap",
       "noise": "Bleed Intensity"
-    }
+    },
+    "type": "Type"
   },
   "success": {
     "title": "Order Placed!",

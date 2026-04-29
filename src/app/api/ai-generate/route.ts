@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+// Node.js runtime required — Edge Runtime breaks auth() cookie reading
 import { auth } from '@/auth';
 import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
 
