@@ -1,4 +1,15 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+import { execSync } from 'child_process';
+
+// Build-time version info
+const commitHash = (() => {
+  try {
+    return (process.env.CF_PAGES_COMMIT_SHA || execSync('git rev-parse HEAD').toString().trim()).slice(0, 7);
+  } catch {
+    return 'unknown';
+  }
+})();
+const buildTime = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -9,6 +20,10 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  env: {
+    NEXT_PUBLIC_BUILD_VERSION: commitHash,
+    NEXT_PUBLIC_BUILD_TIME: buildTime,
   },
   experimental: {
     runtime: 'experimental-edge',

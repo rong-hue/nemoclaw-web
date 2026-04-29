@@ -246,7 +246,14 @@ export default function Home() {
           </div>
           <div className="pt-8 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-slate-600 text-sm">© 2026 NemoClaw. {t('footer.rights')}</p>
-            <p className="text-slate-700 text-xs">Made with ❤️ for creators everywhere</p>
+            <div className="flex items-center gap-3">
+              <p className="text-slate-700 text-xs">Made with ❤️ for creators everywhere</p>
+              {process.env.NEXT_PUBLIC_BUILD_VERSION && (
+                <p className="text-slate-700 text-xs font-mono opacity-50" title={`Built at ${process.env.NEXT_PUBLIC_BUILD_TIME}`}>
+                  v{process.env.NEXT_PUBLIC_BUILD_VERSION}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </footer>
