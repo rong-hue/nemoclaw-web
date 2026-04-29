@@ -1,5 +1,4 @@
 'use client';
-export const runtime = 'edge';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -14,6 +13,8 @@ import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
 import StampPanel from '@/components/StampPanel';
 import StampCursor from '@/components/StampCursor';
+import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
+import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
 import { designsService, subscriptionsService } from '@/lib/supabase';
 import type { Stamp } from '@/lib/stamps';
 
@@ -35,6 +36,8 @@ export default function StudioPage() {
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showStampPanel, setShowStampPanel] = useState(false);
+  const [showWabiPanel, setShowWabiPanel] = useState(false);
+  const [wabiParams, setWabiParams] = useState<WabiSabiParams>({ size: 8, opacity: 0.7, gap: 0.15, noise: 4 });
   const [activeStampId, setActiveStampId] = useState<string | null>(null);
   const [activeStampSrc, setActiveStampSrc] = useState<string | null>(null);
   const [stampCursorParams, setStampCursorParams] = useState<{ size: number; angle: number }>({ size: 120, angle: 0 });
@@ -172,6 +175,10 @@ export default function StudioPage() {
   const handleToolChange = (tool: string) => {
     setActiveTool(tool);
     if (tool !== 'draw') canvasRef.current?.disableDrawing();
+    if (tool !== 'wabisabi') {
+      canvasRef.current?.disableWabiSabiBrush?.();
+      setShowWabiPanel(false);
+    }
     if (tool !== 'stamp') {
       canvasRef.current?.disableStampMode();
       setShowStampPanel(false);
@@ -259,6 +266,7 @@ export default function StudioPage() {
           onDelete={() => canvasRef.current?.deleteSelected()}
           onDuplicate={() => canvasRef.current?.duplicate()}
           onStamp={() => { handleToolChange('stamp'); setShowStampPanel(true); }}
+          onWabiSabi={() => { handleToolChange('wabisabi'); setShowWabiPanel(true); canvasRef.current?.enableWabiSabiBrush?.(wabiParams); }}
           onClear={() => canvasRef.current?.clearCanvas()}
           onExport={handleExportJSON}
           onExportImage={handleExportImage}
@@ -267,6 +275,7 @@ export default function StudioPage() {
           toolLabels={{
             select: t('tools.select'),
             brush: t('tools.brush'),
+            wabiSabi: t('tools.wabiSabi'),
             text: t('tools.text'),
             rect: t('tools.rect'),
             circle: t('tools.circle'),
@@ -299,6 +308,17 @@ export default function StudioPage() {
             onParamsChange={(size, angle) => {
               canvasRef.current?.updateStampParams(size, angle);
               setStampCursorParams({ size, angle });
+            }}
+          />
+        )}
+
+        {/* 残缺美笔刷面板 */}
+        {showWabiPanel && (
+          <WabiSabiBrushPanel
+            onClose={() => { setShowWabiPanel(false); handleToolChange('select'); }}
+            onParamsChange={(p) => {
+              setWabiParams(p);
+              canvasRef.current?.updateWabiSabiParams?.(p);
             }}
           />
         )}
