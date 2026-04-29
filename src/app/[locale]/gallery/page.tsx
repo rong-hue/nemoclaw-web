@@ -191,7 +191,7 @@ export default function Gallery() {
             onClick={e => e.stopPropagation()}
           >
             {/* 图片区域 */}
-            <div className="relative w-full aspect-square bg-slate-950 rounded-t-3xl overflow-hidden shrink-0">
+            <div className="relative w-full h-56 sm:h-72 bg-slate-950 rounded-t-3xl overflow-hidden shrink-0">
               <Image
                 src={selected.file.replace('.png', '.webp')}
                 alt={t(`artworkTitles.${selected.id}`)}
