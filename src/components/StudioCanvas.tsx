@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Canvas as FabricCanvas, Rect, Circle, Textbox, FabricImage, Polygon, Line, Triangle, Group, Gradient, Shadow } from 'fabric';
+import { Canvas as FabricCanvas, Rect, Circle, Textbox, FabricImage, Polygon, Line, Triangle, Group, Gradient, Shadow, PencilBrush } from 'fabric';
 import { useTranslations } from 'next-intl';
 
 export interface CanvasRef {
@@ -274,11 +274,14 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     enableWabiSabiBrush: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
       const canvas = fabricRef.current; if (!canvas) return;
+      // 确保 freeDrawingBrush 已初始化
+      if (!canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush = new PencilBrush(canvas);
+      }
       canvas.isDrawingMode = true;
-      const brush = (canvas as any).freeDrawingBrush;
+      const brush = canvas.freeDrawingBrush;
       brush.color = params.color ?? '#1a1008';
       brush.width = params.size;
-      brush.opacity = params.opacity;
       // 存储 wabi-sabi 参数供 path:created 后处理
       (canvas as any).__wabiSabiParams = params;
     },
@@ -289,7 +292,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      const brush = (canvas as any).freeDrawingBrush;
+      if (!canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush = new PencilBrush(canvas);
+      }
+      const brush = canvas.freeDrawingBrush;
       brush.color = params.color ?? '#1a1008';
       brush.width = params.size;
       (canvas as any).__wabiSabiParams = params;
