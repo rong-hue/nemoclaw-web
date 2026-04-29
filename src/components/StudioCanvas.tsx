@@ -48,6 +48,9 @@ export interface CanvasRef {
   disableStampMode: () => void;
   updateStampParams: (size: number, angle: number) => void;
   stampAt: (x: number, y: number, options?: { src?: string; size?: number; angle?: number; jitter?: boolean }) => Promise<void>;
+  enableWabiSabiBrush: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
+  disableWabiSabiBrush: () => void;
+  updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
 }
 
 export interface LayerItem {
@@ -103,6 +106,40 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     canvas.on('object:added', () => syncLayers(canvas));
     canvas.on('object:removed', () => syncLayers(canvas));
     canvas.on('object:modified', () => syncLayers(canvas));
+
+    // 残缺美笔刷：path 绘制完成后，对路径做随机断点 + 晕染处理
+    canvas.on('path:created', (e: any) => {
+      const wsParams = (canvas as any).__wabiSabiParams;
+      if (!wsParams || !e.path) return;
+      const path = e.path;
+      // 降低整体透明度
+      path.set({ opacity: wsParams.opacity });
+      // 随机给路径加一个轻微旋转抖动，模拟手抖
+      const jitter = (Math.random() - 0.5) * 2;
+      path.set({ angle: (path.angle || 0) + jitter });
+      // 晕染：在路径旁边添加若干小圆点模拟墨迹渗透
+      if (wsParams.noise > 0) {
+        const points = path.path ?? [];
+        const sampleStep = Math.max(1, Math.floor(points.length / 8));
+        for (let i = 0; i < points.length; i += sampleStep) {
+          const cmd = points[i];
+          if (!cmd || cmd.length < 3) continue;
+          if (Math.random() < wsParams.gap) continue;
+          const cx = cmd[cmd.length - 2] + (Math.random() - 0.5) * wsParams.noise * 2;
+          const cy = cmd[cmd.length - 1] + (Math.random() - 0.5) * wsParams.noise * 2;
+          const r = Math.random() * wsParams.size * 0.35 + 0.5;
+          const circle = new (require('fabric').Circle)({
+            left: cx - r, top: cy - r,
+            radius: r,
+            fill: wsParams.color ?? path.stroke ?? '#1a1008',
+            opacity: wsParams.opacity * 0.35 * Math.random(),
+            selectable: false, evented: false,
+          });
+          canvas.add(circle);
+        }
+      }
+      canvas.renderAll();
+    });
 
     return () => { canvas.dispose(); };
   }, []);
@@ -234,6 +271,28 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     disableDrawing: () => {
       const canvas = fabricRef.current; if (!canvas) return;
       canvas.isDrawingMode = false;
+    },
+    enableWabiSabiBrush: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      canvas.isDrawingMode = true;
+      const brush = (canvas as any).freeDrawingBrush;
+      brush.color = params.color ?? '#1a1008';
+      brush.width = params.size;
+      brush.opacity = params.opacity;
+      // 存储 wabi-sabi 参数供 path:created 后处理
+      (canvas as any).__wabiSabiParams = params;
+    },
+    disableWabiSabiBrush: () => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      canvas.isDrawingMode = false;
+      (canvas as any).__wabiSabiParams = null;
+    },
+    updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      const brush = (canvas as any).freeDrawingBrush;
+      brush.color = params.color ?? '#1a1008';
+      brush.width = params.size;
+      (canvas as any).__wabiSabiParams = params;
     },
     deleteSelected: () => {
       const canvas = fabricRef.current; if (!canvas) return;

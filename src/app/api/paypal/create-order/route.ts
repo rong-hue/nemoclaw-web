@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'

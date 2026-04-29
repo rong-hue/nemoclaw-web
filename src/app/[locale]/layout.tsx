@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';

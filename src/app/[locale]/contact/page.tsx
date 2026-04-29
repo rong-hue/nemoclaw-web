@@ -1,5 +1,5 @@
 'use client';
-export const runtime = 'edge';
+
 
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';

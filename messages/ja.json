@@ -456,8 +456,9 @@
       "clear": "クリア",
       "exportJSON": "JSON出力",
       "exportPNG": "PNGエクスポート",
-      "aiGenerate": "AI生成",
-      "stamp": "スタンプ"
+      "aiGenerate": "意境",
+      "stamp": "スタンプ",
+      "wabiSabi": "侘寂"
     },
     "properties": "プロパティ",
     "layers": "レイヤー",
@@ -511,18 +512,25 @@
     "removeBgDone": "背景削除完了！",
     "removeBgFailed": "背景削除に失敗しました。再試行してください",
     "aiGenerate": {
-      "title": "AI 画像生成",
-      "selectStyle": "スタイルを選択",
+      "title": "意境生成",
+      "selectStyle": "意境を選択",
       "styles": {
-        "vintage": "ヴィンテージ",
-        "streetwear": "ストリート",
-        "minimalist": "ミニマル",
-        "popArt": "ポップアート"
+        "shuimo": "水墨画",
+        "gongbi": "工筆画",
+        "ukiyo": "浮世絵",
+        "cyberpunk": "サイバー東洋"
       },
-      "promptLabel": "デザインを説明してください",
-      "promptPlaceholder": "例：サングラスをかけたワシ、アメリカ国旗の背景...",
+      "promptLabel": "意境を描写",
+      "promptPlaceholder": "例：夕暮れの江南、霧雨の中の一艘の舟...",
       "generating": "生成中...",
-      "generate": "生成する"
+      "generate": "意境を生成"
+    },
+    "wabiSabi": {
+      "title": "侘寂ブラシ",
+      "size": "ブラシサイズ",
+      "opacity": "墨の濃度",
+      "gap": "断墨間隔",
+      "noise": "滲み強度"
     }
   },
   "success": {

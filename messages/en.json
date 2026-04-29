@@ -509,8 +509,9 @@
       "clear": "Clear",
       "exportJSON": "Export JSON",
       "exportPNG": "Export PNG",
-      "aiGenerate": "AI Art",
-      "stamp": "Stamp"
+      "aiGenerate": "Mood",
+      "stamp": "Stamp",
+      "wabiSabi": "Wabi-Sabi"
     },
     "properties": "Properties",
     "layers": "Layers",
@@ -566,18 +567,25 @@
     "removeBgDone": "Background removed!",
     "removeBgFailed": "Background removal failed, please try again",
     "aiGenerate": {
-      "title": "AI Image Generator",
-      "selectStyle": "Select Style",
+      "title": "Mood Generator",
+      "selectStyle": "Select Mood",
       "styles": {
-        "vintage": "Vintage",
-        "streetwear": "Streetwear",
-        "minimalist": "Minimal",
-        "popArt": "Pop Art"
+        "shuimo": "Ink Wash",
+        "gongbi": "Gongbi",
+        "ukiyo": "Ukiyo-e",
+        "cyberpunk": "Cyber Orient"
       },
-      "promptLabel": "Describe your design",
-      "promptPlaceholder": "e.g. An eagle wearing sunglasses with an American flag background...",
+      "promptLabel": "Describe your mood",
+      "promptPlaceholder": "e.g. Misty mountains at dusk, a lone boat on still water...",
       "generating": "Generating...",
-      "generate": "Generate"
+      "generate": "Generate Mood"
+    },
+    "wabiSabi": {
+      "title": "Wabi-Sabi Brush",
+      "size": "Brush Size",
+      "opacity": "Ink Density",
+      "gap": "Break Gap",
+      "noise": "Bleed Intensity"
     }
   },
   "success": {

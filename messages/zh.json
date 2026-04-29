@@ -456,8 +456,9 @@
       "clear": "清空",
       "exportJSON": "导出JSON",
       "exportPNG": "导出PNG",
-      "aiGenerate": "AI生图",
-      "stamp": "印章"
+      "aiGenerate": "意境",
+      "stamp": "印章",
+      "wabiSabi": "残缺"
     },
     "properties": "属性",
     "layers": "图层",
@@ -514,18 +515,25 @@
     "removeBgDone": "抠图完成！",
     "removeBgFailed": "抠图失败，请重试",
     "aiGenerate": {
-      "title": "AI 生图",
-      "selectStyle": "选择风格",
+      "title": "意境生成",
+      "selectStyle": "选择意境",
       "styles": {
-        "vintage": "复古美式",
-        "streetwear": "街头潮流",
-        "minimalist": "极简风格",
-        "popArt": "波普艺术"
+        "shuimo": "水墨",
+        "gongbi": "工笔",
+        "ukiyo": "浮世绘",
+        "cyberpunk": "赛博国风"
       },
-      "promptLabel": "描述你想要的图案",
-      "promptPlaceholder": "例如：一只戴墨镜的老鹰，背景是美国国旗...",
+      "promptLabel": "描述你的意境",
+      "promptPlaceholder": "例如：暮色江南，烟雨朦胧，一叶扁舟...",
       "generating": "生成中...",
-      "generate": "生成图案"
+      "generate": "生成意境图"
+    },
+    "wabiSabi": {
+      "title": "残缺美笔刷",
+      "size": "笔触大小",
+      "opacity": "墨迹浓度",
+      "gap": "断墨间距",
+      "noise": "晕染强度"
     }
   },
   "success": {
