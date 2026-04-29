@@ -1,7 +1,7 @@
 'use client';
 export const runtime = 'edge';
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -19,7 +19,7 @@ import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
 import { designsService, subscriptionsService } from '@/lib/supabase';
 import type { Stamp } from '@/lib/stamps';
 
-export default function StudioPage() {
+function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
   const { data: session } = useSession();
@@ -470,5 +470,13 @@ export default function StudioPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function StudioPage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="animate-spin text-orange-500" size={32} /></div>}>
+      <StudioContent />
+    </Suspense>
   );
 }
