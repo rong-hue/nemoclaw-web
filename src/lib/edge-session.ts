@@ -1,14 +1,15 @@
 /**
- * Edge-compatible session reader for NextAuth v5 (JWT strategy).
- * Works in Cloudflare Pages Edge Runtime where auth() cannot read cookies.
+ * Edge-compatible session reader for NextAuth v5 / Auth.js.
  *
- * NextAuth v5 stores the session as a JWE (encrypted JWT) in:
- *   - authjs.session-token        (http)
- *   - __Secure-authjs.session-token (https)
+ * Uses @auth/core's own getToken() which correctly handles:
+ *   - HKDF key derivation (sha256, 64 bytes for A256CBC-HS512)
+ *   - salt = cookie name
+ *   - info = "Auth.js Generated Encryption Key (${salt})"
+ *   - Both __Secure-authjs.session-token (https) and authjs.session-token (http)
  *
- * The secret used to encrypt is AUTH_SECRET env var.
+ * Works in Cloudflare Pages Edge Runtime — no Node.js APIs required.
  */
-import { jwtDecrypt } from 'jose';
+import { getToken } from '@auth/core/jwt';
 
 interface EdgeSession {
   userId: string;
@@ -20,32 +21,24 @@ export async function getEdgeSession(req: Request): Promise<EdgeSession | null> 
     const secret = process.env.AUTH_SECRET;
     if (!secret) return null;
 
-    const cookieHeader = req.headers.get('cookie') ?? '';
-    const cookies = Object.fromEntries(
-      cookieHeader.split(';').map((c) => {
-        const [k, ...v] = c.trim().split('=');
-        return [k.trim(), decodeURIComponent(v.join('='))];
-      })
-    );
+    // Detect https vs http to pick the right cookie name
+    const url = new URL(req.url);
+    const secureCookie = url.protocol === 'https:';
 
-    const token =
-      cookies['__Secure-authjs.session-token'] ||
-      cookies['authjs.session-token'];
+    const token = await getToken({
+      req,
+      secret,
+      secureCookie,
+    });
 
     if (!token) return null;
 
-    // NextAuth v5 uses AES-GCM JWE with the secret derived via HKDF
-    const secretBytes = new TextEncoder().encode(secret);
-    const { payload } = await jwtDecrypt(token, secretBytes, {
-      clockTolerance: 15,
-    });
-
-    const userId = (payload.sub as string) || (payload.email as string);
+    // NextAuth v5: sub = providerAccountId (from jwt callback), email from profile
+    const userId = (token.sub as string) || (token.email as string);
     if (!userId) return null;
 
-    return { userId, email: payload.email as string | undefined };
+    return { userId, email: token.email as string | undefined };
   } catch {
-    // Token invalid / expired / wrong secret
     return null;
   }
 }
