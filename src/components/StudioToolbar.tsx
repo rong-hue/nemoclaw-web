@@ -1,6 +1,6 @@
 'use client';
 
-import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2, Stamp } from 'lucide-react';
+import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2, Stamp, Brush } from 'lucide-react';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -13,6 +13,7 @@ interface ToolbarProps {
   onUploadImage: () => void;
   onAiGenerate: () => void;
   onEnableDrawing: () => void;
+  onWabiSabi?: () => void;
   onRemoveBackground: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
@@ -28,15 +29,17 @@ interface ToolbarProps {
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
   onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
-  onStamp,
+  onStamp, onWabiSabi,
   activeTool, setActiveTool, toolLabels = {}
 }: ToolbarProps) {
   const L = (key: string, fallback: string) => toolLabels[key] || fallback;
-  
+
   const tools = [
     { id: 'select', icon: <MousePointer size={18} />, label: L('select', 'Select'), action: () => setActiveTool('select') },
     { id: 'draw', icon: <Pencil size={18} />, label: L('brush', 'Brush'), action: () => { setActiveTool('draw'); onEnableDrawing(); } },
+    { id: 'wabisabi', icon: <Brush size={18} />, label: L('wabiSabi', '残缺'), action: () => { setActiveTool('wabisabi'); onWabiSabi?.(); } },
     { id: 'stamp', icon: <Stamp size={18} />, label: L('stamp', '印章'), action: () => { setActiveTool('stamp'); onStamp?.(); } },
+    { id: 'ai', icon: <Wand2 size={18} />, label: L('aiGenerate', '意境'), action: () => { setActiveTool('ai'); onAiGenerate(); } },
     { id: 'divider1', icon: null, label: '', action: () => {}, divider: true },
     { id: 'text', icon: <Type size={18} />, label: L('text', 'Text'), action: () => { setActiveTool('text'); onAddText(); } },
     { id: 'rect', icon: <Square size={18} />, label: L('rect', 'Rect'), action: () => { setActiveTool('rect'); onAddRect(); } },
@@ -46,7 +49,6 @@ export default function Toolbar({
     { id: 'line', icon: <Minus size={18} />, label: L('line', 'Line'), action: () => { setActiveTool('line'); onAddLine(); } },
     { id: 'arrow', icon: <ArrowRight size={18} />, label: L('arrow', 'Arrow'), action: () => { setActiveTool('arrow'); onAddArrow(); } },
     { id: 'image', icon: <ImagePlus size={18} />, label: L('image', 'Image'), action: () => { setActiveTool('image'); onUploadImage(); } },
-    { id: 'ai', icon: <Wand2 size={18} />, label: L('aiGenerate', 'AI'), action: () => { setActiveTool('ai'); onAiGenerate(); } },
     { id: 'divider2', icon: null, label: '', action: () => {}, divider: true },
     { id: 'removebg', icon: <Scissors size={18} />, label: L('removeBg', 'BG'), action: onRemoveBackground },
     { id: 'duplicate', icon: <Copy size={18} />, label: L('duplicate', 'Copy'), action: onDuplicate },
@@ -58,7 +60,7 @@ export default function Toolbar({
   ];
 
   return (
-    <div className="w-16 bg-slate-900 border-r border-slate-700 flex flex-col items-center py-4 gap-1 overflow-y-auto">
+    <div className="w-16 bg-slate-900 border-r border-slate-700 flex flex-col items-center py-4 gap-1 overflow-y-auto h-full">
       {tools.map((tool) =>
         tool.divider ? (
           <div key={tool.id} className="w-8 border-t border-slate-700 my-1" />
@@ -70,8 +72,12 @@ export default function Toolbar({
             className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all shrink-0 ${
               activeTool === tool.id
                 ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                : tool.id === 'wabisabi'
+                ? 'text-amber-400 hover:bg-amber-500/10 hover:text-amber-300'
                 : tool.id === 'stamp'
                 ? 'text-purple-400 hover:bg-purple-500/10 hover:text-purple-300'
+                : tool.id === 'ai'
+                ? 'text-amber-400 hover:bg-amber-500/10 hover:text-amber-300'
                 : tool.id === 'delete' || tool.id === 'clear'
                 ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
                 : tool.id === 'export' || tool.id === 'exportImg'
