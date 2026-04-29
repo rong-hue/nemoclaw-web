@@ -1,5 +1,5 @@
-// Node.js runtime required — Edge Runtime breaks auth() cookie reading
-import { auth } from '@/auth';
+export const runtime = 'edge';
+import { getEdgeSession } from '@/lib/edge-session';
 import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
 
 // SiliconFlow FLUX AI 生图 API — 带配额控制
@@ -23,12 +23,12 @@ const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, croppe
 
 export async function POST(req: Request) {
   try {
-    // 1. 鉴权
-    const session = await auth();
-    if (!session?.user?.id && !session?.user?.email) {
+    // 1. 鉴权 — Edge-compatible cookie-based session read
+    const session = await getEdgeSession(req);
+    if (!session) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const userId = session.user.id || session.user.email!;
+    const userId = session.userId;
 
     // 2. 配额检查
     const [usedCount, activeSub] = await Promise.all([
