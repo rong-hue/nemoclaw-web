@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import { auth } from '@/auth';
 import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
 
@@ -8,6 +6,12 @@ import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_L
 // Body: { prompt, style?, width?, height? }
 
 const STYLE_PROMPTS: Record<string, string> = {
+  // 意境风格
+  shuimo: 'Chinese ink wash painting style, shuimo, monochrome ink, expressive brushstrokes, misty atmosphere, traditional Chinese art, xieyi style, negative space, poetic mood',
+  gongbi: 'Chinese gongbi painting style, meticulous brushwork, fine line art, delicate details, vibrant mineral pigments, Song dynasty aesthetic, elegant floral and bird motifs',
+  ukiyo: 'Japanese ukiyo-e woodblock print style, flat color areas, bold outlines, Hokusai inspired, traditional Japanese aesthetic, decorative patterns, nature motifs',
+  cyberpunk: 'cyber orient style, fusion of traditional Chinese ink painting and cyberpunk neon, glowing circuit patterns on rice paper texture, holographic dragon motifs, dark futuristic atmosphere',
+  // 保留旧风格兼容
   vintage: 'American vintage retro style, distressed texture, worn edges, classic americana, bold typography, 1950s-1970s aesthetic',
   streetwear: 'modern streetwear graphic, urban style, bold colors, graffiti influence, contemporary fashion illustration',
   minimalist: 'minimalist design, clean lines, simple geometric shapes, limited color palette, modern aesthetic',
@@ -53,7 +57,11 @@ export async function POST(req: Request) {
 
     // 4. 调用 AI
     const stylePrefix = style && STYLE_PROMPTS[style] ? `${STYLE_PROMPTS[style]}, ` : '';
-    const fullPrompt = `${stylePrefix}${prompt}, high quality, detailed, suitable for t-shirt print design, transparent background preferred`;
+    const isMoodStyle = ['shuimo', 'gongbi', 'ukiyo', 'cyberpunk'].includes(style ?? '');
+    const suffix = isMoodStyle
+      ? ', high quality, artistic, suitable for cultural merchandise print, elegant composition'
+      : ', high quality, detailed, suitable for t-shirt print design, transparent background preferred';
+    const fullPrompt = `${stylePrefix}${prompt}${suffix}`;
 
     const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
