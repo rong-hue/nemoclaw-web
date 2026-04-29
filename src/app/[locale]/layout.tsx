@@ -1,10 +1,15 @@
 
 
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import SessionProviderWrapper from '@/components/SessionProviderWrapper';
+import enMessages from '../../../messages/en.json';
+import zhMessages from '../../../messages/zh.json';
+import jaMessages from '../../../messages/ja.json';
+import koMessages from '../../../messages/ko.json';
+
+const messagesMap: Record<string, any> = { en: enMessages, zh: zhMessages, ja: jaMessages, ko: koMessages };
 
 export default async function LocaleLayout({
   children,
@@ -19,7 +24,7 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = await getMessages({ locale });
+  const messages = messagesMap[locale] ?? enMessages;
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
