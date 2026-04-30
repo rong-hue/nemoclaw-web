@@ -5,8 +5,8 @@ import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useSession } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { authService } from '@/lib/auth';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
@@ -22,7 +22,15 @@ import type { Stamp } from '@/lib/stamps';
 function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
-  const { data: session, status } = useSession();
+  // Use localStorage-based auth (authService) instead of NextAuth useSession
+  const [currentUser, setCurrentUser] = useState(() => authService.getCurrentUser());
+
+  // Re-check on focus (e.g. after returning from login page)
+  useEffect(() => {
+    const onFocus = () => setCurrentUser(authService.getCurrentUser());
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
   const router = useRouter();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -93,7 +101,7 @@ function StudioContent() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [session, designId, designTitle]);
+  }, [currentUser, designId, designTitle]);
 
   const handleUploadImage = () => fileInputRef.current?.click();
 
@@ -115,7 +123,7 @@ function StudioContent() {
   };
 
   const handleExportImage = async () => {
-    const userId = session?.user?.id || session?.user?.email || '';
+    const userId = currentUser?.id || currentUser?.email || '';
     if (userId) {
       const activeSub = await subscriptionsService.getActiveByUser(userId).catch(() => null);
       if (!activeSub) {
@@ -141,7 +149,7 @@ function StudioContent() {
     if (!json) return;
 
     // 未登录时降级为本地下载
-    if (!session?.user) {
+    if (!currentUser) {
       handleExportJSON();
       return;
     }
@@ -152,8 +160,8 @@ function StudioContent() {
       const title = designTitle || t('untitled');
       const saved = await designsService.save({
         id: designId,
-        user_id: session.user.id || session.user.email || '',
-        user_email: session.user.email || '',
+        user_id: currentUser!.id || currentUser!.email || '',
+        user_email: currentUser!.email || '',
         title,
         canvas_json: json,
         preview_url: previewUrl,
@@ -227,14 +235,9 @@ function StudioContent() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* DEBUG: session status */}
-          <span className="text-xs text-yellow-400 hidden md:block">session:{status}:{session?.user?.email ?? 'none'}</span>
-          {session?.user && (
+          {currentUser && (
             <div className="flex items-center gap-2 mr-2">
-              {session.user.image && (
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full" />
-              )}
-              <span className="text-xs text-slate-400 hidden md:block">{session.user.name || session.user.email}</span>
+              <span className="text-xs text-slate-400 hidden md:block">{currentUser.name || currentUser.email}</span>
             </div>
           )}
           <button
@@ -265,8 +268,7 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
-            if (status === 'loading') return; // wait for session to load
-            if (!session?.user) {
+            if (!currentUser) {
               // Pass current studio URL as callbackUrl so user returns here after login
               const callbackUrl = encodeURIComponent(window.location.href);
               router.push(`/${locale}/auth?callbackUrl=${callbackUrl}`);
