@@ -22,7 +22,7 @@ import type { Stamp } from '@/lib/stamps';
 function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -227,6 +227,8 @@ function StudioContent() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* DEBUG: session status */}
+          <span className="text-xs text-yellow-400 hidden md:block">session:{status}:{session?.user?.email ?? 'none'}</span>
           {session?.user && (
             <div className="flex items-center gap-2 mr-2">
               {session.user.image && (
@@ -263,6 +265,7 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
+            if (status === 'loading') return; // wait for session to load
             if (!session?.user) {
               // Pass current studio URL as callbackUrl so user returns here after login
               const callbackUrl = encodeURIComponent(window.location.href);
