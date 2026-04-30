@@ -264,7 +264,9 @@ function StudioContent() {
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
             if (!session?.user) {
-              router.push(`/${locale}/auth`);
+              // Pass current studio URL as callbackUrl so user returns here after login
+              const callbackUrl = encodeURIComponent(window.location.href);
+              router.push(`/${locale}/auth?callbackUrl=${callbackUrl}`);
               return;
             }
             setShowAiPanel(true);

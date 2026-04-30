@@ -4,7 +4,7 @@ export const runtime = 'edge';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/lib/auth';
 import { signIn } from 'next-auth/react';
@@ -13,6 +13,9 @@ export default function AuthPage() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('auth');
+  const searchParams = useSearchParams();
+  // After login, redirect back to the page that sent the user here (e.g. Studio)
+  const callbackUrl = searchParams.get('callbackUrl') || `/${locale}/dashboard`;
 
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -29,7 +32,7 @@ export default function AuthPage() {
     if (isLogin) {
       const user = authService.login(email, password);
       if (user) {
-        router.push(`/${locale}/dashboard`);
+        router.push(callbackUrl);
       } else {
         setError(t('loginError'));
       }
@@ -39,7 +42,7 @@ export default function AuthPage() {
         return;
       }
       authService.register(email, password, name);
-      router.push(`/${locale}/dashboard`);
+      router.push(callbackUrl);
     }
   };
 
@@ -47,7 +50,7 @@ export default function AuthPage() {
     setGoogleLoading(true);
     try {
       await signIn('google', {
-        callbackUrl: `/${locale}/dashboard`,
+        callbackUrl,
       });
     } catch (err) {
       setGoogleLoading(false);
