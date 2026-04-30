@@ -23,10 +23,11 @@ function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
   // Use localStorage-based auth (authService) instead of NextAuth useSession
-  const [currentUser, setCurrentUser] = useState(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
 
-  // Re-check on focus (e.g. after returning from login page)
+  // Read on every mount and on window focus (covers router.push return from login page)
   useEffect(() => {
+    setCurrentUser(authService.getCurrentUser());
     const onFocus = () => setCurrentUser(authService.getCurrentUser());
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);

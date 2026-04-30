@@ -32,7 +32,8 @@ export default function AuthPage() {
     if (isLogin) {
       const user = authService.login(email, password);
       if (user) {
-        router.push(callbackUrl);
+        // Use hard navigation so the target page fully remounts and reads localStorage
+        window.location.href = callbackUrl;
       } else {
         setError(t('loginError'));
       }
@@ -42,7 +43,7 @@ export default function AuthPage() {
         return;
       }
       authService.register(email, password, name);
-      router.push(callbackUrl);
+      window.location.href = callbackUrl;
     }
   };
 
