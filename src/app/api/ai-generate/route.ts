@@ -23,12 +23,18 @@ const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, croppe
 
 export async function POST(req: Request) {
   try {
-    // 1. 鉴权 — Edge-compatible cookie-based session read
-    const session = await getEdgeSession(req);
-    if (!session) {
+    // 1. 鉴权 — accept userId from x-user-id header (localStorage auth) or Edge cookie session
+    let userId: string | undefined;
+    const headerUserId = req.headers.get('x-user-id');
+    if (headerUserId) {
+      userId = headerUserId;
+    } else {
+      const session = await getEdgeSession(req);
+      if (session) userId = session.userId;
+    }
+    if (!userId) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const userId = session.userId;
 
     // 2. 配额检查
     const [usedCount, activeSub] = await Promise.all([
