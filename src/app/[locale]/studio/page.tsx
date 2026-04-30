@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
@@ -23,6 +23,7 @@ function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
   const { data: session } = useSession();
+  const router = useRouter();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams();
@@ -261,7 +262,13 @@ function StudioContent() {
           onAddLine={() => canvasRef.current?.addLine()}
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
-          onAiGenerate={() => setShowAiPanel(true)}
+          onAiGenerate={() => {
+            if (!session?.user) {
+              router.push(`/${locale}/auth`);
+              return;
+            }
+            setShowAiPanel(true);
+          }}
           onEnableDrawing={() => canvasRef.current?.enableDrawing()}
           onRemoveBackground={() => canvasRef.current?.removeBackground()}
           onDelete={() => canvasRef.current?.deleteSelected()}
