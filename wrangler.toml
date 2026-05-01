@@ -6,7 +6,7 @@ pages_build_output_dir = ".vercel/output/static"
 
 [vars]
 AUTH_GOOGLE_ID = "636905317102-me0m9tm4cqbj0e3b8nmebrr8ka3r2dta.apps.googleusercontent.com"
-AUTH_URL = "https://nemoclaw-web.pages.dev"
+AUTH_URL = "https://www.nemoclaw-web.com"
 NEXT_PUBLIC_SUPABASE_URL = "https://zudjabafibyvnpqiroof.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_XpP_1qTZYyMadlP-ocP0Dg_ZwSEM_ot"
 
