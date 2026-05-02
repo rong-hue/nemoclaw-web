@@ -77,7 +77,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
   // 印章模式状态
-  const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number }>({
+  const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number; comboText?: string }>({
     active: false, src: '', size: 120, angle: 0,
   });
   const stampHandlerRef = useRef<((opt: any) => void) | null>(null);
@@ -574,11 +574,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     // 印章模式
     enableStampMode: (src: string, size: number, angle: number) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      // 移除旧监听器
       if (stampHandlerRef.current) {
         canvas.off('mouse:down', stampHandlerRef.current);
       }
-      stampModeRef.current = { active: true, src, size, angle };
+      stampModeRef.current = { active: true, src, size, angle, comboText: undefined };
       canvas.isDrawingMode = false;
       canvas.defaultCursor = 'crosshair';
       canvas.hoverCursor = 'crosshair';
@@ -587,16 +586,51 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const handler = (opt: any) => {
         if (!stampModeRef.current.active) return;
         const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
-        const { src: s, size: sz, angle: ag } = stampModeRef.current;
-        doStampAt(canvas, pointer.x, pointer.y, s, sz, ag).then(() => {
+        const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
+
+        const finish = () => {
           if (!(opt.e as MouseEvent).shiftKey) {
             stampModeRef.current.active = false;
             canvas.defaultCursor = 'default';
             canvas.hoverCursor = 'move';
             canvas.selection = true;
-            onExitStampMode?.();  // 通知 page.tsx 切回 select 模式
+            onExitStampMode?.();
           }
-        });
+        };
+
+        if (comboText) {
+          // 组合印章：图案 + 文字，盖在点击位置
+          const { IText, FabricImage: FI, Group: FGroup } = require('fabric');
+          FI.fromURL(s, { crossOrigin: 'anonymous' }).then((img: any) => {
+            const scale = sz / Math.max(img.width ?? sz, img.height ?? sz);
+            const jx = (Math.random() - 0.5) * 2;
+            const jy = (Math.random() - 0.5) * 2;
+            img.set({ scaleX: scale, scaleY: scale, originX: 'center', originY: 'center', left: 0, top: 0 });
+            const textObj = new IText(comboText, {
+              originX: 'center', originY: 'center', left: 0, top: 0,
+              fontFamily: 'serif',
+              fontSize: Math.max(14, Math.floor(sz * 0.18)),
+              fill: '#8B1A1A', opacity: 0.9, fontWeight: 'bold',
+              charSpacing: 60, lineHeight: 1.3, textAlign: 'center',
+              stroke: '#8B1A1A', strokeWidth: 0.3,
+            });
+            const group = new FGroup([img, textObj], {
+              left: pointer.x + jx,
+              top: pointer.y + jy,
+              originX: 'center',
+              originY: 'center',
+              angle: ag + (Math.random() - 0.5) * 1.5,
+              selectable: true,
+              evented: true,
+            });
+            (group as any).__id = `combo-stamp-${Date.now()}`;
+            canvas.add(group);
+            canvas.renderAll();
+            finish();
+          });
+        } else {
+          doStampAt(canvas, pointer.x, pointer.y, s, sz, ag).then(finish);
+        }
       };
 
       stampHandlerRef.current = handler;
@@ -659,50 +693,57 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
     addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // 不直接放到画布，而是进入等待点击模式，和图片印章一样由用户选定位置
+      if (stampHandlerRef.current) {
+        canvas.off('mouse:down', stampHandlerRef.current);
+      }
+      stampModeRef.current = { active: true, src: stampSrc, size: stampSize, angle: stampAngle, comboText: text };
+      canvas.isDrawingMode = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.hoverCursor = 'crosshair';
+      canvas.selection = false;
+      // handler 已在 enableStampMode 里统一处理，这里重新注册同一个 handler
       const { IText, FabricImage: FI, Group: FGroup } = require('fabric');
-      FI.fromURL(stampSrc, { crossOrigin: 'anonymous' }).then((img: any) => {
-        // Scale image to stampSize
-        const scale = stampSize / Math.max(img.width ?? stampSize, img.height ?? stampSize);
-        img.set({
-          scaleX: scale,
-          scaleY: scale,
-          originX: 'center',
-          originY: 'center',
-          left: 0,
-          top: 0,
+      const handler = (opt: any) => {
+        if (!stampModeRef.current.active) return;
+        const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
+        const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
+        FI.fromURL(s, { crossOrigin: 'anonymous' }).then((img: any) => {
+          const scale = sz / Math.max(img.width ?? sz, img.height ?? sz);
+          const jx = (Math.random() - 0.5) * 2;
+          const jy = (Math.random() - 0.5) * 2;
+          img.set({ scaleX: scale, scaleY: scale, originX: 'center', originY: 'center', left: 0, top: 0 });
+          const textObj = new IText(comboText ?? '', {
+            originX: 'center', originY: 'center', left: 0, top: 0,
+            fontFamily: 'serif',
+            fontSize: Math.max(14, Math.floor(sz * 0.18)),
+            fill: '#8B1A1A', opacity: 0.9, fontWeight: 'bold',
+            charSpacing: 60, lineHeight: 1.3, textAlign: 'center',
+            stroke: '#8B1A1A', strokeWidth: 0.3,
+          });
+          const group = new FGroup([img, textObj], {
+            left: pointer.x + jx,
+            top: pointer.y + jy,
+            originX: 'center',
+            originY: 'center',
+            angle: ag + (Math.random() - 0.5) * 1.5,
+            selectable: true,
+            evented: true,
+          });
+          (group as any).__id = `combo-stamp-${Date.now()}`;
+          canvas.add(group);
+          canvas.renderAll();
+          if (!(opt.e as MouseEvent).shiftKey) {
+            stampModeRef.current.active = false;
+            canvas.defaultCursor = 'default';
+            canvas.hoverCursor = 'move';
+            canvas.selection = true;
+            onExitStampMode?.();
+          }
         });
-        // Text overlaid on image, centered
-        const textObj = new IText(text, {
-          originX: 'center',
-          originY: 'center',
-          left: 0,
-          top: 0,
-          fontFamily: 'serif',
-          fontSize: Math.max(14, Math.floor(stampSize * 0.18)),
-          fill: '#8B1A1A',
-          opacity: 0.9,
-          fontWeight: 'bold',
-          charSpacing: 60,
-          lineHeight: 1.3,
-          textAlign: 'center',
-          stroke: '#8B1A1A',
-          strokeWidth: 0.3,
-        });
-        const group = new FGroup([img, textObj], {
-          left: canvas.width! / 2,
-          top: canvas.height! / 2,
-          originX: 'center',
-          originY: 'center',
-          angle: stampAngle,
-          selectable: true,
-          evented: true,
-        });
-        (group as any).__id = `combo-stamp-${Date.now()}`;
-        canvas.add(group);
-        canvas.setActiveObject(group);
-        canvas.renderAll();
-      });
+      };
+      stampHandlerRef.current = handler;
+      canvas.on('mouse:down', handler);
     },
   }));
 

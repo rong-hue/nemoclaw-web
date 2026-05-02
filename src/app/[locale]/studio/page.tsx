@@ -115,11 +115,9 @@ function StudioContent() {
         e.preventDefault();
         handleSave();
       }
-      // Esc 退出印章模式
+      // Esc 退出印章监听状态，但保留印章面板
       if (e.key === 'Escape' && activeTool === 'stamp') {
         canvasRef.current?.disableStampMode();
-        setShowStampPanel(false);
-        setActiveStampId(null);
         setActiveTool('select');
       }
     };
@@ -422,12 +420,10 @@ function StudioContent() {
             className="flex-1 flex items-center justify-center p-8 overflow-auto relative"
             style={{ cursor: showStampPanel && activeStampSrc ? 'none' : 'default' }}
             onContextMenu={(e) => {
-              // 右键退出印章模式
+              // 右键退出印章监听状态，但保留印章面板
               if (activeTool === 'stamp') {
                 e.preventDefault();
                 canvasRef.current?.disableStampMode();
-                setShowStampPanel(false);
-                setActiveStampId(null);
                 setActiveTool('select');
               }
             }}
@@ -439,9 +435,7 @@ function StudioContent() {
               initialWidth={canvasW}
               initialHeight={canvasH}
               onExitStampMode={() => {
-                // 盖章后自动退出印章模式，切回光标
-                setShowStampPanel(false);
-                setActiveStampId(null);
+                // 盖章后自动退出监听状态，保留印章面板供用户继续选择
                 setActiveTool('select');
               }}
             />
