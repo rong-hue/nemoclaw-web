@@ -53,6 +53,7 @@ export interface CanvasRef {
   disableWabiSabiBrush: () => void;
   updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
   addCustomTextStamp: (text: string) => void;
+  addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string) => void;
 }
 
 export interface LayerItem {
@@ -652,6 +653,54 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       canvas.add(textObj);
       canvas.setActiveObject(textObj);
       canvas.renderAll();
+    },
+
+    addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { IText, FabricImage: FI, Group: FGroup } = require('fabric');
+      FI.fromURL(stampSrc, { crossOrigin: 'anonymous' }).then((img: any) => {
+        // Scale image to stampSize
+        const scale = stampSize / Math.max(img.width ?? stampSize, img.height ?? stampSize);
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+          originX: 'center',
+          originY: 'center',
+          left: 0,
+          top: 0,
+        });
+        // Text overlaid on image, centered
+        const textObj = new IText(text, {
+          originX: 'center',
+          originY: 'center',
+          left: 0,
+          top: 0,
+          fontFamily: 'serif',
+          fontSize: Math.max(14, Math.floor(stampSize * 0.18)),
+          fill: '#8B1A1A',
+          opacity: 0.9,
+          fontWeight: 'bold',
+          charSpacing: 60,
+          lineHeight: 1.3,
+          textAlign: 'center',
+          stroke: '#8B1A1A',
+          strokeWidth: 0.3,
+        });
+        const group = new FGroup([img, textObj], {
+          left: canvas.width! / 2,
+          top: canvas.height! / 2,
+          originX: 'center',
+          originY: 'center',
+          angle: stampAngle,
+          selectable: true,
+          evented: true,
+        });
+        (group as any).__id = `combo-stamp-${Date.now()}`;
+        canvas.add(group);
+        canvas.setActiveObject(group);
+        canvas.renderAll();
+      });
     },
   }));
 

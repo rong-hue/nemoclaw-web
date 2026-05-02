@@ -11,9 +11,10 @@ interface StampPanelProps {
   activeStampId: string | null;
   onParamsChange?: (size: number, angle: number) => void;
   onCustomTextStamp?: (text: string) => void;
+  onComboStamp?: (stamp: Stamp, size: number, angle: number, text: string) => void;
 }
 
-export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange, onCustomTextStamp }: StampPanelProps) {
+export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange, onCustomTextStamp, onComboStamp }: StampPanelProps) {
   const t = useTranslations();
   const locale = useLocale();
   const [category, setCategory] = useState<StampCategory>('tang');
@@ -119,26 +120,32 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
           <span className="text-slate-600">{t('studio.stamp.tipShift')}</span>
         </p>
 
-        {/* Custom Text Stamp */}
-        <div className="border-t border-slate-700 pt-3 space-y-2">
-          <p className="text-xs text-slate-300 font-medium">{t('studio.stamp.customText')}</p>
+        {/* 组合印章 */}
+        <div className="border-t border-slate-700 pt-3">
+          <p className="text-xs text-slate-400 mb-2">{t('studio.stamp.customText')}</p>
           <textarea
-            rows={2}
             value={customText}
             onChange={e => setCustomText(e.target.value)}
             placeholder={t('studio.stamp.customTextPlaceholder')}
-            className="w-full bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 border border-slate-600 focus:border-orange-400 focus:outline-none resize-none placeholder-slate-500"
+            rows={2}
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder-slate-500 resize-none focus:outline-none focus:border-orange-500 mb-2"
           />
-          <p className="text-[10px] text-slate-600">{t('studio.stamp.customTextHint')}</p>
+          <p className="text-[10px] text-slate-500 mb-2">{t('studio.stamp.customTextHint')}</p>
           <button
             onClick={() => {
-              if (customText.trim()) {
+              if (customText.trim() && activeStampId) {
+                // 有图案选中：生成组合印章
+                const stamp = stamps.find(s => s.id === activeStampId);
+                if (stamp) onComboStamp?.(stamp, size, angle, customText.trim());
+              } else if (customText.trim()) {
+                // 没有图案：只生成文字印章
                 onCustomTextStamp?.(customText.trim());
               }
             }}
-            className="bg-orange-500 hover:bg-orange-400 text-white text-xs px-3 py-1.5 rounded-lg w-full transition-colors"
+            disabled={!customText.trim()}
+            className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
           >
-            {t('studio.stamp.addTextStamp')}
+            {activeStampId ? t('studio.stamp.addComboStamp') : t('studio.stamp.addTextStamp')}
           </button>
         </div>
       </div>

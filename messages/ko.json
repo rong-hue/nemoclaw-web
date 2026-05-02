@@ -544,7 +544,8 @@
       "customText": "커스텀 텍스트 스탬프",
       "customTextPlaceholder": "기념일, 이름, 의미 있는 문구 입력...",
       "customTextHint": "예: 2024.05.20 · 첫날",
-      "addTextStamp": "텍스트 스탬프 만들기"
+      "addTextStamp": "텍스트 스탬프 만들기",
+      "addComboStamp": "콤보 스탬프 만들기"
     },
     "wabi": {
       "title": "와비사비 브러시",

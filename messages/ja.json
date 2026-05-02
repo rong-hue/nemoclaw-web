@@ -544,7 +544,8 @@
       "customText": "カスタムテキストスタンプ",
       "customTextPlaceholder": "記念日、名前、心の言葉を入力...",
       "customTextHint": "例：2024.05.20 · 初心",
-      "addTextStamp": "テキストスタンプを作成"
+      "addTextStamp": "テキストスタンプを作成",
+      "addComboStamp": "コンボスタンプを作成"
     },
     "wabi": {
       "title": "侘寂ブラシ",

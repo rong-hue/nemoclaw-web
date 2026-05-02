@@ -600,7 +600,8 @@
       "customText": "Custom Text Stamp",
       "customTextPlaceholder": "Enter a date, name, or meaningful phrase...",
       "customTextHint": "e.g. 2024.05.20 · First Day",
-      "addTextStamp": "Create Text Stamp"
+      "addTextStamp": "Create Text Stamp",
+      "addComboStamp": "Create Combo Stamp"
     },
     "wabi": {
       "title": "Wabi-Sabi Brush",

@@ -311,6 +311,7 @@ function StudioContent() {
           toolLabels={{
             select: t('tools.select'),
             brush: t('tools.brush'),
+            stamp: t('tools.stamp'),
             wabiSabi: t('tools.wabiSabi'),
             text: t('tools.text'),
             rect: t('tools.rect'),
@@ -347,6 +348,9 @@ function StudioContent() {
             }}
             onCustomTextStamp={(text) => {
               canvasRef.current?.addCustomTextStamp(text);
+            }}
+            onComboStamp={(stamp, size, angle, text) => {
+              canvasRef.current?.addComboStamp(stamp.src, size, angle, text);
             }}
           />
         )}

@@ -547,7 +547,8 @@
       "customText": "自定义文字印章",
       "customTextPlaceholder": "输入纪念日、名字或心语...",
       "customTextHint": "例如：2024.05.20 · 初心不忘",
-      "addTextStamp": "生成文字印章"
+      "addTextStamp": "生成文字印章",
+      "addComboStamp": "生成组合印章"
     },
     "wabi": {
       "title": "残缺美笔刷",
