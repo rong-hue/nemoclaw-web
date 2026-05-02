@@ -274,12 +274,16 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
-            if (!currentUser) {
-              // Use hard navigation so auth page fully loads and can read callbackUrl from searchParams
+            // Always read localStorage directly at click time — never rely on React state
+            // which may be stale due to SSR/hydration timing in Edge Runtime
+            const user = authService.getCurrentUser();
+            if (!user) {
               const callbackUrl = encodeURIComponent(window.location.href);
               window.location.href = `/${locale}/auth?callbackUrl=${callbackUrl}`;
               return;
             }
+            // Sync state in case it was stale
+            setCurrentUser(user);
             setShowAiPanel(true);
           }}
           onEnableDrawing={() => canvasRef.current?.enableDrawing()}
