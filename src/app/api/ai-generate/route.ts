@@ -6,12 +6,18 @@ import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_L
 // POST /api/ai-generate
 // Body: { prompt, style?, width?, height? }
 
+// 东方美学词库 — 每个风格的核心视觉语言
 const STYLE_PROMPTS: Record<string, string> = {
-  // 意境风格
-  shuimo: 'Chinese ink wash painting style, shuimo, monochrome ink, expressive brushstrokes, misty atmosphere, traditional Chinese art, xieyi style, negative space, poetic mood',
-  gongbi: 'Chinese gongbi painting style, meticulous brushwork, fine line art, delicate details, vibrant mineral pigments, Song dynasty aesthetic, elegant floral and bird motifs',
-  ukiyo: 'Japanese ukiyo-e woodblock print style, flat color areas, bold outlines, Hokusai inspired, traditional Japanese aesthetic, decorative patterns, nature motifs',
-  cyberpunk: 'cyber orient style, fusion of traditional Chinese ink painting and cyberpunk neon, glowing circuit patterns on rice paper texture, holographic dragon motifs, dark futuristic atmosphere',
+  // 水墨氤氲：大写意，墨气淋漓
+  shuimo: 'Chinese ink wash painting, shuimo xieyi style, monochrome ink gradients, expressive spontaneous brushstrokes, misty atmospheric perspective, rice paper texture, negative space composition, poetic and melancholic mood, Song dynasty literati aesthetic',
+  // 工笔细描：精细勾勒，矿物色彩
+  gongbi: 'Chinese gongbi fine brushwork painting, meticulous detailed line art, delicate mineral pigments, gold leaf accents, Tang and Song dynasty court aesthetic, elegant floral bird and figure motifs, silk scroll texture, jewel-like color saturation',
+  // 浮世绘版画：平涂色块，装饰性强
+  ukiyo: 'Japanese ukiyo-e woodblock print, flat bold color areas, strong outlines, Hokusai and Hiroshige inspired, Edo period aesthetic, decorative wave and nature patterns, limited color palette, graphic and ornamental composition',
+  // 赛博国风：霓虹灯笼 + 机械山水
+  cyberpunk: 'cyber orient fusion, Song dynasty ink painting meets cyberpunk neon, glowing neon lanterns and holographic pavilions, circuit-pattern bamboo forest, mechanical dragon motifs, rain-soaked night market, dark futuristic atmosphere with ink wash texture overlay',
+  // 留白极简：禅意，计白当黑
+  liubai: 'Zen minimalist ink painting, extreme negative space, single brushstroke subject, wabi-sabi aesthetic, sparse composition, pale ink wash background, meditative stillness, haiku visual poetry, monochrome with subtle warm tone',
   // 保留旧风格兼容
   vintage: 'American vintage retro style, distressed texture, worn edges, classic americana, bold typography, 1950s-1970s aesthetic',
   streetwear: 'modern streetwear graphic, urban style, bold colors, graffiti influence, contemporary fashion illustration',
@@ -19,7 +25,10 @@ const STYLE_PROMPTS: Record<string, string> = {
   popArt: 'pop art style, bold outlines, bright saturated colors, halftone dots, Andy Warhol inspired, comic book aesthetic',
 };
 
-const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, cropped, oversaturated, ugly, deformed, extra limbs, bad anatomy, duplicate';
+// 东方美学风格集合（用于判断是否追加文创品质量后缀）
+const EASTERN_STYLES = new Set(['shuimo', 'gongbi', 'ukiyo', 'cyberpunk', 'liubai']);
+
+const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, cropped, oversaturated, ugly, deformed, extra limbs, bad anatomy, duplicate, western style, photorealistic';
 
 export async function POST(req: Request) {
   try {
@@ -64,11 +73,11 @@ export async function POST(req: Request) {
 
     // 4. 调用 AI
     const stylePrefix = style && STYLE_PROMPTS[style] ? `${STYLE_PROMPTS[style]}, ` : '';
-    const isMoodStyle = ['shuimo', 'gongbi', 'ukiyo', 'cyberpunk'].includes(style ?? '');
-    const suffix = isMoodStyle
-      ? ', high quality, artistic, suitable for cultural merchandise print, elegant composition'
+    const isEastern = EASTERN_STYLES.has(style ?? '');
+    const qualitySuffix = isEastern
+      ? ', masterpiece, high quality, suitable for cultural merchandise printing, elegant artistic composition, fine art'
       : ', high quality, detailed, suitable for t-shirt print design, transparent background preferred';
-    const fullPrompt = `${stylePrefix}${prompt}${suffix}`;
+    const fullPrompt = `${stylePrefix}${prompt}${qualitySuffix}`;
 
     const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',

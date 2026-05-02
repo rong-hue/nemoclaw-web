@@ -513,15 +513,17 @@
     "removeBgFailed": "背景削除に失敗しました。再試行してください",
     "aiGenerate": {
       "title": "意境生成",
-      "selectStyle": "意境を選択",
+      "selectStyle": "スタイルを選択",
       "styles": {
         "shuimo": "水墨画",
         "gongbi": "工筆画",
         "ukiyo": "浮世絵",
-        "cyberpunk": "サイバー東洋"
+        "cyberpunk": "サイバー東洋",
+        "liubai": "禅ミニマル"
       },
-      "promptLabel": "意境を描写",
-      "promptPlaceholder": "例：夕暮れの江南、霧雨の中の一艘の舟...",
+      "promptLabel": "東洋の情景を描写",
+      "promptPlaceholder": "例：夕暮れの孤舟、雪夜の松窓、月下の笛",
+      "randomBtn": "ランダム詩句",
       "generating": "生成中...",
       "generate": "意境を生成"
     },

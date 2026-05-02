@@ -568,15 +568,17 @@
     "removeBgFailed": "Background removal failed, please try again",
     "aiGenerate": {
       "title": "Mood Generator",
-      "selectStyle": "Select Mood",
+      "selectStyle": "Select Mood Style",
       "styles": {
         "shuimo": "Ink Wash",
-        "gongbi": "Gongbi",
-        "ukiyo": "Ukiyo-e",
-        "cyberpunk": "Cyber Orient"
+        "gongbi": "Fine Brushwork",
+        "ukiyo": "Ukiyo-e Print",
+        "cyberpunk": "Cyber Orient",
+        "liubai": "Zen Minimalist"
       },
-      "promptLabel": "Describe your mood",
-      "promptPlaceholder": "e.g. Misty mountains at dusk, a lone boat on still water...",
+      "promptLabel": "Describe your Eastern mood",
+      "promptPlaceholder": "e.g. Lone boat at dusk, pine window in snowy night, flute under moonlight",
+      "randomBtn": "Random Verse",
       "generating": "Generating...",
       "generate": "Generate Mood"
     },

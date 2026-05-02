@@ -516,15 +516,17 @@
     "removeBgFailed": "抠图失败，请重试",
     "aiGenerate": {
       "title": "意境生成",
-      "selectStyle": "选择意境",
+      "selectStyle": "选择意境风格",
       "styles": {
-        "shuimo": "水墨",
-        "gongbi": "工笔",
-        "ukiyo": "浮世绘",
-        "cyberpunk": "赛博国风"
+        "shuimo": "水墨氤氲",
+        "gongbi": "工笔细描",
+        "ukiyo": "浮世绘版画",
+        "cyberpunk": "赛博国风",
+        "liubai": "留白极简"
       },
-      "promptLabel": "描述你的意境",
-      "promptPlaceholder": "例如：暮色江南，烟雨朦胧，一叶扁舟...",
+      "promptLabel": "描述你心中的东方意境",
+      "promptPlaceholder": "例如：暮色孤舟、雪夜松窗、月下笛声",
+      "randomBtn": "随机意蕴",
       "generating": "生成中...",
       "generate": "生成意境图"
     },

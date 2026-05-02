@@ -513,15 +513,17 @@
     "removeBgFailed": "배경 제거 실패. 다시 시도해주세요",
     "aiGenerate": {
       "title": "의경 생성",
-      "selectStyle": "의경 선택",
+      "selectStyle": "스타일 선택",
       "styles": {
         "shuimo": "수묵화",
         "gongbi": "공필화",
         "ukiyo": "우키요에",
-        "cyberpunk": "사이버 동양"
+        "cyberpunk": "사이버 동양",
+        "liubai": "선 미니멀"
       },
-      "promptLabel": "의경 묘사",
-      "promptPlaceholder": "예: 황혼의 강남, 안개비 속 외로운 배...",
+      "promptLabel": "동양적 분위기 묘사",
+      "promptPlaceholder": "예: 황혼의 외로운 배, 눈 내리는 밤 소나무 창, 달빛 아래 피리",
+      "randomBtn": "랜덤 시구",
       "generating": "생성 중...",
       "generate": "의경 생성"
     },
