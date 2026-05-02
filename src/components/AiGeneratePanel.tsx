@@ -20,29 +20,77 @@ const STYLE_EMOJIS: Record<string, string> = {
   liubai: '☯️',
 };
 
-// 唐诗宋词随机意蕴库
-const RANDOM_VERSES = [
-  '暮色孤舟，烟波江上，天涯归客',
-  '雪夜松窗，寒梅独放，一灯如豆',
-  '月下笛声，竹影扫阶，清风徐来',
-  '春江花月，渔火点点，远山如黛',
-  '秋水长天，芦花飞白，雁过无声',
-  '古寺晨钟，云雾缭绕，松间明月',
-  '枯藤老树，昏鸦归巢，小桥流水',
-  '大漠孤烟，长河落日，边塞苍茫',
-  '荷塘月色，蛙声一片，夏夜清凉',
-  '梅花三弄，冰心玉壶，傲雪独立',
-  '桃花流水，武陵春色，世外桃源',
-  '寒山石径，白云深处，人家隐约',
-  '渔舟唱晚，霞光万道，归帆点点',
-  '竹外桃花，春江水暖，鸭先知晓',
-  '疏影横斜，暗香浮动，月黄昏时',
-  '千里江山，青绿山水，宋人笔意',
-  '飞流直下，银河落九天，庐山烟雨',
-  '独坐幽篁，弹琴复长啸，深林人不知',
-  '空山新雨，天气晚来秋，明月松间照',
-  '举头望明月，低头思故乡，床前月光',
-];
+// 唐诗宋词随机意蕴库 — 按语言
+const RANDOM_VERSES: Record<string, string[]> = {
+  zh: [
+    '暮色孤舟，烟波江上，天涯归客',
+    '雪夜松窗，寒梅独放，一灯如豆',
+    '月下笛声，竹影扫阶，清风徐来',
+    '春江花月，渔火点点，远山如黛',
+    '秋水长天，芦花飞白，雁过无声',
+    '古寺晨钟，云雾缭绕，松间明月',
+    '枯藤老树，昏鸦归巢，小桥流水',
+    '大漠孤烟，长河落日，边塞苍茫',
+    '荷塘月色，蛙声一片，夏夜清凉',
+    '梅花三弄，冰心玉壶，傲雪独立',
+    '桃花流水，武陵春色，世外桃源',
+    '寒山石径，白云深处，人家隐约',
+    '渔舟唱晚，霞光万道，归帆点点',
+    '竹外桃花，春江水暖，鸭先知晓',
+    '疏影横斜，暗香浮动，月黄昏时',
+    '千里江山，青绿山水，宋人笔意',
+    '飞流直下，银河落九天，庐山烟雨',
+    '独坐幽篁，弹琴复长啸，深林人不知',
+    '空山新雨，天气晚来秋，明月松间照',
+    '举头望明月，低头思故乡，床前月光',
+  ],
+  en: [
+    'Lone boat at dusk, mist over the river, a wanderer far from home',
+    'Snowy night, pine-framed window, a single candle flickering',
+    'Flute under moonlight, bamboo shadows sweep the steps, cool breeze',
+    'Spring river, flower moon, distant fishing lights, mountains like ink',
+    'Autumn water meets the sky, white reeds drift, geese pass in silence',
+    'Ancient temple bell at dawn, mist coils through pines, moonlight lingers',
+    'Withered vine, old tree, dusk crows, a small bridge over flowing water',
+    'Lone smoke in the desert, the long river swallowed by the setting sun',
+    'Lotus pond in moonlight, frogs singing, cool summer night',
+    'Plum blossoms in three movements, jade heart in ice, standing proud in snow',
+    'Peach blossoms on the water, spring colors of Wuling, a hidden paradise',
+    'Cold mountain stone path, deep in white clouds, a distant homestead',
+    'Fishermen singing at dusk, rays of sunset, sails returning home',
+    'Peach blossoms beyond bamboo, spring river warming, ducks know first',
+    'Sparse shadows slant, dark fragrance drifts, moon at twilight',
+    'A thousand miles of rivers and mountains, green landscape, Song dynasty brushwork',
+    'Waterfall plunging three thousand feet, the Milky Way falling from heaven',
+    'Sitting alone in bamboo grove, playing the lute, deep forest, no one knows',
+    'Fresh rain on empty mountains, late autumn air, moonlight through the pines',
+    'Head raised to the bright moon, head bowed in longing for home',
+  ],
+  ja: [
+    '夕暮れの孤舟、霞む川面、遠い旅人',
+    '雪の夜、松の窓、寒梅ひとり咲く',
+    '月下の笛、竹影が階を掃く、涼風',
+    '春の江、花と月、漁火点々、遠山墨色',
+    '秋水と空、葦の花白く、雁の声なし',
+    '古刹の暁鐘、霧が松を巻く、月光残る',
+    '枯れ藤、老木、黄昏の鴉、小橋流水',
+    '砂漠の孤煙、大河に沈む夕日、辺境の茫漠',
+    '蓮池の月光、蛙の声、夏の夜の涼しさ',
+    '梅花三弄、氷心玉壺、雪に誇る孤高',
+  ],
+  ko: [
+    '황혼의 외로운 배, 강 위의 안개, 먼 나그네',
+    '눈 내리는 밤, 소나무 창가, 홀로 핀 매화',
+    '달빛 아래 피리 소리, 대나무 그림자, 서늘한 바람',
+    '봄 강의 꽃과 달, 어화 점점, 먹빛 원산',
+    '가을 물과 하늘, 흰 갈대 날리고, 기러기 소리 없이',
+    '새벽 절의 종소리, 안개 속 소나무, 달빛 머물다',
+    '마른 등나무, 늙은 나무, 황혼의 까마귀, 작은 다리 흐르는 물',
+    '사막의 외로운 연기, 긴 강에 지는 해, 변방의 광막함',
+    '연못의 달빛, 개구리 소리, 시원한 여름밤',
+    '매화 세 번 울리고, 옥호빙심, 눈 속에 홀로 서다',
+  ],
+};
 
 export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGeneratePanelProps) {
   const t = useTranslations('studio.aiGenerate');
@@ -58,7 +106,8 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
   }
 
   function handleRandomVerse() {
-    const verse = RANDOM_VERSES[Math.floor(Math.random() * RANDOM_VERSES.length)];
+    const verses = RANDOM_VERSES[locale] ?? RANDOM_VERSES['en'];
+    const verse = verses[Math.floor(Math.random() * verses.length)];
     setPrompt(verse);
   }
 
