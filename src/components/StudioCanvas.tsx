@@ -585,12 +585,24 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
       const handler = (opt: any) => {
         if (!stampModeRef.current.active) return;
+        // 鼠标右键（button === 2）：退出盖章模式，不盖章
+        if ((opt.e as MouseEvent).button === 2) {
+          stampModeRef.current.active = false;
+          canvas.defaultCursor = 'default';
+          canvas.hoverCursor = 'move';
+          canvas.selection = true;
+          if (stampHandlerRef.current) {
+            canvas.off('mouse:down', stampHandlerRef.current);
+            stampHandlerRef.current = null;
+          }
+          onExitStampMode?.();
+          return;
+        }
         const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
         const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
 
         const finish = () => {
           // 盖章后保持激活状态，用户可继续盖章
-          // 只有 Esc 或鼠标右键才退出（在 page.tsx 里处理）
         };
 
         if (comboText) {
@@ -701,6 +713,19 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const { IText, FabricImage: FI, Group: FGroup } = require('fabric');
       const handler = (opt: any) => {
         if (!stampModeRef.current.active) return;
+        // 鼠标右键：退出盖章模式，不盖章
+        if ((opt.e as MouseEvent).button === 2) {
+          stampModeRef.current.active = false;
+          canvas.defaultCursor = 'default';
+          canvas.hoverCursor = 'move';
+          canvas.selection = true;
+          if (stampHandlerRef.current) {
+            canvas.off('mouse:down', stampHandlerRef.current);
+            stampHandlerRef.current = null;
+          }
+          onExitStampMode?.();
+          return;
+        }
         const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
         const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
         FI.fromURL(s, { crossOrigin: 'anonymous' }).then((img: any) => {
