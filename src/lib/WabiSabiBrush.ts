@@ -1,200 +1,192 @@
 // src/lib/WabiSabiBrush.ts
-import { BaseBrush, Canvas as FabricCanvas, Point } from 'fabric';
+// 残缺美笔刷 — 基于 Fabric.js BaseBrush
+// 策略：实时在 contextTop 预览，鼠标抬起后生成多段 fabric.Path 组合，
+// 完全在 Fabric 逻辑坐标空间操作，无 devicePixelRatio 坐标转换问题。
+import { BaseBrush, Canvas as FabricCanvas, Path, Point, Group } from 'fabric';
 import type { TBrushEventData } from 'fabric';
 
 export interface WabiSabiParams {
   size: number;       // 笔触基础宽度
   opacity: number;    // 基础透明度
   gap: number;        // 断墨概率 0-0.5
-  noise: number;      // 晕染半径
+  noise: number;      // 晕染半径（晕染圆点偏移范围）
   color?: string;     // 笔刷颜色
-  dryBrush?: number;  // 枯笔概率 0-0.3，新增
+  dryBrush?: number;  // 枯笔概率 0-0.3
+}
+
+// 每段笔触的绘制信息（用于最终生成 Path）
+interface Segment {
+  x1: number; y1: number;
+  x2: number; y2: number;
+  width: number;
+  alpha: number;
 }
 
 export class WabiSabiBrush extends BaseBrush {
   params: WabiSabiParams;
   private _pts: Array<{ x: number; y: number }> = [];
-  private _textureCanvas: HTMLCanvasElement | null = null;
+  private _segments: Segment[] = [];  // 记录每段的宽度和透明度，用于最终生成路径
 
   constructor(canvas: FabricCanvas, params: WabiSabiParams) {
     super(canvas);
     this.params = params;
     this.color = params.color ?? '#1a1008';
     this.width = params.size;
-    this._initTexture();
-  }
-
-  // 预生成晕染纹理（离屏Canvas）
-  private _initTexture() {
-    const radius = Math.max(this.params.size * 2, 8);
-    const canvas = document.createElement('canvas');
-    canvas.width = radius * 2;
-    canvas.height = radius * 2;
-    const ctx = canvas.getContext('2d')!;
-
-    const gradient = ctx.createRadialGradient(radius, radius, 0, radius, radius, radius);
-    gradient.addColorStop(0, `rgba(0,0,0,0.8)`);
-    gradient.addColorStop(0.5, `rgba(0,0,0,0.3)`);
-    gradient.addColorStop(1, `rgba(0,0,0,0)`);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, radius * 2, radius * 2);
-
-    // 飞白颗粒感：随机透明点
-    const imageData = ctx.getImageData(0, 0, radius * 2, radius * 2);
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      if (Math.random() > 0.82) {
-        imageData.data[i + 3] = Math.round(imageData.data[i + 3] * 0.2);
-      }
-    }
-    ctx.putImageData(imageData, 0, 0);
-
-    this._textureCanvas = canvas;
   }
 
   updateParams(params: WabiSabiParams) {
     this.params = params;
     this.color = params.color ?? '#1a1008';
     this.width = params.size;
-    this._initTexture(); // 重新生成纹理
   }
 
-  // BaseBrush 要求实现的抽象方法 _render（全量重绘，此处留空，我们用增量绘制）
-  _render(): void {
-    // 增量绘制已在 onMouseMove 中完成，此处无需全量重绘
-  }
+  // BaseBrush 抽象方法，全量重绘时调用（我们用增量，此处留空）
+  _render(): void {}
 
   onMouseDown(pointer: Point, _ev: TBrushEventData): void {
     this._pts = [{ x: pointer.x, y: pointer.y }];
-    const ctx = this.canvas.contextTop;
-    if (ctx) {
-      ctx.save();
-      // 使用父类的 _setBrushStyles 设置基础样式
-      super._setBrushStyles(ctx);
-    }
+    this._segments = [];
+    // 清除上次残留
+    this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
   }
 
   onMouseMove(pointer: Point, _ev: TBrushEventData): void {
     this._pts.push({ x: pointer.x, y: pointer.y });
-    this._drawSegment();
+    this._drawSegmentPreview();
   }
 
   onMouseUp(_ev: TBrushEventData): boolean | void {
     this._finalizeStroke();
+    return false;
   }
 
-  private _drawSegment() {
+  // 实时预览：在 contextTop 上增量绘制
+  private _drawSegmentPreview() {
     const ctx = this.canvas.contextTop;
     if (!ctx || this._pts.length < 2) return;
 
     const prev = this._pts[this._pts.length - 2];
     const curr = this._pts[this._pts.length - 1];
 
-    // 枯笔概率：概率墨量骤降
+    // 断墨：跳过
+    if (Math.random() < this.params.gap) return;
+
+    // 枯笔概率
     const dryProb = this.params.dryBrush ?? 0.15;
     const isDry = Math.random() < dryProb;
     const inkLevel = isDry ? 0.15 + Math.random() * 0.1 : 1.0;
 
-    // 边缘抖动：对当前点施加随机偏移
-    const jitterRange = this.width * 0.08;
-    const jx = (Math.random() - 0.5) * jitterRange;
-    const jy = (Math.random() - 0.5) * jitterRange;
+    // 边缘抖动
+    const jitter = this.width * 0.08;
+    const x = curr.x + (Math.random() - 0.5) * jitter;
+    const y = curr.y + (Math.random() - 0.5) * jitter;
 
-    const x = curr.x + jx;
-    const y = curr.y + jy;
-
-    // 断墨：跳过这个点
-    if (Math.random() < this.params.gap) return;
-
-    ctx.save();
-
-    // 主笔触
     const strokeWidth = this.width * (0.6 + inkLevel * 0.4);
-    ctx.globalAlpha = this.params.opacity * inkLevel;
+    const alpha = this.params.opacity * inkLevel;
+
+    // 记录这段信息，供最终生成 Path 使用
+    this._segments.push({ x1: prev.x, y1: prev.y, x2: x, y2: y, width: strokeWidth, alpha });
+
+    // contextTop 预览
+    ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.strokeStyle = this.color;
     ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-
     ctx.beginPath();
     ctx.moveTo(prev.x, prev.y);
     ctx.lineTo(x, y);
     ctx.stroke();
 
-    // 晕染：在笔触旁绘制纹理印记
-    if (this.params.noise > 0 && this._textureCanvas && !isDry) {
-      const radius = Math.max(this.params.size * 2, 8);
-      ctx.globalAlpha = this.params.opacity * 0.25 * Math.random();
-      ctx.drawImage(
-        this._textureCanvas,
-        x - radius + (Math.random() - 0.5) * this.params.noise,
-        y - radius + (Math.random() - 0.5) * this.params.noise,
-        radius * 2,
-        radius * 2
-      );
+    // 晕染预览（小圆点）
+    if (this.params.noise > 0 && !isDry) {
+      const nr = this.width * 0.3 + Math.random() * this.width * 0.2;
+      const nx = x + (Math.random() - 0.5) * this.params.noise * 2;
+      const ny = y + (Math.random() - 0.5) * this.params.noise * 2;
+      ctx.globalAlpha = alpha * 0.3 * Math.random();
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(nx, ny, nr, 0, Math.PI * 2);
+      ctx.fill();
     }
-
     ctx.restore();
   }
 
+  // 最终生成：把所有段转为 fabric.Path 对象，加入画布
   private _finalizeStroke() {
-    if (this._pts.length < 2) {
-      this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
-      this._pts = [];
-      return;
-    }
-
-    const topCanvas = this.canvas.contextTop?.canvas;
-    if (!topCanvas) { this._pts = []; return; }
-
-    // 计算笔触实际边界框（加上笔宽和晕染半径的 padding）
-    const pad = this.width + this.params.noise + 4;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const p of this._pts) {
-      if (p.x < minX) minX = p.x;
-      if (p.y < minY) minY = p.y;
-      if (p.x > maxX) maxX = p.x;
-      if (p.y > maxY) maxY = p.y;
-    }
-    minX = Math.max(0, Math.floor(minX - pad));
-    minY = Math.max(0, Math.floor(minY - pad));
-    maxX = Math.min(topCanvas.width, Math.ceil(maxX + pad));
-    maxY = Math.min(topCanvas.height, Math.ceil(maxY + pad));
-    const cropW = maxX - minX;
-    const cropH = maxY - minY;
-
-    if (cropW <= 0 || cropH <= 0) {
-      this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
-      this._pts = [];
-      return;
-    }
-
-    // 只截取笔触区域
-    const offscreen = document.createElement('canvas');
-    offscreen.width = cropW;
-    offscreen.height = cropH;
-    const offCtx = offscreen.getContext('2d')!;
-    offCtx.drawImage(topCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
-    const dataUrl = offscreen.toDataURL();
-
-    // 清除 contextTop
+    // 清除预览层
     this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
 
-    // 以正确坐标插入画布
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { FabricImage } = require('fabric');
-    FabricImage.fromURL(dataUrl, { crossOrigin: 'anonymous' }).then((img: any) => {
-      img.set({
-        left: minX,
-        top: minY,
-        selectable: true,
-        evented: true,
+    if (this._segments.length === 0) {
+      this._pts = [];
+      this._segments = [];
+      return;
+    }
+
+    const color = this.color;
+    const baseOpacity = this.params.opacity;
+
+    // 按透明度分组，相近透明度的段合并成一条 Path，减少对象数量
+    // 简化：每段生成一个短 Path，最后 Group 打包
+    const paths: Path[] = [];
+
+    for (const seg of this._segments) {
+      const pathData = `M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`;
+      const p = new Path(pathData, {
+        stroke: color,
+        strokeWidth: seg.width,
+        strokeLineCap: 'round',
+        strokeLineJoin: 'round',
+        fill: '',
+        opacity: seg.alpha,
+        selectable: false,
+        evented: false,
+        objectCaching: false,
       });
-      (img as any).__id = `wabisabi-${Date.now()}`;
-      this.canvas.add(img);
-      this.canvas.renderAll();
-      this.canvas.fire('path:created', { path: img });
+      paths.push(p);
+    }
+
+    // 晕染圆点（从 _pts 里采样）
+    if (this.params.noise > 0) {
+      const step = Math.max(1, Math.floor(this._pts.length / 10));
+      for (let i = 0; i < this._pts.length; i += step) {
+        if (Math.random() > 0.6) continue;
+        const pt = this._pts[i];
+        const r = this.width * 0.25 + Math.random() * this.width * 0.2;
+        const nx = pt.x + (Math.random() - 0.5) * this.params.noise * 2;
+        const ny = pt.y + (Math.random() - 0.5) * this.params.noise * 2;
+        const dot = new Path(`M ${nx - r} ${ny} a ${r} ${r} 0 1 0 ${r * 2} 0 a ${r} ${r} 0 1 0 ${-r * 2} 0`, {
+          fill: color,
+          stroke: '',
+          opacity: baseOpacity * 0.25 * Math.random(),
+          selectable: false,
+          evented: false,
+          objectCaching: false,
+        });
+        paths.push(dot);
+      }
+    }
+
+    if (paths.length === 0) {
+      this._pts = [];
+      this._segments = [];
+      return;
+    }
+
+    // 用 Group 打包，作为一个整体对象插入画布，支持移动/撤销
+    const group = new Group(paths, {
+      selectable: true,
+      evented: true,
+      objectCaching: true,
     });
+    (group as any).__id = `wabisabi-${Date.now()}`;
+
+    this.canvas.add(group);
+    this.canvas.renderAll();
+    this.canvas.fire('path:created', { path: group });
 
     this._pts = [];
+    this._segments = [];
   }
 }
