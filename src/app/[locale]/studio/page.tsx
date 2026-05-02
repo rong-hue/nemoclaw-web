@@ -354,8 +354,8 @@ function StudioContent() {
             onCustomTextStamp={(text) => {
               canvasRef.current?.addCustomTextStamp(text);
             }}
-            onComboStamp={(stamp, size, angle, text) => {
-              canvasRef.current?.addComboStamp(stamp.src, size, angle, text);
+            onComboStamp={(stamp, size, angle, text, offsetX, offsetY) => {
+              canvasRef.current?.addComboStamp(stamp.src, size, angle, text, offsetX, offsetY);
             }}
           />
         )}

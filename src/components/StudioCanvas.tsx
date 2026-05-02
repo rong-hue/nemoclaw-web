@@ -53,7 +53,7 @@ export interface CanvasRef {
   disableWabiSabiBrush: () => void;
   updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
   addCustomTextStamp: (text: string) => void;
-  addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string) => void;
+  addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string, offsetX: number, offsetY: number) => void;
 }
 
 export interface LayerItem {
@@ -77,7 +77,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
   // 印章模式状态
-  const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number; comboText?: string }>({
+  const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number; comboText?: string; comboOffsetX?: number; comboOffsetY?: number }>({
     active: false, src: '', size: 120, angle: 0,
   });
   const stampHandlerRef = useRef<((opt: any) => void) | null>(null);
@@ -613,8 +613,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
             const jx = (Math.random() - 0.5) * 2;
             const jy = (Math.random() - 0.5) * 2;
             img.set({ scaleX: scale, scaleY: scale, originX: 'center', originY: 'center', left: 0, top: 0 });
+            const { comboOffsetX = 0, comboOffsetY = 0 } = stampModeRef.current;
             const textObj = new IText(comboText, {
-              originX: 'center', originY: 'center', left: 0, top: 0,
+              originX: 'center', originY: 'center',
+              left: comboOffsetX * sz, top: comboOffsetY * sz,
               fontFamily: 'serif',
               fontSize: Math.max(14, Math.floor(sz * 0.18)),
               fill: '#8B1A1A', opacity: 0.9, fontWeight: 'bold',
@@ -698,13 +700,13 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       canvas.renderAll();
     },
 
-    addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string) => {
+    addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string, offsetX = 0, offsetY = 0) => {
       const canvas = fabricRef.current; if (!canvas) return;
       // 不直接放到画布，而是进入等待点击模式，和图片印章一样由用户选定位置
       if (stampHandlerRef.current) {
         canvas.off('mouse:down', stampHandlerRef.current);
       }
-      stampModeRef.current = { active: true, src: stampSrc, size: stampSize, angle: stampAngle, comboText: text };
+      stampModeRef.current = { active: true, src: stampSrc, size: stampSize, angle: stampAngle, comboText: text, comboOffsetX: offsetX, comboOffsetY: offsetY };
       canvas.isDrawingMode = false;
       canvas.defaultCursor = 'crosshair';
       canvas.hoverCursor = 'crosshair';
@@ -727,14 +729,14 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
           return;
         }
         const pointer = opt.scenePoint ?? opt.absolutePointer ?? { x: opt.e?.offsetX ?? 0, y: opt.e?.offsetY ?? 0 };
-        const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
+        const { src: s, size: sz, angle: ag, comboText, comboOffsetX = 0, comboOffsetY = 0 } = stampModeRef.current;
         FI.fromURL(s, { crossOrigin: 'anonymous' }).then((img: any) => {
           const scale = sz / Math.max(img.width ?? sz, img.height ?? sz);
           const jx = (Math.random() - 0.5) * 2;
           const jy = (Math.random() - 0.5) * 2;
           img.set({ scaleX: scale, scaleY: scale, originX: 'center', originY: 'center', left: 0, top: 0 });
           const textObj = new IText(comboText ?? '', {
-            originX: 'center', originY: 'center', left: 0, top: 0,
+            originX: 'center', originY: 'center', left: comboOffsetX * sz, top: comboOffsetY * sz,
             fontFamily: 'serif',
             fontSize: Math.max(14, Math.floor(sz * 0.18)),
             fill: '#8B1A1A', opacity: 0.9, fontWeight: 'bold',

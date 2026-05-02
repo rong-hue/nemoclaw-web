@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ComboStampPreview from './ComboStampPreview';
 import { X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { STAMPS, STAMP_CATEGORIES, getStampsByCategory, type StampCategory, type Stamp } from '@/lib/stamps';
@@ -11,7 +12,7 @@ interface StampPanelProps {
   activeStampId: string | null;
   onParamsChange?: (size: number, angle: number) => void;
   onCustomTextStamp?: (text: string) => void;
-  onComboStamp?: (stamp: Stamp, size: number, angle: number, text: string) => void;
+  onComboStamp?: (stamp: Stamp, size: number, angle: number, text: string, offsetX: number, offsetY: number) => void;
 }
 
 export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange, onCustomTextStamp, onComboStamp }: StampPanelProps) {
@@ -21,9 +22,11 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
   const [size, setSize] = useState(120);
   const [angle, setAngle] = useState(0);
   const [customText, setCustomText] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const stamps = getStampsByCategory(category);
 
   return (
+    <>
     <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-full select-none">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
@@ -134,11 +137,8 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
           <button
             onClick={() => {
               if (customText.trim() && activeStampId) {
-                // 有图案选中：生成组合印章
-                const stamp = stamps.find(s => s.id === activeStampId);
-                if (stamp) onComboStamp?.(stamp, size, angle, customText.trim());
+                setShowPreview(true);
               } else if (customText.trim()) {
-                // 没有图案：只生成文字印章
                 onCustomTextStamp?.(customText.trim());
               }
             }}
@@ -150,5 +150,22 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
         </div>
       </div>
     </div>
+    {showPreview && activeStampId && (() => {
+      const stamp = stamps.find(s => s.id === activeStampId);
+      if (!stamp) return null;
+      return (
+        <ComboStampPreview
+          stampSrc={stamp.src}
+          stampSize={size}
+          text={customText}
+          onConfirm={(normX, normY) => {
+            setShowPreview(false);
+            onComboStamp?.(stamp, size, angle, customText.trim(), normX, normY);
+          }}
+          onClose={() => setShowPreview(false)}
+        />
+      );
+    })()}
+    </>
   );
 }
