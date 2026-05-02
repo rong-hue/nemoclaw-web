@@ -28,7 +28,7 @@ function StudioContent() {
   // 1. authService (localStorage) — email/password login
   // 2. NextAuth useSession — Google OAuth login
   // A user is "logged in" if either system has a valid session.
-  const { data: nextAuthSession } = useSession();
+  const { data: nextAuthSession, status: sessionStatus } = useSession();
   const [localUser, setLocalUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
 
   useEffect(() => {
@@ -37,6 +37,9 @@ function StudioContent() {
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, []);
+
+  // True while NextAuth is still fetching the session — don't redirect during this window
+  const sessionLoading = sessionStatus === 'loading';
 
   // Unified user object — prefer localStorage user, fall back to NextAuth session
   const currentUser = localUser || (nextAuthSession?.user ? {
@@ -282,11 +285,14 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
+            // Don't redirect while NextAuth session is still loading
+            if (sessionLoading) return;
             // Check both auth systems at click time
             const user = authService.getCurrentUser() || nextAuthSession?.user;
             if (!user) {
-              const callbackUrl = encodeURIComponent(window.location.href);
-              window.location.href = `/${locale}/auth?callbackUrl=${callbackUrl}`;
+              // Use relative path as callbackUrl so NextAuth doesn't reject cross-domain URLs
+              const callbackPath = encodeURIComponent(`/${locale}/studio${window.location.search}`);
+              window.location.href = `/${locale}/auth?callbackUrl=${callbackPath}`;
               return;
             }
             setShowAiPanel(true);
