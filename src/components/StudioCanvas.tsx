@@ -69,9 +69,10 @@ interface CanvasProps {
   onLayersChange: (layers: LayerItem[]) => void;
   initialWidth?: number;
   initialHeight?: number;
+  onExitStampMode?: () => void;  // 盖章后退出印章模式的回调
 }
 
-const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange, initialWidth = 600, initialHeight = 500 }, ref) => {
+const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange, initialWidth = 600, initialHeight = 500, onExitStampMode }, ref) => {
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
@@ -593,6 +594,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
             canvas.defaultCursor = 'default';
             canvas.hoverCursor = 'move';
             canvas.selection = true;
+            onExitStampMode?.();  // 通知 page.tsx 切回 select 模式
           }
         });
       };

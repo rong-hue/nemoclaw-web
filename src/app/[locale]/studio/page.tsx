@@ -115,6 +115,13 @@ function StudioContent() {
         e.preventDefault();
         handleSave();
       }
+      // Esc 退出印章模式
+      if (e.key === 'Escape' && activeTool === 'stamp') {
+        canvasRef.current?.disableStampMode();
+        setShowStampPanel(false);
+        setActiveStampId(null);
+        setActiveTool('select');
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -414,6 +421,16 @@ function StudioContent() {
             ref={canvasContainerRef}
             className="flex-1 flex items-center justify-center p-8 overflow-auto relative"
             style={{ cursor: showStampPanel && activeStampSrc ? 'none' : 'default' }}
+            onContextMenu={(e) => {
+              // 右键退出印章模式
+              if (activeTool === 'stamp') {
+                e.preventDefault();
+                canvasRef.current?.disableStampMode();
+                setShowStampPanel(false);
+                setActiveStampId(null);
+                setActiveTool('select');
+              }
+            }}
           >
             <StudioCanvas
               ref={canvasRef}
@@ -421,6 +438,12 @@ function StudioContent() {
               onLayersChange={setLayers}
               initialWidth={canvasW}
               initialHeight={canvasH}
+              onExitStampMode={() => {
+                // 盖章后自动退出印章模式，切回光标
+                setShowStampPanel(false);
+                setActiveStampId(null);
+                setActiveTool('select');
+              }}
             />
             {showStampPanel && activeStampSrc && (
               <StampCursor
