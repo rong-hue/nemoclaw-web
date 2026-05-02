@@ -589,13 +589,8 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
         const { src: s, size: sz, angle: ag, comboText } = stampModeRef.current;
 
         const finish = () => {
-          if (!(opt.e as MouseEvent).shiftKey) {
-            stampModeRef.current.active = false;
-            canvas.defaultCursor = 'default';
-            canvas.hoverCursor = 'move';
-            canvas.selection = true;
-            onExitStampMode?.();
-          }
+          // 盖章后保持激活状态，用户可继续盖章
+          // 只有 Esc 或鼠标右键才退出（在 page.tsx 里处理）
         };
 
         if (comboText) {
@@ -733,13 +728,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
           (group as any).__id = `combo-stamp-${Date.now()}`;
           canvas.add(group);
           canvas.renderAll();
-          if (!(opt.e as MouseEvent).shiftKey) {
-            stampModeRef.current.active = false;
-            canvas.defaultCursor = 'default';
-            canvas.hoverCursor = 'move';
-            canvas.selection = true;
-            onExitStampMode?.();
-          }
+          // 盖章后保持激活，用户可继续盖章
         });
       };
       stampHandlerRef.current = handler;
