@@ -143,29 +143,49 @@ export class WabiSabiBrush extends BaseBrush {
       return;
     }
 
-    // 将 contextTop 的内容转为图片，插入画布作为 fabric.Image 对象
-    // 这样既保留了晕染效果，又支持撤销/重做
     const topCanvas = this.canvas.contextTop?.canvas;
-    if (!topCanvas) {
+    if (!topCanvas) { this._pts = []; return; }
+
+    // 计算笔触实际边界框（加上笔宽和晕染半径的 padding）
+    const pad = this.width + this.params.noise + 4;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of this._pts) {
+      if (p.x < minX) minX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y > maxY) maxY = p.y;
+    }
+    minX = Math.max(0, Math.floor(minX - pad));
+    minY = Math.max(0, Math.floor(minY - pad));
+    maxX = Math.min(topCanvas.width, Math.ceil(maxX + pad));
+    maxY = Math.min(topCanvas.height, Math.ceil(maxY + pad));
+    const cropW = maxX - minX;
+    const cropH = maxY - minY;
+
+    if (cropW <= 0 || cropH <= 0) {
+      this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
       this._pts = [];
       return;
     }
-    const dataUrl = topCanvas.toDataURL();
-    if (!dataUrl) {
-      this._pts = [];
-      return;
-    }
+
+    // 只截取笔触区域
+    const offscreen = document.createElement('canvas');
+    offscreen.width = cropW;
+    offscreen.height = cropH;
+    const offCtx = offscreen.getContext('2d')!;
+    offCtx.drawImage(topCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+    const dataUrl = offscreen.toDataURL();
 
     // 清除 contextTop
     this.canvas.contextTop?.clearRect(0, 0, this.canvas.width!, this.canvas.height!);
 
-    // 用 fabric.Image 插入画布
+    // 以正确坐标插入画布
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { FabricImage } = require('fabric');
     FabricImage.fromURL(dataUrl, { crossOrigin: 'anonymous' }).then((img: any) => {
       img.set({
-        left: 0,
-        top: 0,
+        left: minX,
+        top: minY,
         selectable: true,
         evented: true,
       });
