@@ -275,9 +275,9 @@ function StudioContent() {
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
             if (!currentUser) {
-              // Pass current studio URL as callbackUrl so user returns here after login
+              // Use hard navigation so auth page fully loads and can read callbackUrl from searchParams
               const callbackUrl = encodeURIComponent(window.location.href);
-              router.push(`/${locale}/auth?callbackUrl=${callbackUrl}`);
+              window.location.href = `/${locale}/auth?callbackUrl=${callbackUrl}`;
               return;
             }
             setShowAiPanel(true);

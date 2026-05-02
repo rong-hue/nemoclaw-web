@@ -1,15 +1,14 @@
 'use client';
 export const runtime = 'edge';
 
-
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/lib/auth';
 import { signIn } from 'next-auth/react';
 
-export default function AuthPage() {
+function AuthContent() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('auth');
@@ -157,5 +156,17 @@ export default function AuthPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
   );
 }
