@@ -23,9 +23,14 @@ function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
   // Use localStorage-based auth (authService) instead of NextAuth useSession
-  const [currentUser, setCurrentUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
+  // Initialize synchronously so the first render already has the correct user state
+  // (avoids a null flash that causes Mod Generator to redirect to login)
+  const [currentUser, setCurrentUser] = useState(() => {
+    if (typeof window !== 'undefined') return authService.getCurrentUser();
+    return null;
+  });
 
-  // Read on every mount and on window focus (covers router.push return from login page)
+  // Re-read on every mount and on window focus (covers hard-navigation return from login page)
   useEffect(() => {
     setCurrentUser(authService.getCurrentUser());
     const onFocus = () => setCurrentUser(authService.getCurrentUser());
