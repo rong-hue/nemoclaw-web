@@ -11,9 +11,10 @@ interface WabiSabiBrushPanelProps {
 export interface WabiSabiParams {
   size: number;
   opacity: number;
-  gap: number;    // 断墨概率 0-1
-  noise: number;  // 晕染半径
-  color?: string; // 笔刷颜色
+  gap: number;       // 断墨概率 0-1
+  noise: number;     // 晕染半径
+  color?: string;    // 笔刷颜色
+  dryBrush?: number; // 枯笔概率 0-0.3
 }
 
 export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabiBrushPanelProps) {
@@ -23,6 +24,7 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
     gap: 0.15,
     noise: 4,
     color: '#1a1008',
+    dryBrush: 0.15,
   });
 
   function update(patch: Partial<WabiSabiParams>) {
@@ -70,6 +72,13 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
         min={0} max={12} step={1}
         display={`${params.noise}`}
         onChange={(v) => update({ noise: v })}
+      />
+      <SliderRow
+        label="枯笔概率"
+        value={Math.round((params.dryBrush ?? 0.15) * 100)}
+        min={0} max={30} step={5}
+        display={`${Math.round((params.dryBrush ?? 0.15) * 100)}%`}
+        onChange={(v) => update({ dryBrush: v / 100 })}
       />
 
       {/* 颜色 */}

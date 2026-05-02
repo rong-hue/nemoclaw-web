@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Canvas as FabricCanvas, Rect, Circle, Textbox, FabricImage, Polygon, Line, Triangle, Group, Gradient, Shadow, PencilBrush } from 'fabric';
+import { WabiSabiBrush } from '@/lib/WabiSabiBrush';
 import { useTranslations } from 'next-intl';
 
 export interface CanvasRef {
@@ -108,9 +109,12 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     canvas.on('object:modified', () => syncLayers(canvas));
 
     // 残缺美笔刷：path 绘制完成后，对路径做随机断点 + 晕染处理
+    // 注意：WabiSabiBrush 自定义笔刷已在实时绘制时处理效果，
+    // 此处后处理仅对非 WabiSabiBrush 模式（普通 PencilBrush）生效
     canvas.on('path:created', (e: any) => {
       const wsParams = (canvas as any).__wabiSabiParams;
-      if (!wsParams || !e.path) return;
+      // 如果当前是 WabiSabiBrush，跳过后处理（已在实时绘制中处理）
+      if (!wsParams || !e.path || (canvas as any).freeDrawingBrush instanceof WabiSabiBrush) return;
       const path = e.path;
       // 降低整体透明度
       path.set({ opacity: wsParams.opacity });
@@ -274,15 +278,9 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     enableWabiSabiBrush: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      // 确保 freeDrawingBrush 已初始化
-      if (!canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush = new PencilBrush(canvas);
-      }
+      const brush = new WabiSabiBrush(canvas, params);
+      (canvas as any).freeDrawingBrush = brush;
       canvas.isDrawingMode = true;
-      const brush = canvas.freeDrawingBrush;
-      brush.color = params.color ?? '#1a1008';
-      brush.width = params.size;
-      // 存储 wabi-sabi 参数供 path:created 后处理
       (canvas as any).__wabiSabiParams = params;
     },
     disableWabiSabiBrush: () => {
@@ -292,13 +290,16 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      if (!canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush = new PencilBrush(canvas);
-      }
-      const brush = canvas.freeDrawingBrush;
-      brush.color = params.color ?? '#1a1008';
-      brush.width = params.size;
       (canvas as any).__wabiSabiParams = params;
+      if ((canvas as any).freeDrawingBrush instanceof WabiSabiBrush) {
+        ((canvas as any).freeDrawingBrush as WabiSabiBrush).updateParams(params);
+      } else {
+        (canvas as any).freeDrawingBrush = new WabiSabiBrush(canvas, params);
+      }
+      if ((canvas as any).freeDrawingBrush) {
+        (canvas as any).freeDrawingBrush.color = params.color ?? '#1a1008';
+        (canvas as any).freeDrawingBrush.width = params.size;
+      }
     },
     deleteSelected: () => {
       const canvas = fabricRef.current; if (!canvas) return;
