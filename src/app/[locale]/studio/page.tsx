@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { authService } from '@/lib/auth';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
@@ -22,21 +23,28 @@ import type { Stamp } from '@/lib/stamps';
 function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
-  // Use localStorage-based auth (authService) instead of NextAuth useSession
-  // Initialize synchronously so the first render already has the correct user state
-  // (avoids a null flash that causes Mod Generator to redirect to login)
-  const [currentUser, setCurrentUser] = useState(() => {
-    if (typeof window !== 'undefined') return authService.getCurrentUser();
-    return null;
-  });
 
-  // Re-read on every mount and on window focus (covers hard-navigation return from login page)
+  // Support both auth systems:
+  // 1. authService (localStorage) — email/password login
+  // 2. NextAuth useSession — Google OAuth login
+  // A user is "logged in" if either system has a valid session.
+  const { data: nextAuthSession } = useSession();
+  const [localUser, setLocalUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
+
   useEffect(() => {
-    setCurrentUser(authService.getCurrentUser());
-    const onFocus = () => setCurrentUser(authService.getCurrentUser());
+    setLocalUser(authService.getCurrentUser());
+    const onFocus = () => setLocalUser(authService.getCurrentUser());
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, []);
+
+  // Unified user object — prefer localStorage user, fall back to NextAuth session
+  const currentUser = localUser || (nextAuthSession?.user ? {
+    id: nextAuthSession.user.id || nextAuthSession.user.email || '',
+    email: nextAuthSession.user.email || '',
+    name: nextAuthSession.user.name || nextAuthSession.user.email || '',
+    createdAt: '',
+  } : null);
   const router = useRouter();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -274,16 +282,13 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
-            // Always read localStorage directly at click time — never rely on React state
-            // which may be stale due to SSR/hydration timing in Edge Runtime
-            const user = authService.getCurrentUser();
+            // Check both auth systems at click time
+            const user = authService.getCurrentUser() || nextAuthSession?.user;
             if (!user) {
               const callbackUrl = encodeURIComponent(window.location.href);
               window.location.href = `/${locale}/auth?callbackUrl=${callbackUrl}`;
               return;
             }
-            // Sync state in case it was stale
-            setCurrentUser(user);
             setShowAiPanel(true);
           }}
           onEnableDrawing={() => canvasRef.current?.enableDrawing()}
