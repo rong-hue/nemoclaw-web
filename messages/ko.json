@@ -533,6 +533,28 @@
       "opacity": "먹 농도",
       "gap": "단묵 간격",
       "noise": "번짐 강도"
+    },
+    "stamp": {
+      "title": "스탬프 모드",
+      "size": "크기",
+      "angle": "각도",
+      "reset": "초기화",
+      "tip": "패턴 클릭으로 활성화 → 캔버스에서 스탬프",
+      "tipShift": "Shift + 클릭 = 연속 스탬프",
+      "customText": "커스텀 텍스트 스탬프",
+      "customTextPlaceholder": "기념일, 이름, 의미 있는 문구 입력...",
+      "customTextHint": "예: 2024.05.20 · 첫날",
+      "addTextStamp": "텍스트 스탬프 만들기"
+    },
+    "wabi": {
+      "title": "와비사비 브러시",
+      "size": "브러시 크기",
+      "opacity": "먹 농도",
+      "gap": "끊김 간격",
+      "noise": "번짐 강도",
+      "dryBrush": "건필 확률",
+      "color": "브러시 색상",
+      "quote": "와비사비는 불완전함에서 아름다움을 찾는다 — 불완전하고, 불균일하고, 비대칭적이지만 생명력이 넘친다."
     }
   },
   "success": {

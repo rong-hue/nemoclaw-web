@@ -52,6 +52,7 @@ export interface CanvasRef {
   enableWabiSabiBrush: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
   disableWabiSabiBrush: () => void;
   updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
+  addCustomTextStamp: (text: string) => void;
 }
 
 export interface LayerItem {
@@ -625,6 +626,32 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const jitter = options?.jitter ?? true;
       if (!src) return Promise.resolve();
       return doStampAt(canvas, x, y, src, size, angle, jitter);
+    },
+
+    addCustomTextStamp: (text: string) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { IText } = require('fabric');
+      const textObj = new IText(text, {
+        left: canvas.width! / 2,
+        top: canvas.height! / 2,
+        originX: 'center',
+        originY: 'center',
+        fontFamily: 'serif',
+        fontSize: 28,
+        fill: '#8B1A1A',
+        opacity: 0.85,
+        fontWeight: 'bold',
+        charSpacing: 80,
+        lineHeight: 1.4,
+        textAlign: 'center',
+        stroke: '#8B1A1A',
+        strokeWidth: 0.5,
+      });
+      (textObj as any).__id = `text-stamp-${Date.now()}`;
+      canvas.add(textObj);
+      canvas.setActiveObject(textObj);
+      canvas.renderAll();
     },
   }));
 

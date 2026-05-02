@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface WabiSabiBrushPanelProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ export interface WabiSabiParams {
 }
 
 export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabiBrushPanelProps) {
+  const t = useTranslations();
   const [params, setParams] = useState<WabiSabiParams>({
     size: 8,
     opacity: 0.7,
@@ -39,42 +41,42 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
   return (
     <div className="w-52 bg-slate-900 border-r border-slate-700 flex flex-col p-3 gap-3 overflow-y-auto">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-300">残缺美笔刷</span>
+        <span className="text-xs font-semibold text-slate-300">{t('studio.wabi.title')}</span>
         <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
           <X size={14} />
         </button>
       </div>
 
       <SliderRow
-        label="笔触大小"
+        label={t('studio.wabi.size')}
         value={params.size}
         min={2} max={40} step={1}
         display={`${params.size}px`}
         onChange={(v) => update({ size: v })}
       />
       <SliderRow
-        label="墨迹浓度"
+        label={t('studio.wabi.opacity')}
         value={Math.round(params.opacity * 100)}
         min={20} max={100} step={5}
         display={`${Math.round(params.opacity * 100)}%`}
         onChange={(v) => update({ opacity: v / 100 })}
       />
       <SliderRow
-        label="断墨间距"
+        label={t('studio.wabi.gap')}
         value={Math.round(params.gap * 100)}
         min={0} max={50} step={5}
         display={`${Math.round(params.gap * 100)}%`}
         onChange={(v) => update({ gap: v / 100 })}
       />
       <SliderRow
-        label="晕染强度"
+        label={t('studio.wabi.noise')}
         value={params.noise}
         min={0} max={12} step={1}
         display={`${params.noise}`}
         onChange={(v) => update({ noise: v })}
       />
       <SliderRow
-        label="枯笔概率"
+        label={t('studio.wabi.dryBrush')}
         value={Math.round((params.dryBrush ?? 0.15) * 100)}
         min={0} max={30} step={5}
         display={`${Math.round((params.dryBrush ?? 0.15) * 100)}%`}
@@ -84,7 +86,7 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
       {/* 颜色 */}
       <div>
         <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-          <span>笔刷颜色</span>
+          <span>{t('studio.wabi.color')}</span>
         </div>
         <div className="flex gap-2 flex-wrap">
           {['#1a1008','#2d1a0a','#4a3728','#8b6914','#1a2a1a','#0a1a2a'].map((c) => (
@@ -102,7 +104,7 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
             value={params.color ?? '#1a1008'}
             onChange={(e) => update({ color: e.target.value })}
             className="w-6 h-6 rounded-full cursor-pointer border-0 bg-transparent"
-            title="自定义颜色"
+            title={t('studio.wabi.color')}
           />
         </div>
       </div>
@@ -111,7 +113,7 @@ export default function WabiSabiBrushPanel({ onClose, onParamsChange }: WabiSabi
       <BrushPreview params={params} />
 
       <p className="text-[10px] text-slate-600 leading-relaxed">
-        残缺美源于侘寂美学——不完整、不均匀、不对称，反而更有生命力。
+        {t('studio.wabi.quote')}
       </p>
     </div>
   );

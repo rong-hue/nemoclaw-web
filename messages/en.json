@@ -589,7 +589,29 @@
       "gap": "Break Gap",
       "noise": "Bleed Intensity"
     },
-    "type": "Type"
+    "type": "Type",
+    "stamp": {
+      "title": "Stamp Mode",
+      "size": "Size",
+      "angle": "Angle",
+      "reset": "Reset",
+      "tip": "Click a pattern to activate → click canvas to stamp",
+      "tipShift": "Shift + click = continuous stamping",
+      "customText": "Custom Text Stamp",
+      "customTextPlaceholder": "Enter a date, name, or meaningful phrase...",
+      "customTextHint": "e.g. 2024.05.20 · First Day",
+      "addTextStamp": "Create Text Stamp"
+    },
+    "wabi": {
+      "title": "Wabi-Sabi Brush",
+      "size": "Brush Size",
+      "opacity": "Ink Density",
+      "gap": "Dry Gap",
+      "noise": "Bleed Radius",
+      "dryBrush": "Dry Brush",
+      "color": "Brush Color",
+      "quote": "Wabi-sabi finds beauty in imperfection — incomplete, uneven, asymmetric, yet full of life."
+    }
   },
   "success": {
     "title": "Order Placed!",

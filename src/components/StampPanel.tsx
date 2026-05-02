@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { STAMPS, STAMP_CATEGORIES, getStampsByCategory, type StampCategory, type Stamp } from '@/lib/stamps';
 
 interface StampPanelProps {
@@ -9,19 +10,23 @@ interface StampPanelProps {
   onClose: () => void;
   activeStampId: string | null;
   onParamsChange?: (size: number, angle: number) => void;
+  onCustomTextStamp?: (text: string) => void;
 }
 
-export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange }: StampPanelProps) {
+export default function StampPanel({ onStampSelect, onClose, activeStampId, onParamsChange, onCustomTextStamp }: StampPanelProps) {
+  const t = useTranslations();
+  const locale = useLocale();
   const [category, setCategory] = useState<StampCategory>('tang');
   const [size, setSize] = useState(120);
   const [angle, setAngle] = useState(0);
+  const [customText, setCustomText] = useState('');
   const stamps = getStampsByCategory(category);
 
   return (
     <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-full select-none">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <span className="text-white font-semibold text-sm">🖋 印章模式</span>
+        <span className="text-white font-semibold text-sm">🖋 {t('studio.stamp.title')}</span>
         <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
           <X size={16} />
         </button>
@@ -40,7 +45,7 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
             }`}
           >
             <span>{cat.emoji}</span>
-            <span>{cat.labelZh}</span>
+            <span>{locale === 'zh' ? cat.labelZh : cat.label}</span>
           </button>
         ))}
       </div>
@@ -63,7 +68,6 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
               alt={stamp.nameZh}
               className="w-full h-full object-contain bg-white p-1"
               onError={(e) => {
-                // 图片未生成时显示占位
                 (e.target as HTMLImageElement).style.display = 'none';
                 (e.target as HTMLImageElement).parentElement!.innerHTML =
                   `<div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-xs">${stamp.nameZh}</div>`;
@@ -78,7 +82,7 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
         {/* Size */}
         <div>
           <div className="flex justify-between text-xs text-slate-400 mb-1">
-            <span>大小</span>
+            <span>{t('studio.stamp.size')}</span>
             <span className="text-white">{size}px</span>
           </div>
           <input
@@ -91,7 +95,7 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
         {/* Angle */}
         <div>
           <div className="flex justify-between text-xs text-slate-400 mb-1">
-            <span>角度</span>
+            <span>{t('studio.stamp.angle')}</span>
             <span className="text-white">{angle}°</span>
           </div>
           <div className="flex items-center gap-2">
@@ -104,16 +108,39 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
               onClick={() => { setAngle(0); onParamsChange?.(size, 0); }}
               className="text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-600 hover:border-slate-400 transition-colors"
             >
-              重置
+              {t('studio.stamp.reset')}
             </button>
           </div>
         </div>
 
         {/* Tip */}
         <p className="text-xs text-slate-500 leading-relaxed">
-          点击纹样激活 → 在画布上点击盖章<br />
-          <span className="text-slate-600">Shift + 点击 = 连续盖章</span>
+          {t('studio.stamp.tip')}<br />
+          <span className="text-slate-600">{t('studio.stamp.tipShift')}</span>
         </p>
+
+        {/* Custom Text Stamp */}
+        <div className="border-t border-slate-700 pt-3 space-y-2">
+          <p className="text-xs text-slate-300 font-medium">{t('studio.stamp.customText')}</p>
+          <textarea
+            rows={2}
+            value={customText}
+            onChange={e => setCustomText(e.target.value)}
+            placeholder={t('studio.stamp.customTextPlaceholder')}
+            className="w-full bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 border border-slate-600 focus:border-orange-400 focus:outline-none resize-none placeholder-slate-500"
+          />
+          <p className="text-[10px] text-slate-600">{t('studio.stamp.customTextHint')}</p>
+          <button
+            onClick={() => {
+              if (customText.trim()) {
+                onCustomTextStamp?.(customText.trim());
+              }
+            }}
+            className="bg-orange-500 hover:bg-orange-400 text-white text-xs px-3 py-1.5 rounded-lg w-full transition-colors"
+          >
+            {t('studio.stamp.addTextStamp')}
+          </button>
+        </div>
       </div>
     </div>
   );

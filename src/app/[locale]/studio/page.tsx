@@ -345,6 +345,9 @@ function StudioContent() {
               canvasRef.current?.updateStampParams(size, angle);
               setStampCursorParams({ size, angle });
             }}
+            onCustomTextStamp={(text) => {
+              canvasRef.current?.addCustomTextStamp(text);
+            }}
           />
         )}
 

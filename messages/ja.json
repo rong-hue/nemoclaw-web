@@ -533,6 +533,28 @@
       "opacity": "墨の濃度",
       "gap": "断墨間隔",
       "noise": "滲み強度"
+    },
+    "stamp": {
+      "title": "スタンプモード",
+      "size": "サイズ",
+      "angle": "角度",
+      "reset": "リセット",
+      "tip": "模様をクリックして有効化 → キャンバスでスタンプ",
+      "tipShift": "Shift + クリック = 連続スタンプ",
+      "customText": "カスタムテキストスタンプ",
+      "customTextPlaceholder": "記念日、名前、心の言葉を入力...",
+      "customTextHint": "例：2024.05.20 · 初心",
+      "addTextStamp": "テキストスタンプを作成"
+    },
+    "wabi": {
+      "title": "侘寂ブラシ",
+      "size": "ブラシサイズ",
+      "opacity": "墨の濃さ",
+      "gap": "かすれ間隔",
+      "noise": "にじみ強度",
+      "dryBrush": "かすれ確率",
+      "color": "ブラシカラー",
+      "quote": "侘寂は不完全さに美を見出す——不完全、不均一、非対称、それでも生命力に満ちている。"
     }
   },
   "success": {
