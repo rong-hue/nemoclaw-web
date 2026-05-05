@@ -51,7 +51,7 @@ export const designsService = {
     user_id: string;
     user_email?: string;
     title: string;
-    canvas_json: string;
+    canvas_data: string;
     preview_url?: string;
   }) {
     const supabase = getSupabaseClient();
@@ -61,7 +61,7 @@ export const designsService = {
         .from('designs')
         .update({
           title: design.title,
-          canvas_json: design.canvas_json,
+          canvas_data: design.canvas_data,
           preview_url: design.preview_url,
           updated_at: new Date().toISOString(),
         })

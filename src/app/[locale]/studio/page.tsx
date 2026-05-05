@@ -82,10 +82,10 @@ function StudioContent() {
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
-        if (design.canvas_json) {
+        if (design.canvas_data) {
           // 等画布初始化完成后再加载
           setTimeout(() => {
-            canvasRef.current?.loadFromJSON(design.canvas_json);
+            canvasRef.current?.loadFromJSON(design.canvas_data);
             setDesignTitle(design.title || '');
             setDesignId(design.id);
           }, 500);
@@ -193,7 +193,7 @@ function StudioContent() {
         user_id: currentUser!.id || currentUser!.email || '',
         user_email: currentUser!.email || '',
         title,
-        canvas_json: json,
+        canvas_data: json,
         preview_url: previewUrl,
       });
       setDesignId(saved.id);
