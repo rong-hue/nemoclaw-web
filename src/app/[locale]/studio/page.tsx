@@ -180,6 +180,7 @@ function StudioContent() {
 
   const handleSave = async () => {
     const json = canvasRef.current?.exportJSON();
+    console.log('exportJSON returned:', json, 'type:', typeof json);
     if (!json) return;
 
     // 实时获取用户，避免 state 过期
