@@ -46,7 +46,9 @@ function AuthContent() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      await supabaseAuth.signInWithGoogle(callbackUrl);
+      // Google OAuth 回调后跳转到 callbackUrl（完整路径）
+      const fullCallbackUrl = `${window.location.origin}${callbackUrl}`;
+      await supabaseAuth.signInWithGoogle(fullCallbackUrl);
     } catch (err) {
       setGoogleLoading(false);
       setError(t('loginError'));
