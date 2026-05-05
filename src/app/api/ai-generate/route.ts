@@ -40,10 +40,17 @@ export async function POST(req: Request) {
     const userId = user.id;
 
     // 2. 配额检查
-    const [usedCount, activeSub] = await Promise.all([
-      aiUsageService.getMonthlyCount(userId).catch(() => 0),
-      subscriptionsService.getActiveByUser(userId).catch(() => null),
-    ]);
+    let usedCount: number;
+    let activeSub: unknown;
+    try {
+      [usedCount, activeSub] = await Promise.all([
+        aiUsageService.getMonthlyCount(userId),
+        subscriptionsService.getActiveByUser(userId).catch(() => null),
+      ]);
+    } catch (e) {
+      console.error('[AI Generate] quota check failed:', e);
+      return Response.json({ error: 'quota_check_failed' }, { status: 503 });
+    }
     const limit = activeSub ? PRO_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
     if (usedCount >= limit) {
       return Response.json(
