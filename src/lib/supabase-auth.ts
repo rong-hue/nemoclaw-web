@@ -78,10 +78,12 @@ export const supabaseAuth = {
   // Google OAuth 登录
   async signInWithGoogle(redirectTo?: string) {
     const supabase = getSupabaseBrowserClient();
+    // OAuth 回调必须先到 /auth/callback，再由它跳转到目标页
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectTo || window.location.origin,
+        redirectTo: callbackUrl,
       },
     });
     if (error) throw error;
