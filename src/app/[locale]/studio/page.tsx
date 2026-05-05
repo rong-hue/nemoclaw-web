@@ -112,6 +112,9 @@ function StudioContent() {
     return () => clearTimeout(timer);
   }, [searchParams]);
 
+  // 用 ref 存储 handleSave，避免键盘事件闭包问题
+  const handleSaveRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -126,7 +129,7 @@ function StudioContent() {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        handleSave();
+        handleSaveRef.current();
       }
       // Esc 退出印章监听状态，但保留印章面板
       if (e.key === 'Escape' && activeTool === 'stamp') {
@@ -136,7 +139,7 @@ function StudioContent() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentUser, designId, designTitle]);
+  }, [activeTool]); // 移除 currentUser/designId/designTitle 依赖
 
   const handleUploadImage = () => fileInputRef.current?.click();
 
@@ -192,10 +195,9 @@ function StudioContent() {
 
     setSaveStatus('saving');
     try {
-      const previewUrl = canvasRef.current?.exportImageDataUrl?.() || '';
       const title = designTitle || t('untitled');
       
-      // 将 JSON 字符串转为对象，避免在 supabase.ts 里解析
+      // 将 JSON 字符串转为对象
       let canvasData: object;
       try {
         canvasData = JSON.parse(json);
@@ -222,6 +224,8 @@ function StudioContent() {
       setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
+  // 始终保持 ref 最新
+  handleSaveRef.current = handleSave;
 
   const handleOpen3D = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
