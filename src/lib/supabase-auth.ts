@@ -78,8 +78,10 @@ export const supabaseAuth = {
   // Google OAuth 登录
   async signInWithGoogle(redirectTo?: string) {
     const supabase = getSupabaseBrowserClient();
-    // OAuth 回调必须先到 /auth/callback，再由它跳转到目标页
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`;
+    // 从当前 URL 提取 locale（如 /en/auth → en）
+    const locale = window.location.pathname.split('/')[1] || 'en';
+    // OAuth 回调必须先到 /[locale]/auth/callback，再由它跳转到目标页
+    const callbackUrl = `${window.location.origin}/${locale}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
