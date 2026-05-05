@@ -208,19 +208,18 @@ function StudioContent() {
         user_id: liveUser.id,
         user_email: liveUser.email || '',
         title,
-        canvas_json: canvasData as any, // 传对象而非字符串
-        preview_url: previewUrl,
+        canvas_json: canvasData as any,
       });
       // 只在新建作品时设置 ID，避免触发重新加载
       if (!designId) {
         setDesignId(saved.id);
       }
       setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err) {
       console.error('Save failed:', err);
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 2000);
+      setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
 
