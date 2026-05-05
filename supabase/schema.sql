@@ -29,16 +29,16 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 -- designs 表策略：用户只能操作自己的数据
 CREATE POLICY "Users can view own designs" ON designs
-  FOR SELECT USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+  FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own designs" ON designs
-  FOR INSERT WITH CHECK (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+  FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own designs" ON designs
-  FOR UPDATE USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+  FOR UPDATE USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can delete own designs" ON designs
-  FOR DELETE USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+  FOR DELETE USING (user_id = auth.uid()::text);
 
 -- orders 表策略
 CREATE POLICY "Users can view own orders" ON orders
