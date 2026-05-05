@@ -212,7 +212,10 @@ function StudioContent() {
         canvas_data: canvasData as any, // 传对象而非字符串
         preview_url: previewUrl,
       });
-      setDesignId(saved.id);
+      // 只在新建作品时设置 ID，避免触发重新加载
+      if (!designId) {
+        setDesignId(saved.id);
+      }
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (err) {
