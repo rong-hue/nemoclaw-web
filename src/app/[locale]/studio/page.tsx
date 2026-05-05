@@ -84,16 +84,17 @@ function StudioContent() {
       try {
         const design = await designsService.getById(designIdFromUrl);
         if (design.canvas_json) {
-          // 等画布初始化完成后再加载
+          // 先设置标题和 ID，再加载画布
+          setDesignTitle(design.title || '');
+          setDesignId(design.id);
+          // 等画布初始化完成后再加载（缩短到 100ms）
           setTimeout(() => {
             canvasRef.current?.loadFromJSON(
               typeof design.canvas_json === 'string'
                 ? design.canvas_json
-                : design.canvas_json // 直接传对象，loadFromJSON 会处理
+                : design.canvas_json
             );
-            setDesignTitle(design.title || '');
-            setDesignId(design.id);
-          }, 500);
+          }, 100);
         }
       } catch (err) {
         console.error('Failed to load design:', err);
