@@ -44,6 +44,7 @@ export interface CanvasRef {
   exportJSON: () => string;
   exportImage: () => void;
   exportImageDataUrl: () => string;
+  exportThumbnail: () => string;
   loadFromJSON: (json: string) => void;
   resizeCanvas: (width: number, height: number) => void;
   enableStampMode: (src: string, size: number, angle: number) => void;
@@ -565,6 +566,15 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     exportImageDataUrl: () => {
       const canvas = fabricRef.current; if (!canvas) return '';
       return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+    },
+    exportThumbnail: () => {
+      const canvas = fabricRef.current; if (!canvas) return '';
+      // 导出小图：最大 200px，jpeg 质量 0.5，大小只有几 KB
+      const w = canvas.getWidth();
+      const h = canvas.getHeight();
+      const maxSize = 200;
+      const multiplier = Math.min(maxSize / w, maxSize / h, 1);
+      return canvas.toDataURL({ format: 'jpeg', quality: 0.5, multiplier });
     },
     loadFromJSON: (json: string | object) => {
       const canvas = fabricRef.current; if (!canvas) return;

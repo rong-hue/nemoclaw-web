@@ -196,6 +196,7 @@ function StudioContent() {
 
     setSaveStatus('saving');
     try {
+      const previewUrl = canvasRef.current?.exportThumbnail?.() || '';
       const title = designTitle || t('untitled');
       
       // 将 JSON 字符串转为对象
@@ -212,6 +213,7 @@ function StudioContent() {
         user_email: liveUser.email || '',
         title,
         canvas_json: canvasData as any,
+        preview_url: previewUrl,
       });
       // 只在新建作品时设置 ID，避免触发重新加载
       if (!designId) {
