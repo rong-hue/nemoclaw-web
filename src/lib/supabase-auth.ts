@@ -72,6 +72,11 @@ export const supabaseAuth = {
       },
     });
     if (error) throw error;
+    
+    // 注册成功后立即登录，确保 session cookie 写入
+    // （Supabase 关闭邮箱验证后，signUp 会创建 session，但 cookie 可能未及时写入）
+    await supabase.auth.signInWithPassword({ email, password });
+    
     return data.user;
   },
 
