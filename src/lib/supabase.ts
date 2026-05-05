@@ -51,7 +51,7 @@ export const designsService = {
     user_id: string;
     user_email?: string;
     title: string;
-    canvas_data: object; // 直接接受对象
+    canvas_json: object; // 直接接受对象
     preview_url?: string;
   }) {
     const supabase = getSupabaseClient();
@@ -61,7 +61,7 @@ export const designsService = {
         .from('designs')
         .update({
           title: design.title,
-          canvas_data: design.canvas_data, // 已经是对象
+          canvas_json: design.canvas_json, // 已经是对象
           preview_url: design.preview_url,
           updated_at: new Date().toISOString(),
         })
@@ -77,7 +77,7 @@ export const designsService = {
         .insert({
           user_id: design.user_id,
           title: design.title,
-          canvas_data: design.canvas_data, // 已经是对象
+          canvas_json: design.canvas_json, // 已经是对象
         })
         .select('*')
         .single();

@@ -83,13 +83,13 @@ function StudioContent() {
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
-        if (design.canvas_data) {
+        if (design.canvas_json) {
           // 等画布初始化完成后再加载
           setTimeout(() => {
             canvasRef.current?.loadFromJSON(
-              typeof design.canvas_data === 'string'
-                ? design.canvas_data
-                : design.canvas_data // 直接传对象，loadFromJSON 会处理
+              typeof design.canvas_json === 'string'
+                ? design.canvas_json
+                : design.canvas_json // 直接传对象，loadFromJSON 会处理
             );
             setDesignTitle(design.title || '');
             setDesignId(design.id);
@@ -209,7 +209,7 @@ function StudioContent() {
         user_id: liveUser.id,
         user_email: liveUser.email || '',
         title,
-        canvas_data: canvasData as any, // 传对象而非字符串
+        canvas_json: canvasData as any, // 传对象而非字符串
         preview_url: previewUrl,
       });
       // 只在新建作品时设置 ID，避免触发重新加载
