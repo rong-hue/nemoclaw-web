@@ -150,8 +150,9 @@ export default function DashboardPage() {
                   {/* 悬浮操作按钮 */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                     <Link
-                      href={`/${locale}/studio?id=${design.id}`}
+                      href={`/${locale}/studio?design=${design.id}`}
                       className="bg-white text-gray-800 p-2 rounded-full hover:bg-orange-50"
+                      title={t('continueEditing')}
                     >
                       <Pencil size={16} />
                     </Link>

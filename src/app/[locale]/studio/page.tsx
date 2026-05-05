@@ -74,6 +74,28 @@ function StudioContent() {
     canvasRef.current?.resizeCanvas(w, h);
   };
 
+  // 从 URL 加载设计（?design=<id>）
+  useEffect(() => {
+    const designIdFromUrl = searchParams?.get('design');
+    if (!designIdFromUrl || !currentUser) return;
+    if (designId === designIdFromUrl) return;
+    (async () => {
+      try {
+        const design = await designsService.getById(designIdFromUrl);
+        if (design.canvas_json) {
+          // 等画布初始化完成后再加载
+          setTimeout(() => {
+            canvasRef.current?.loadFromJSON(design.canvas_json);
+            setDesignTitle(design.title || '');
+            setDesignId(design.id);
+          }, 500);
+        }
+      } catch (err) {
+        console.error('Failed to load design:', err);
+      }
+    })();
+  }, [searchParams, currentUser, designId]);
+
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
     const artworkUrl = searchParams?.get('artwork');

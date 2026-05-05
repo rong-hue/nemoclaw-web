@@ -44,6 +44,7 @@ export interface CanvasRef {
   exportJSON: () => string;
   exportImage: () => void;
   exportImageDataUrl: () => string;
+  loadFromJSON: (json: string) => void;
   resizeCanvas: (width: number, height: number) => void;
   enableStampMode: (src: string, size: number, angle: number) => void;
   disableStampMode: () => void;
@@ -564,6 +565,17 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     exportImageDataUrl: () => {
       const canvas = fabricRef.current; if (!canvas) return '';
       return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+    },
+    loadFromJSON: (json: string) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      try {
+        canvas.loadFromJSON(JSON.parse(json), () => {
+          canvas.renderAll();
+          syncLayers(canvas);
+        });
+      } catch (err) {
+        console.error('Failed to load JSON:', err);
+      }
     },
     resizeCanvas: (width: number, height: number) => {
       const canvas = fabricRef.current; if (!canvas) return;

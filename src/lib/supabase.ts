@@ -34,6 +34,18 @@ export const designsService = {
     return data;
   },
 
+  // 根据 ID 获取单个设计
+  async getById(id: string) {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from('designs')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   // 保存/更新设计
   async save(design: {
     id?: string;
