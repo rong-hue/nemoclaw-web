@@ -566,10 +566,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return '';
       return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
     },
-    loadFromJSON: (json: string) => {
+    loadFromJSON: (json: string | object) => {
       const canvas = fabricRef.current; if (!canvas) return;
       try {
-        canvas.loadFromJSON(JSON.parse(json), () => {
+        const data = typeof json === 'string' ? JSON.parse(json) : json;
+        canvas.loadFromJSON(data, () => {
           canvas.renderAll();
           syncLayers(canvas);
         });
