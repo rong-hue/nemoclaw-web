@@ -3,7 +3,7 @@ export const runtime = 'edge';
 
 import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Box, Check, Loader2, LayoutGrid } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabaseAuth, type User } from '@/lib/supabase-auth';
@@ -301,6 +301,13 @@ function StudioContent() {
             <Box size={16} />
             {t('preview3D')}
           </button>
+          <Link
+            href={`/${locale}/dashboard`}
+            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          >
+            <LayoutGrid size={16} />
+            <span className="hidden md:inline">{t('myDesigns')}</span>
+          </Link>
           <button
             onClick={handleSave}
             disabled={saveStatus === 'saving'}
