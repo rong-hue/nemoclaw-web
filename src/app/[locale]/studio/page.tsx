@@ -78,6 +78,7 @@ function StudioContent() {
   useEffect(() => {
     const designIdFromUrl = searchParams?.get('design');
     if (!designIdFromUrl || !currentUser) return;
+    // 避免重复加载：URL 参数的 designId 和当前 designId 相同时不加载
     if (designId === designIdFromUrl) return;
     (async () => {
       try {
@@ -88,7 +89,7 @@ function StudioContent() {
             canvasRef.current?.loadFromJSON(
               typeof design.canvas_data === 'string'
                 ? design.canvas_data
-                : JSON.stringify(design.canvas_data)
+                : design.canvas_data // 直接传对象，loadFromJSON 会处理
             );
             setDesignTitle(design.title || '');
             setDesignId(design.id);
@@ -98,7 +99,7 @@ function StudioContent() {
         console.error('Failed to load design:', err);
       }
     })();
-  }, [searchParams, currentUser, designId]);
+  }, [searchParams, currentUser]); // 移除 designId 依赖，避免保存后触发重新加载
 
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
