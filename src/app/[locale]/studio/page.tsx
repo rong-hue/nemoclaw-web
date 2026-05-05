@@ -182,8 +182,9 @@ function StudioContent() {
     const json = canvasRef.current?.exportJSON();
     if (!json) return;
 
-    // 未登录时降级为本地下载
-    if (!currentUser) {
+    // 实时获取用户，避免 state 过期
+    const liveUser = await supabaseAuth.getCurrentUser();
+    if (!liveUser?.id) {
       handleExportJSON();
       return;
     }
@@ -194,8 +195,8 @@ function StudioContent() {
       const title = designTitle || t('untitled');
       const saved = await designsService.save({
         id: designId,
-        user_id: currentUser!.id || currentUser!.email || '',
-        user_email: currentUser!.email || '',
+        user_id: liveUser.id,
+        user_email: liveUser.email || '',
         title,
         canvas_data: json,
         preview_url: previewUrl,
