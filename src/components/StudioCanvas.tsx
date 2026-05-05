@@ -329,15 +329,15 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       FabricImage.fromURL(url, { crossOrigin: 'anonymous' }).then((img) => {
         const cw = canvas.width!;
         const ch = canvas.height!;
-        const maxSize = Math.min(cw, ch, 400);
-        if (img.width! > img.height!) {
-          img.scaleToWidth(maxSize);
-        } else {
-          img.scaleToHeight(maxSize);
-        }
+        // 铺满画布：按比例缩放，cover 模式（短边对齐画布，长边裁切不到但居中）
+        const scaleX = cw / img.width!;
+        const scaleY = ch / img.height!;
+        const scale = Math.max(scaleX, scaleY);
         img.set({
-          left: (cw - img.getScaledWidth()) / 2,
-          top: (ch - img.getScaledHeight()) / 2,
+          scaleX: scale,
+          scaleY: scale,
+          left: (cw - img.width! * scale) / 2,
+          top: (ch - img.height! * scale) / 2,
           originX: 'left',
           originY: 'top',
         });
