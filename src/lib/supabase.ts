@@ -71,10 +71,14 @@ export const designsService = {
       if (error) throw error;
       return data;
     } else {
-      // 新建
+      // 新建（只传表中存在的字段）
       const { data, error } = await supabase
         .from('designs')
-        .insert(design)
+        .insert({
+          user_id: design.user_id,
+          title: design.title,
+          canvas_data: design.canvas_data,
+        })
         .select()
         .single();
       if (error) throw error;
