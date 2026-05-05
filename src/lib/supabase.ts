@@ -1,5 +1,5 @@
-import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseBrowserClient } from '@/lib/supabase-auth';
 
 /**
  * 服务端专用 Supabase client（使用 service_role key，绕过 RLS）
@@ -14,16 +14,9 @@ function getServiceClient() {
   });
 }
 
+// 客户端操作统一使用 supabase-auth.ts 里的 client，确保 session 共享
 function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  return getSupabaseBrowserClient();
 }
 
 // 设计作品相关操作
