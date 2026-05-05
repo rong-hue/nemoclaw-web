@@ -193,12 +193,21 @@ function StudioContent() {
     try {
       const previewUrl = canvasRef.current?.exportImageDataUrl?.() || '';
       const title = designTitle || t('untitled');
+      
+      // 将 JSON 字符串转为对象，避免在 supabase.ts 里解析
+      let canvasData: object;
+      try {
+        canvasData = JSON.parse(json);
+      } catch {
+        canvasData = {};
+      }
+      
       const saved = await designsService.save({
         id: designId,
         user_id: liveUser.id,
         user_email: liveUser.email || '',
         title,
-        canvas_data: json,
+        canvas_data: canvasData as any, // 传对象而非字符串
         preview_url: previewUrl,
       });
       setDesignId(saved.id);
