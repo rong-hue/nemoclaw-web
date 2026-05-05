@@ -80,8 +80,12 @@ export const supabaseAuth = {
     const supabase = getSupabaseBrowserClient();
     // 从当前 URL 提取 locale（如 /en/auth → en）
     const locale = window.location.pathname.split('/')[1] || 'en';
+    // 强制使用生产域名，避免 localhost 干扰
+    const origin = window.location.hostname === 'localhost' 
+      ? 'https://www.nemoclaw-web.com'
+      : window.location.origin;
     // OAuth 回调必须先到 /[locale]/auth/callback，再由它跳转到目标页
-    const callbackUrl = `${window.location.origin}/${locale}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`;
+    const callbackUrl = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
