@@ -66,7 +66,7 @@ export const designsService = {
           updated_at: new Date().toISOString(),
         })
         .eq('id', design.id)
-        .select()
+        .select('*')
         .single();
       if (error) throw error;
       return data;
@@ -79,7 +79,7 @@ export const designsService = {
           title: design.title,
           canvas_data: JSON.parse(design.canvas_data), // jsonb 类型需要传对象
         })
-        .select()
+        .select('*')
         .single();
       if (error) throw error;
       return data;
