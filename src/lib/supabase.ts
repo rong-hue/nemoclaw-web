@@ -61,7 +61,7 @@ export const designsService = {
         .from('designs')
         .update({
           title: design.title,
-          canvas_data: design.canvas_data,
+          canvas_data: JSON.parse(design.canvas_data), // jsonb 类型需要传对象
           preview_url: design.preview_url,
           updated_at: new Date().toISOString(),
         })
@@ -77,7 +77,7 @@ export const designsService = {
         .insert({
           user_id: design.user_id,
           title: design.title,
-          canvas_data: design.canvas_data,
+          canvas_data: JSON.parse(design.canvas_data), // jsonb 类型需要传对象
         })
         .select()
         .single();

@@ -85,7 +85,11 @@ function StudioContent() {
         if (design.canvas_data) {
           // 等画布初始化完成后再加载
           setTimeout(() => {
-            canvasRef.current?.loadFromJSON(design.canvas_data);
+            canvasRef.current?.loadFromJSON(
+              typeof design.canvas_data === 'string'
+                ? design.canvas_data
+                : JSON.stringify(design.canvas_data)
+            );
             setDesignTitle(design.title || '');
             setDesignId(design.id);
           }, 500);
