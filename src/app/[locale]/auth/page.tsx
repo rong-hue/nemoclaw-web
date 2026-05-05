@@ -5,8 +5,7 @@ import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { authService } from '@/lib/auth';
-import { signIn } from 'next-auth/react';
+import { supabaseAuth } from '@/lib/supabase-auth';
 
 function AuthContent() {
   const params = useParams();
@@ -24,34 +23,30 @@ function AuthContent() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (isLogin) {
-      const user = authService.login(email, password);
-      if (user) {
-        // Use hard navigation so the target page fully remounts and reads localStorage
-        window.location.href = callbackUrl;
+    try {
+      if (isLogin) {
+        await supabaseAuth.signInWithPassword(email, password);
       } else {
-        setError(t('loginError'));
+        if (!name) {
+          setError(t('nameRequired'));
+          return;
+        }
+        await supabaseAuth.signUp(email, password, name);
       }
-    } else {
-      if (!name) {
-        setError(t('nameRequired'));
-        return;
-      }
-      authService.register(email, password, name);
       window.location.href = callbackUrl;
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t('loginError'));
     }
   };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      await signIn('google', {
-        callbackUrl,
-      });
+      await supabaseAuth.signInWithGoogle(callbackUrl);
     } catch (err) {
       setGoogleLoading(false);
       setError(t('loginError'));

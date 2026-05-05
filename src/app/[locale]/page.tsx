@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowRight, PenTool, Layers, Zap, User, Menu, X, Globe, AtSign, Mail, Box, Scissors, ShoppingBag } from "lucide-react";
 import { useTranslations } from 'next-intl';
-import { authService } from "@/lib/auth";
+import { supabaseAuth } from '@/lib/supabase-auth';
 import CartIcon from "@/components/CartIcon";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -23,7 +23,7 @@ export default function Home() {
   const locale = params.locale as string;
 
   useEffect(() => {
-    setUser(authService.getCurrentUser());
+    supabaseAuth.getCurrentUser().then(setUser);
   }, []);
 
   const navTo = (path: string) => {

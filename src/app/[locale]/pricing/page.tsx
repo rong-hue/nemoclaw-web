@@ -2,12 +2,12 @@
 export const runtime = 'edge';
 
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { Check, X, Zap, Shield, RefreshCw } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from 'next-intl';
-import { useSession } from 'next-auth/react';
+import { supabaseAuth } from '@/lib/supabase-auth';
 import CartIcon from "@/components/CartIcon";
 
 const EARLY_BIRD_SPOTS_LEFT = 47;
@@ -17,7 +17,11 @@ export default function Pricing() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('pricing');
-  const { data: session } = useSession();
+  const [currentUser, setCurrentUser] = useState<{ email?: string; name?: string } | null>(null);
+
+  useEffect(() => {
+    supabaseAuth.getCurrentUser().then(setCurrentUser);
+  }, []);
 
   const [isYearly, setIsYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -116,8 +120,8 @@ export default function Pricing() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan: PLAN_KEY_MAP[plan.id] ?? 'early_bird',
-          userId: session?.user?.email ?? session?.user?.name ?? 'guest',
-          userEmail: session?.user?.email ?? 'guest@example.com',
+          userId: currentUser?.email ?? currentUser?.name ?? 'guest',
+          userEmail: currentUser?.email ?? 'guest@example.com',
         }),
       });
       const data = await res.json() as { approveUrl?: string; error?: string };

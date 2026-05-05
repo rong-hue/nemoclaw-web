@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, MapPin, User, Phone } from 'lucide-react';
 import { cartService, CartItem } from '@/lib/cart';
-import { authService } from '@/lib/auth';
+import { supabaseAuth } from '@/lib/supabase-auth';
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -27,9 +27,10 @@ export default function CheckoutPage() {
     if (cart.length === 0) { router.push(`/${locale}/cart`); return; }
     setItems(cart);
 
-    const user = authService.getCurrentUser();
-    if (user) setForm(f => ({ ...f, name: user.name }));
-  }, [router]);
+    supabaseAuth.getCurrentUser().then(user => {
+      if (user) setForm(f => ({ ...f, name: user.name || '' }));
+    });
+  }, [router, locale]);
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 

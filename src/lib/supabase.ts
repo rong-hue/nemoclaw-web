@@ -1,4 +1,18 @@
 import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
+
+/**
+ * 服务端专用 Supabase client（使用 service_role key，绕过 RLS）
+ * 只在 API Route / Server Component 中调用，不要在客户端使用
+ */
+function getServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  // 优先用 service_role key（服务端），没有则降级到 anon key（开发环境）
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(supabaseUrl, serviceKey, {
+    auth: { persistSession: false },
+  });
+}
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -117,7 +131,7 @@ export const subscriptionsService = {
 
   // 根据 user_id 查找当前有效订阅
   async getActiveByUser(userId: string) {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('subscriptions')
       .select('*')
@@ -189,7 +203,7 @@ export const PRO_MONTHLY_LIMIT = 50;
 export const aiUsageService = {
   /** 查询用户本月已用次数（在 API Route 服务端调用） */
   async getMonthlyCount(userId: string): Promise<number> {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const start = new Date();
     start.setDate(1); start.setHours(0, 0, 0, 0);
     const { count, error } = await supabase
@@ -203,7 +217,7 @@ export const aiUsageService = {
 
   /** 记录一次使用（在 API Route 服务端调用） */
   async record(userId: string, type = 'generate'): Promise<void> {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const { error } = await supabase.from('ai_usage').insert({ user_id: userId, type });
     if (error) throw error;
   },

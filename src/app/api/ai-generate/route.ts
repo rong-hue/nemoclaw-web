@@ -1,5 +1,5 @@
 export const runtime = 'edge';
-import { getEdgeSession } from '@/lib/edge-session';
+import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
 
 // SiliconFlow FLUX AI 生图 API — 带配额控制
@@ -32,18 +32,12 @@ const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, croppe
 
 export async function POST(req: Request) {
   try {
-    // 1. 鉴权 — accept userId from x-user-id header (localStorage auth) or Edge cookie session
-    let userId: string | undefined;
-    const headerUserId = req.headers.get('x-user-id');
-    if (headerUserId) {
-      userId = headerUserId;
-    } else {
-      const session = await getEdgeSession(req);
-      if (session) userId = session.userId;
-    }
-    if (!userId) {
+    // 1. 鉴权 — 从 Supabase Auth JWT 读取用户
+    const user = await getServerUser(req);
+    if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const userId = user.id;
 
     // 2. 配额检查
     const [usedCount, activeSub] = await Promise.all([

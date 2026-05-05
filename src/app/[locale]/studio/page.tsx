@@ -6,8 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Box, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { authService } from '@/lib/auth';
+import { supabaseAuth, type User } from '@/lib/supabase-auth';
 import StudioCanvas, { CanvasRef, LayerItem } from '@/components/StudioCanvas';
 import Toolbar from '@/components/StudioToolbar';
 import PropertiesPanel from '@/components/StudioProperties';
@@ -24,30 +23,17 @@ function StudioContent() {
   const t = useTranslations('studio');
   const locale = useLocale();
 
-  // Support both auth systems:
-  // 1. authService (localStorage) — email/password login
-  // 2. NextAuth useSession — Google OAuth login
-  // A user is "logged in" if either system has a valid session.
-  const { data: nextAuthSession, status: sessionStatus } = useSession();
-  const [localUser, setLocalUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    setLocalUser(authService.getCurrentUser());
-    const onFocus = () => setLocalUser(authService.getCurrentUser());
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    supabaseAuth.getCurrentUser().then(user => {
+      setCurrentUser(user);
+      setAuthLoading(false);
+    });
+    const subscription = supabaseAuth.onAuthStateChange(user => setCurrentUser(user));
+    return () => subscription.unsubscribe();
   }, []);
-
-  // True while NextAuth is still fetching the session — don't redirect during this window
-  const sessionLoading = sessionStatus === 'loading';
-
-  // Unified user object — prefer localStorage user, fall back to NextAuth session
-  const currentUser = localUser || (nextAuthSession?.user ? {
-    id: nextAuthSession.user.id || nextAuthSession.user.email || '',
-    email: nextAuthSession.user.email || '',
-    name: nextAuthSession.user.name || nextAuthSession.user.email || '',
-    createdAt: '',
-  } : null);
   const router = useRouter();
   const canvasRef = useRef<CanvasRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -290,11 +276,8 @@ function StudioContent() {
           onAddArrow={() => canvasRef.current?.addArrow()}
           onUploadImage={handleUploadImage}
           onAiGenerate={() => {
-            // Don't redirect while NextAuth session is still loading
-            if (sessionLoading) return;
-            // Check both auth systems at click time
-            const user = authService.getCurrentUser() || nextAuthSession?.user;
-            if (!user) {
+            if (authLoading) return;
+            if (!currentUser) {
               // Use relative path as callbackUrl so NextAuth doesn't reject cross-domain URLs
               const callbackPath = encodeURIComponent(`/${locale}/studio${window.location.search}`);
               window.location.href = `/${locale}/auth?callbackUrl=${callbackPath}`;

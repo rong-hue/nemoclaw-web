@@ -116,16 +116,9 @@ export default function AiGeneratePanel({ onImageGenerated, onClose }: AiGenerat
     setLoading(true);
     setError('');
     try {
-      const { authService } = await import('@/lib/auth');
-      const user = authService.getCurrentUser();
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (user) {
-        headers['x-user-id'] = user.id || user.email;
-        headers['x-user-email'] = user.email;
-      }
       const res = await fetch('/api/ai-generate', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, style, width: 512, height: 512 }),
       });
       const data = await res.json() as {

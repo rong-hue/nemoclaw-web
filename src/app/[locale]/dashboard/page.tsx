@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useSession, signOut } from 'next-auth/react';
-import { authService } from '@/lib/auth';
+import { supabaseAuth, type User } from '@/lib/supabase-auth';
 import { designsService } from '@/lib/supabase';
 import { PlusCircle, Pencil, Trash2, LogOut, Loader2 } from 'lucide-react';
 
@@ -15,42 +14,40 @@ export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('dashboard');
-  const { data: session, status } = useSession();
 
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [designs, setDesigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const router = useRouter();
 
-  // 获取用户 ID（兼容 Google OAuth 和 mock 登录）
-  const getUserId = () => {
-    if (session?.user) return session.user.id || session.user.email || '';
-    const localUser = authService.getCurrentUser();
-    return localUser?.email || '';
-  };
+  useEffect(() => {
+    supabaseAuth.getCurrentUser().then(user => {
+      setCurrentUser(user);
+      setAuthLoading(false);
+    });
+    const subscription = supabaseAuth.onAuthStateChange(user => setCurrentUser(user));
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
-    if (status === 'loading') return;
-    const localUser = authService.getCurrentUser();
-    if (!session?.user && !localUser) {
+    if (authLoading) return;
+    if (!currentUser) {
       router.push(`/${locale}/auth`);
       return;
     }
-    loadDesigns();
-  }, [status, session]);
+    loadDesigns(currentUser.id);
+  }, [authLoading, currentUser]);
 
-  const loadDesigns = async () => {
+  const loadDesigns = async (userId: string) => {
     setLoading(true);
     try {
-      const userId = getUserId();
-      if (!userId) { setLoading(false); return; }
       const data = await designsService.getByUser(userId);
       setDesigns(data || []);
     } catch (err) {
       console.error('Load designs failed:', err);
-      // 降级：显示本地 mock 数据
-      const localUser = authService.getCurrentUser();
-      setDesigns(localUser?.designs || []);
+      setDesigns([]);
     } finally {
       setLoading(false);
     }
@@ -70,16 +67,11 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
-    if (session?.user) {
-      await signOut({ callbackUrl: `/${locale}` });
-    } else {
-      authService.logout();
-      router.push(`/${locale}`);
-    }
+    await supabaseAuth.signOut();
+    router.push(`/${locale}`);
   };
 
-  const userName = session?.user?.name || session?.user?.email || authService.getCurrentUser()?.name || '';
-  const userAvatar = session?.user?.image || null;
+  const userName = currentUser?.name || currentUser?.email || '';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -90,13 +82,9 @@ export default function DashboardPage() {
         </Link>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            {userAvatar ? (
-              <img src={userAvatar} alt="" className="w-8 h-8 rounded-full" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
+              {userName.charAt(0).toUpperCase()}
+            </div>
             <span className="text-sm text-gray-600 hidden md:block">{userName}</span>
           </div>
           <button
