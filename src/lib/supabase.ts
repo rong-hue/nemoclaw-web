@@ -55,13 +55,22 @@ export const designsService = {
     preview_url?: string;
   }) {
     const supabase = getSupabaseClient();
+    // canvas_data 可能是字符串或对象，统一转为对象传给 jsonb 字段
+    let canvasObj: object;
+    try {
+      canvasObj = typeof design.canvas_data === 'string'
+        ? JSON.parse(design.canvas_data)
+        : design.canvas_data as object;
+    } catch {
+      canvasObj = {};
+    }
     if (design.id) {
       // 更新
       const { data, error } = await supabase
         .from('designs')
         .update({
           title: design.title,
-          canvas_data: JSON.parse(design.canvas_data), // jsonb 类型需要传对象
+          canvas_data: canvasObj, // 已解析为对象
           preview_url: design.preview_url,
           updated_at: new Date().toISOString(),
         })
@@ -77,7 +86,7 @@ export const designsService = {
         .insert({
           user_id: design.user_id,
           title: design.title,
-          canvas_data: JSON.parse(design.canvas_data), // jsonb 类型需要传对象
+          canvas_data: canvasObj, // 已解析为对象
         })
         .select('*')
         .single();
