@@ -78,6 +78,7 @@ export const designsService = {
           user_id: design.user_id,
           title: design.title,
           canvas_json: design.canvas_json, // 已经是对象
+          preview_url: design.preview_url, // 新建时也要保存缩略图
         })
         .select('*')
         .single();
