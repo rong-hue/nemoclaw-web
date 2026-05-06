@@ -45,7 +45,7 @@ export interface CanvasRef {
   exportImage: () => void;
   exportImageDataUrl: () => string;
   exportThumbnail: () => string;
-  loadFromJSON: (json: string) => void;
+  loadFromJSON: (json: string) => Promise<void>;
   resizeCanvas: (width: number, height: number) => void;
   enableStampMode: (src: string, size: number, angle: number) => void;
   disableStampMode: () => void;
@@ -569,21 +569,21 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     exportThumbnail: () => {
       const canvas = fabricRef.current; if (!canvas) return '';
-      // 导出小图：最大 200px，jpeg 质量 0.5，大小只有几 KB
+      // 导出中等尺寸缩略图：最大 600px，jpeg 质量 0.8，清晰度足够
       const w = canvas.getWidth();
       const h = canvas.getHeight();
-      const maxSize = 200;
+      const maxSize = 600;
       const multiplier = Math.min(maxSize / w, maxSize / h, 1);
-      return canvas.toDataURL({ format: 'jpeg', quality: 0.5, multiplier });
+      return canvas.toDataURL({ format: 'jpeg', quality: 0.8, multiplier });
     },
-    loadFromJSON: (json: string | object) => {
+    loadFromJSON: async (json: string | object) => {
       const canvas = fabricRef.current; if (!canvas) return;
       try {
         const data = typeof json === 'string' ? JSON.parse(json) : json;
-        canvas.loadFromJSON(data, () => {
-          canvas.renderAll();
-          syncLayers(canvas);
-        });
+        // Fabric.js v7: loadFromJSON 是 async，不再接受回调
+        await canvas.loadFromJSON(data);
+        canvas.renderAll();
+        syncLayers(canvas);
       } catch (err) {
         console.error('Failed to load JSON:', err);
       }
