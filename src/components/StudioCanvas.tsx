@@ -44,7 +44,7 @@ export interface CanvasRef {
   exportJSON: () => string;
   exportImage: () => void;
   exportImageDataUrl: () => string;
-  exportThumbnail: () => string;
+  exportThumbnail: () => Promise<string>;
   loadFromJSON: (json: string) => Promise<void>;
   resizeCanvas: (width: number, height: number) => void;
   enableStampMode: (src: string, size: number, angle: number) => void;
@@ -567,8 +567,28 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return '';
       return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
     },
-    exportThumbnail: () => {
+    exportThumbnail: async () => {
       const canvas = fabricRef.current; if (!canvas) return '';
+      // 等待所有图片对象加载完成，避免截图时图片还未渲染
+      const imageObjects = canvas.getObjects().filter((obj: any) => obj.type === 'image');
+      if (imageObjects.length > 0) {
+        await Promise.all(
+          imageObjects.map(
+            (obj: any) =>
+              new Promise<void>((resolve) => {
+                const el = obj.getElement?.() as HTMLImageElement | undefined;
+                if (!el || el.complete) {
+                  resolve();
+                } else {
+                  el.onload = () => resolve();
+                  el.onerror = () => resolve(); // 加载失败也继续，不阻塞保存
+                }
+              })
+          )
+        );
+      }
+      // 确保所有对象都已渲染到 canvas
+      canvas.renderAll();
       // 导出中等尺寸缩略图：最大 600px，jpeg 质量 0.8，清晰度足够
       const w = canvas.getWidth();
       const h = canvas.getHeight();

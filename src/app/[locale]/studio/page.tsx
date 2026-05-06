@@ -204,7 +204,7 @@ function StudioContent() {
 
     setSaveStatus('saving');
     try {
-      const previewUrl = canvasRef.current?.exportThumbnail?.() || '';
+      const previewUrl = await canvasRef.current?.exportThumbnail?.() || '';
       const title = designTitle || t('untitled');
       
       // 将 JSON 字符串转为对象
