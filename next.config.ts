@@ -25,9 +25,6 @@ const nextConfig = {
     NEXT_PUBLIC_BUILD_VERSION: commitHash,
     NEXT_PUBLIC_BUILD_TIME: buildTime,
   },
-  experimental: {
-    runtime: 'experimental-edge',
-  },
   webpack: (config: any, { isServer }: { isServer: boolean }) => {
     if (isServer) {
       config.resolve.alias = {
