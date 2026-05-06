@@ -124,14 +124,6 @@
       "status": 404
     },
     {
-      "src": "^/api/auth/(?<nxtPnextauth>.+?)(?:\\.rsc)(?:/)?$",
-      "dest": "/api/auth/[...nextauth].rsc?nxtPnextauth=$nxtPnextauth"
-    },
-    {
-      "src": "^/api/auth/(?<nxtPnextauth>.+?)(?:/)?$",
-      "dest": "/api/auth/[...nextauth]?nxtPnextauth=$nxtPnextauth"
-    },
-    {
       "src": "^/(?<nxtPlocale>[^/]+?)(?:\\.rsc)(?:/)?$",
       "dest": "/[locale].rsc?nxtPlocale=$nxtPlocale"
     },
@@ -154,6 +146,14 @@
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/auth(?:/)?$",
       "dest": "/[locale]/auth?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/auth/callback(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/auth/callback.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/auth/callback(?:/)?$",
+      "dest": "/[locale]/auth/callback?nxtPlocale=$nxtPlocale"
     },
     {
       "src": "^/(?<nxtPlocale>[^/]+?)/blog(?:\\.rsc)(?:/)?$",
@@ -287,7 +287,7 @@
       "handle": "hit"
     },
     {
-      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|KDb0sLpAx6mf_OxEtwsMn)/.+",
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|RhvrWdCEi6NK95j6yVhkl)/.+",
       "headers": {
         "cache-control": "public,max-age=31536000,immutable"
       },

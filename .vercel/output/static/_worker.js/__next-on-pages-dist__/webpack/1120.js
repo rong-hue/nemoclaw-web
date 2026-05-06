@@ -1,1 +1,0 @@
-var t={},s=(_,a,d)=>(t.__chunk_1120=(n,l,e)=>{e.d(l,{A:()=>o});let o=(0,e(3396).A)("x",[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]])},t);export{s as __getNamedExports};
