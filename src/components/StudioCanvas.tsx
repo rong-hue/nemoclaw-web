@@ -6,6 +6,10 @@ import { WabiSabiBrush } from '@/lib/WabiSabiBrush';
 import { useTranslations } from 'next-intl';
 
 export interface CanvasRef {
+  undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   addText: () => void;
   addRect: () => void;
   addCircle: () => void;
@@ -78,7 +82,27 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
-  // 印章模式状态
+  // 历史记录栈（Undo/Redo）
+  const historyStack = useRef<string[]>([]);
+  const historyIndex = useRef<number>(-1);
+  const isRestoring = useRef<boolean>(false);
+  const MAX_HISTORY = 50;
+
+  // 推入一帧快照
+  const pushHistory = (canvas: FabricCanvas) => {
+    if (isRestoring.current) return;
+    const json = JSON.stringify(canvas.toJSON());
+    // 如果当前不在栈尾，截断后面的分支
+    if (historyIndex.current < historyStack.current.length - 1) {
+      historyStack.current = historyStack.current.slice(0, historyIndex.current + 1);
+    }
+    historyStack.current.push(json);
+    if (historyStack.current.length > MAX_HISTORY) {
+      historyStack.current.shift();
+    }
+    historyIndex.current = historyStack.current.length - 1;
+  };
+
   const stampModeRef = useRef<{ active: boolean; src: string; size: number; angle: number; comboText?: string; comboOffsetX?: number; comboOffsetY?: number }>({
     active: false, src: '', size: 120, angle: 0,
   });
@@ -105,13 +129,15 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     });
     fabricRef.current = canvas;
     canvas.renderAll(); // 立即渲染白色背景，避免初始显示透明/深色
+    // 推入初始空白帧
+    pushHistory(canvas);
 
     canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:cleared', () => onSelectionChange(null));
-    canvas.on('object:added', () => syncLayers(canvas));
-    canvas.on('object:removed', () => syncLayers(canvas));
-    canvas.on('object:modified', () => syncLayers(canvas));
+    canvas.on('object:added', () => { syncLayers(canvas); pushHistory(canvas); });
+    canvas.on('object:removed', () => { syncLayers(canvas); pushHistory(canvas); });
+    canvas.on('object:modified', () => { syncLayers(canvas); pushHistory(canvas); });
 
     // 残缺美笔刷：path 绘制完成后，对路径做随机断点 + 晕染处理
     // 注意：WabiSabiBrush 自定义笔刷已在实时绘制时处理效果，
@@ -196,6 +222,28 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   };
 
   useImperativeHandle(ref, () => ({
+    undo: async () => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      if (historyIndex.current <= 0) return;
+      historyIndex.current -= 1;
+      isRestoring.current = true;
+      await canvas.loadFromJSON(JSON.parse(historyStack.current[historyIndex.current]));
+      canvas.renderAll();
+      syncLayers(canvas);
+      isRestoring.current = false;
+    },
+    redo: async () => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      if (historyIndex.current >= historyStack.current.length - 1) return;
+      historyIndex.current += 1;
+      isRestoring.current = true;
+      await canvas.loadFromJSON(JSON.parse(historyStack.current[historyIndex.current]));
+      canvas.renderAll();
+      syncLayers(canvas);
+      isRestoring.current = false;
+    },
+    canUndo: () => historyIndex.current > 0,
+    canRedo: () => historyIndex.current < historyStack.current.length - 1,
     addText: () => {
       const canvas = fabricRef.current; if (!canvas) return;
       const text = new Textbox(t('defaultText'), {
@@ -600,12 +648,18 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       try {
         const data = typeof json === 'string' ? JSON.parse(json) : json;
-        // Fabric.js v7: loadFromJSON 是 async，不再接受回调
+        // 加载已有设计时，用 isRestoring 防止触发 pushHistory
+        isRestoring.current = true;
         await canvas.loadFromJSON(data);
         canvas.renderAll();
         syncLayers(canvas);
+        isRestoring.current = false;
+        // 重置历史栈，以加载后的状态作为第 0 帧
+        historyStack.current = [JSON.stringify(canvas.toJSON())];
+        historyIndex.current = 0;
       } catch (err) {
         console.error('Failed to load JSON:', err);
+        isRestoring.current = false;
       }
     },
     resizeCanvas: (width: number, height: number) => {

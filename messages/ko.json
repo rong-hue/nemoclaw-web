@@ -456,6 +456,8 @@
       "clear": "지우기",
       "exportJSON": "JSON 내보내기",
       "exportPNG": "PNG 내보내기",
+      "undo": "실행 취소",
+      "redo": "다시 실행",
       "aiGenerate": "의경",
       "stamp": "도장",
       "wabiSabi": "와비사비"
@@ -480,6 +482,9 @@
     "align": "정렬",
     "arrange": "배치",
     "save": "저장",
+    "saving": "저장 중...",
+    "saved": "저장되었습니다!",
+    "saveFailed": "저장 실패",
     "untitled": "제목 없음",
     "noLayers": "레이어 없음",
     "type": "유형",

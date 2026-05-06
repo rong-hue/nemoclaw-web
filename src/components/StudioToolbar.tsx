@@ -1,6 +1,6 @@
 'use client';
 
-import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2, Stamp, Brush } from 'lucide-react';
+import { Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download, MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy, Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2 } from 'lucide-react';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -21,6 +21,10 @@ interface ToolbarProps {
   onExport: () => void;
   onExportImage: () => void;
   onStamp?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   activeTool: string;
   setActiveTool: (t: string) => void;
   toolLabels?: Record<string, string>;
@@ -29,7 +33,7 @@ interface ToolbarProps {
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
   onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate, onClear, onExport, onExportImage,
-  onStamp, onWabiSabi,
+  onStamp, onWabiSabi, onUndo, onRedo, canUndo = false, canRedo = false,
   activeTool, setActiveTool, toolLabels = {}
 }: ToolbarProps) {
   const L = (key: string, fallback: string) => toolLabels[key] || fallback;
@@ -55,6 +59,9 @@ export default function Toolbar({
     { id: 'delete', icon: <Trash2 size={18} />, label: L('delete', 'Del'), action: onDelete },
     { id: 'clear', icon: <RotateCcw size={18} />, label: L('clear', 'Clear'), action: onClear },
     { id: 'divider3', icon: null, label: '', action: () => {}, divider: true },
+    { id: 'undo', icon: <Undo2 size={18} />, label: L('undo', 'Undo'), action: () => onUndo?.(), disabled: !canUndo },
+    { id: 'redo', icon: <Redo2 size={18} />, label: L('redo', 'Redo'), action: () => onRedo?.(), disabled: !canRedo },
+    { id: 'divider4', icon: null, label: '', action: () => {}, divider: true },
     { id: 'export', icon: <Download size={18} />, label: L('exportJSON', 'JSON'), action: onExport },
     { id: 'exportImg', icon: <Image size={18} />, label: L('exportPNG', 'PNG'), action: onExportImage },
   ];
@@ -68,9 +75,12 @@ export default function Toolbar({
           <button
             key={tool.id}
             onClick={tool.action}
+            disabled={(tool as any).disabled}
             title={tool.label}
             className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all shrink-0 ${
-              activeTool === tool.id
+              (tool as any).disabled
+                ? 'text-slate-600 cursor-not-allowed'
+                : activeTool === tool.id
                 ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]'
                 : tool.id === 'wabisabi'
                 ? 'text-amber-400 hover:bg-amber-500/10 hover:text-amber-300'
@@ -84,6 +94,8 @@ export default function Toolbar({
                 ? 'text-green-400 hover:bg-green-500/10'
                 : tool.id === 'duplicate' || tool.id === 'removebg'
                 ? 'text-blue-400 hover:bg-blue-500/10'
+                : tool.id === 'undo' || tool.id === 'redo'
+                ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 : 'text-slate-400 hover:bg-slate-800 hover:text-white'
             }`}
           >

@@ -509,9 +509,13 @@
       "clear": "Clear",
       "exportJSON": "Export JSON",
       "exportPNG": "Export PNG",
+      "undo": "Undo",
+      "redo": "Redo",
       "aiGenerate": "Mood",
       "stamp": "Stamp",
-      "wabiSabi": "Wabi-Sabi"
+      "wabiSabi": "Wabi-Sabi",
+      "undo": "Undo",
+      "redo": "Redo"
     },
     "properties": "Properties",
     "layers": "Layers",

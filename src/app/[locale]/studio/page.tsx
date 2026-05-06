@@ -59,6 +59,23 @@ function StudioContent() {
   const [canvasH, setCanvasH] = useState(500);
   const [customW, setCustomW] = useState('600');
   const [customH, setCustomH] = useState('500');
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // 刷新 undo/redo 可用状态
+  const refreshUndoRedo = () => {
+    setCanUndo(canvasRef.current?.canUndo() ?? false);
+    setCanRedo(canvasRef.current?.canRedo() ?? false);
+  };
+
+  // 自动保存：debounce 3s
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerAutoSave = useCallback(() => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveRef.current();
+    }, 3000);
+  }, []);
 
   const PRESETS = [
     { label: 'Square 1:1', w: 800, h: 800 },
@@ -122,7 +139,10 @@ function StudioContent() {
   }, [searchParams]);
 
   // 用 ref 存储 handleSave，避免键盘事件闭包问题
-  const handleSaveRef = useRef<() => void>(() => {});
+  const handleSaveRef = useRef<(silent?: boolean) => void>(() => {});
+
+  // 自动保存专用 ref（silent=true，未登录时不触发导出弹窗）
+  const autoSaveRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -130,15 +150,29 @@ function StudioContent() {
         if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
           e.preventDefault();
           canvasRef.current?.deleteSelected();
+          setTimeout(refreshUndoRedo, 0);
         }
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault();
         canvasRef.current?.duplicate();
+        setTimeout(refreshUndoRedo, 0);
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         handleSaveRef.current();
+      }
+      // Ctrl+Z / Cmd+Z 撤销
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        canvasRef.current?.undo();
+        setTimeout(refreshUndoRedo, 50);
+      }
+      // Ctrl+Shift+Z / Cmd+Shift+Z 重做
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        canvasRef.current?.redo();
+        setTimeout(refreshUndoRedo, 50);
       }
       // Esc 退出印章监听状态，但保留印章面板
       if (e.key === 'Escape' && activeTool === 'stamp') {
@@ -191,14 +225,15 @@ function StudioContent() {
     canvasRef.current?.exportImage();
   };
 
-  const handleSave = async () => {
+  const handleSave = async (silent = false) => {
     const json = canvasRef.current?.exportJSON();
     if (!json) return;
 
     // 实时获取用户，避免 state 过期
     const liveUser = await supabaseAuth.getCurrentUser();
     if (!liveUser?.id) {
-      handleExportJSON();
+      // 自动保存时未登录则静默跳过
+      if (!silent) handleExportJSON();
       return;
     }
 
@@ -237,6 +272,7 @@ function StudioContent() {
   };
   // 始终保持 ref 最新
   handleSaveRef.current = handleSave;
+  autoSaveRef.current = () => handleSave(true);
 
   const handleOpen3D = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
@@ -317,7 +353,7 @@ function StudioContent() {
             <span className="hidden md:inline">{t('myDesigns')}</span>
           </Link>
           <button
-            onClick={handleSave}
+            onClick={() => handleSave()}
             disabled={saveStatus === 'saving'}
             className={`flex items-center gap-2 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 ${saveButtonClass()}`}
           >
@@ -355,6 +391,10 @@ function StudioContent() {
           onClear={() => canvasRef.current?.clearCanvas()}
           onExport={handleExportJSON}
           onExportImage={handleExportImage}
+          onUndo={() => { canvasRef.current?.undo(); setTimeout(refreshUndoRedo, 50); }}
+          onRedo={() => { canvasRef.current?.redo(); setTimeout(refreshUndoRedo, 50); }}
+          canUndo={canUndo}
+          canRedo={canRedo}
           activeTool={activeTool}
           setActiveTool={handleToolChange}
           toolLabels={{
@@ -475,7 +515,7 @@ function StudioContent() {
             <StudioCanvas
               ref={canvasRef}
               onSelectionChange={setSelected}
-              onLayersChange={setLayers}
+              onLayersChange={(layers) => { setLayers(layers); refreshUndoRedo(); triggerAutoSave(); }}
               initialWidth={canvasW}
               initialHeight={canvasH}
               onExitStampMode={() => {

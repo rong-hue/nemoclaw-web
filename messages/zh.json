@@ -456,6 +456,8 @@
       "clear": "清空",
       "exportJSON": "导出JSON",
       "exportPNG": "导出PNG",
+      "undo": "撤销",
+      "redo": "重做",
       "aiGenerate": "意境",
       "stamp": "印章",
       "wabiSabi": "残缺"

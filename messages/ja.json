@@ -456,6 +456,8 @@
       "clear": "クリア",
       "exportJSON": "JSON出力",
       "exportPNG": "PNGエクスポート",
+      "undo": "元に戻す",
+      "redo": "やり直し",
       "aiGenerate": "意境",
       "stamp": "スタンプ",
       "wabiSabi": "侘寂"
@@ -480,6 +482,9 @@
     "align": "整列",
     "arrange": "配置",
     "save": "保存",
+    "saving": "保存中...",
+    "saved": "保存しました！",
+    "saveFailed": "保存に失敗しました",
     "untitled": "無題",
     "noLayers": "レイヤーなし",
     "type": "タイプ",
