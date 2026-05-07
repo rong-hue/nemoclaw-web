@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download,
   MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy,
@@ -47,6 +48,7 @@ export default function Toolbar({
   const [shapeOpen, setShapeOpen] = useState(false);
   const [lastShape, setLastShape] = useState<string>('rect');
   const shapeRef = useRef<HTMLDivElement>(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
 
   // 点击外部关闭形状下拉
   useEffect(() => {
@@ -58,6 +60,15 @@ export default function Toolbar({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // 打开下拉时计算 fixed 定位坐标
+  const openDropdown = () => {
+    if (shapeRef.current) {
+      const rect = shapeRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setShapeOpen(v => !v);
+  };
 
   const shapeTools = [
     { id: 'text',    icon: <Type size={15} />,      label: L('text', 'Text'),    action: () => { setActiveTool('text');    onAddText();    } },
@@ -113,7 +124,7 @@ export default function Toolbar({
   const divider = <div className="w-px h-6 bg-slate-700 mx-1 shrink-0" />;
 
   return (
-    <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-3 gap-1 overflow-x-auto overflow-y-hidden">
+    <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-3 gap-1 overflow-x-auto" style={{ overflowY: 'visible' }}>
 
       {/* 绘制工具组 */}
       {drawTools.map(tool => (
@@ -147,16 +158,19 @@ export default function Toolbar({
           </button>
           {/* 右侧：展开下拉 */}
           <button
-            onClick={() => setShapeOpen(v => !v)}
+            onClick={openDropdown}
             className={`flex items-center h-9 pr-1.5 pl-0.5 transition-all ${isShapeActive ? 'text-white' : 'text-slate-400 hover:text-white'}`}
           >
             <ChevronDown size={12} className={`transition-transform ${shapeOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
-        {/* 下拉面板 */}
-        {shapeOpen && (
-          <div className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 p-1.5 grid grid-cols-4 gap-1 w-48">
+        {/* 下拉面板 — portal 渲染到 body，避免被 overflow 裁剪 */}
+        {shapeOpen && typeof document !== 'undefined' && createPortal(
+          <div
+            style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
+            className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-1.5 grid grid-cols-4 gap-1 w-48"
+          >
             {shapeTools.map(s => (
               <button
                 key={s.id}
@@ -176,7 +190,8 @@ export default function Toolbar({
                 <span>{s.label}</span>
               </button>
             ))}
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
