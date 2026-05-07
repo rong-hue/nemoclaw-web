@@ -411,6 +411,7 @@ function StudioContent() {
             arrow: t('tools.arrow'),
             image: t('tools.image'),
             aiGenerate: t('tools.aiGenerate'),
+            visualComponents: t('tools.visualComponents'),
             removeBg: t('tools.removeBg'),
             duplicate: t('tools.duplicate'),
             delete: t('tools.delete'),

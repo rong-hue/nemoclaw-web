@@ -150,12 +150,12 @@ export default function Toolbar({
               currentShapeTool.action();
               setLastShape(currentShapeTool.id);
             }}
-            title="视觉组件"
+            title={L('visualComponents', 'Visual')}
             className={`flex items-center gap-1.5 h-9 pl-2.5 pr-1.5 text-xs font-medium transition-all ${isShapeActive ? 'text-white' : 'text-slate-300'}`}
           >
             {/* 科技感图标：CPU 芯片 */}
             <Cpu size={15} className={isShapeActive ? 'text-white' : 'text-cyan-400'} />
-            <span className="hidden sm:inline">视觉组件</span>
+            <span className="hidden sm:inline">{L('visualComponents', 'Visual')}</span>
           </button>
           {/* 右侧：展开下拉 */}
           <button
