@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import {
   Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download,
   MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy,
-  Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2, ChevronDown,
+  Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2, ChevronDown, Cpu,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -144,17 +144,18 @@ export default function Toolbar({
       {/* 形状工具组（折叠下拉） */}
       <div ref={shapeRef} className="relative shrink-0">
         <div className={`flex items-center rounded-lg overflow-hidden ${isShapeActive ? 'bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]' : 'hover:bg-slate-700'}`}>
-          {/* 左侧：执行上次选中的形状 */}
+          {/* 左侧：视觉组件入口 */}
           <button
             onClick={() => {
               currentShapeTool.action();
               setLastShape(currentShapeTool.id);
             }}
-            title={currentShapeTool.label}
+            title="视觉组件"
             className={`flex items-center gap-1.5 h-9 pl-2.5 pr-1.5 text-xs font-medium transition-all ${isShapeActive ? 'text-white' : 'text-slate-300'}`}
           >
-            {currentShapeTool.icon}
-            <span className="hidden sm:inline">{currentShapeTool.label}</span>
+            {/* 科技感图标：CPU 芯片 */}
+            <Cpu size={15} className={isShapeActive ? 'text-white' : 'text-cyan-400'} />
+            <span className="hidden sm:inline">视觉组件</span>
           </button>
           {/* 右侧：展开下拉 */}
           <button
