@@ -55,10 +55,10 @@ function StudioContent() {
   const [activeStampSrc, setActiveStampSrc] = useState<string | null>(null);
   const [stampCursorParams, setStampCursorParams] = useState<{ size: number; angle: number }>({ size: 120, angle: 0 });
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const [canvasW, setCanvasW] = useState(600);
-  const [canvasH, setCanvasH] = useState(500);
-  const [customW, setCustomW] = useState('600');
-  const [customH, setCustomH] = useState('500');
+  const [canvasW, setCanvasW] = useState(800);
+  const [canvasH, setCanvasH] = useState(800);
+  const [customW, setCustomW] = useState('800');
+  const [customH, setCustomH] = useState('800');
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
