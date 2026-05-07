@@ -362,7 +362,7 @@ function StudioContent() {
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Toolbar
           onAddText={() => canvasRef.current?.addText()}
           onAddRect={() => canvasRef.current?.addRect()}
@@ -420,6 +420,7 @@ function StudioContent() {
           }}
         />
 
+        <div className="flex-1 flex overflow-hidden">
         {/* 印章面板 */}
         {showStampPanel && (
           <StampPanel
@@ -557,6 +558,7 @@ function StudioContent() {
           onAlignMiddle={() => canvasRef.current?.alignMiddle()}
           onAlignBottom={() => canvasRef.current?.alignBottom()}
         />
+        </div>
       </div>
 
       <input
