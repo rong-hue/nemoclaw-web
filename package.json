@@ -12,10 +12,11 @@
     "pages:build": "npx @cloudflare/next-on-pages",
     "cf:deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name=nemoclaw-web"
   },
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",
     "@opennextjs/cloudflare": "^1.18.0",
+    "@sentry/nextjs": "9.47.1",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.100.1",
     "@types/three": "^0.183.1",
