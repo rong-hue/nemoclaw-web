@@ -59,8 +59,29 @@ function StudioContent() {
   const [canvasH, setCanvasH] = useState(800);
   const [customW, setCustomW] = useState('800');
   const [customH, setCustomH] = useState('800');
+  const [canvasScale, setCanvasScale] = useState(1);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+
+  // 根据容器尺寸计算画布缩放比，保证画布完整显示在容器内
+  const updateCanvasScale = useCallback(() => {
+    const container = canvasContainerRef.current;
+    if (!container) return;
+    const padding = 64; // p-8 = 32px * 2
+    const availW = container.clientWidth - padding;
+    const availH = container.clientHeight - padding;
+    const scaleW = availW / canvasW;
+    const scaleH = availH / canvasH;
+    const scale = Math.min(1, scaleW, scaleH);
+    setCanvasScale(scale > 0 ? scale : 1);
+  }, [canvasW, canvasH]);
+
+  useEffect(() => {
+    updateCanvasScale();
+    const observer = new ResizeObserver(updateCanvasScale);
+    if (canvasContainerRef.current) observer.observe(canvasContainerRef.current);
+    return () => observer.disconnect();
+  }, [updateCanvasScale]);
 
   // 刷新 undo/redo 可用状态
   const refreshUndoRedo = () => {
@@ -503,7 +524,7 @@ function StudioContent() {
           {/* 画布区域 */}
           <div
             ref={canvasContainerRef}
-            className="flex-1 flex items-center justify-center p-8 overflow-auto relative"
+            className="flex-1 flex items-center justify-center overflow-hidden relative"
             style={{ cursor: showStampPanel && activeStampSrc ? 'none' : 'default' }}
             onContextMenu={(e) => {
               // 右键退出印章监听状态，但保留印章面板
@@ -514,17 +535,28 @@ function StudioContent() {
               }
             }}
           >
-            <StudioCanvas
-              ref={canvasRef}
-              onSelectionChange={setSelected}
-              onLayersChange={(layers) => { setLayers(layers); refreshUndoRedo(); triggerAutoSave(); }}
-              initialWidth={canvasW}
-              initialHeight={canvasH}
-              onExitStampMode={() => {
-                // 盖章后自动退出监听状态，保留印章面板供用户继续选择
-                setActiveTool('select');
+            {/* CSS scale 包裹层：逻辑尺寸不变，视觉上 fit 到容器 */}
+            <div
+              style={{
+                transform: `scale(${canvasScale})`,
+                transformOrigin: 'center center',
+                width: canvasW,
+                height: canvasH,
+                flexShrink: 0,
               }}
-            />
+            >
+              <StudioCanvas
+                ref={canvasRef}
+                onSelectionChange={setSelected}
+                onLayersChange={(layers) => { setLayers(layers); refreshUndoRedo(); triggerAutoSave(); }}
+                initialWidth={canvasW}
+                initialHeight={canvasH}
+                onExitStampMode={() => {
+                  // 盖章后自动退出监听状态，保留印章面板供用户继续选择
+                  setActiveTool('select');
+                }}
+              />
+            </div>
             {showStampPanel && activeStampSrc && (
               <StampCursor
                 src={activeStampSrc}
