@@ -20,6 +20,15 @@ export default function DashboardPage() {
   const [designs, setDesigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<{
+    plan: string;
+    status: string;
+    paypal_subscription_id?: string;
+    current_period_end?: string;
+    is_early_bird?: boolean;
+  } | null>(null);
+  const [subLoading, setSubLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,6 +47,7 @@ export default function DashboardPage() {
       return;
     }
     loadDesigns(currentUser.id);
+    loadSubscription();
   }, [authLoading, currentUser]);
 
   const loadDesigns = async (userId: string) => {
@@ -50,6 +60,41 @@ export default function DashboardPage() {
       setDesigns([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSubscription = async () => {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/subscription/status');
+      if (res.ok) {
+        const data = await res.json();
+        setSubscription(data);
+      }
+    } catch (err) {
+      console.error('Load subscription failed:', err);
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscription?.paypal_subscription_id) return;
+    if (!confirm('Cancel your subscription? You will keep access until the end of the billing period.')) return;
+    setCancelling(true);
+    try {
+      const res = await fetch('/api/paypal/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriptionId: subscription.paypal_subscription_id }),
+      });
+      if (res.ok) {
+        setSubscription(prev => prev ? { ...prev, status: 'cancelled' } : null);
+      }
+    } catch (err) {
+      console.error('Cancel failed:', err);
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -98,6 +143,60 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* 订阅状态卡片 */}
+        {!subLoading && subscription && (
+          <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Current Plan</h2>
+                <div className="flex items-center gap-3">
+                  <span className={`text-lg font-bold capitalize ${
+                    subscription.plan === 'free' ? 'text-gray-700' :
+                    subscription.plan === 'early_bird' ? 'text-amber-600' : 'text-orange-600'
+                  }`}>
+                    {subscription.plan === 'early_bird' ? '⭐ Early Bird' :
+                     subscription.plan === 'monthly' ? '🚀 Pro Monthly' :
+                     subscription.plan === 'yearly' ? '🚀 Pro Yearly' : '🆓 Free'}
+                  </span>
+                  {subscription.status === 'cancelled' && (
+                    <span className="text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full">Cancelled</span>
+                  )}
+                  {subscription.status === 'active' && (
+                    <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Active</span>
+                  )}
+                </div>
+                {subscription.current_period_end && (
+                  <p className="text-sm text-gray-400 mt-1">
+                    {subscription.status === 'cancelled' ? 'Access until' : 'Next billing'}: {new Date(subscription.current_period_end).toLocaleDateString()}
+                  </p>
+                )}
+                {subscription.plan === 'free' && (
+                  <p className="text-sm text-gray-400 mt-1">3 AI generations / day</p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {subscription.plan === 'free' && (
+                  <a
+                    href={`/${locale}/pricing`}
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                  >
+                    Upgrade to Pro
+                  </a>
+                )}
+                {subscription.status === 'active' && subscription.paypal_subscription_id && (
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={cancelling}
+                    className="text-sm text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                  >
+                    {cancelling ? 'Cancelling...' : 'Cancel subscription'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 标题行 */}
         <div className="flex items-center justify-between mb-8">
           <div>

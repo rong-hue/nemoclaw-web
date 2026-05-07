@@ -126,7 +126,27 @@
     "deleteConfirm": "Delete this design?",
     "createdAt": "Created",
     "logout": "Sign Out",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "continueEditing": "Continue Editing",
+    "untitled": "Untitled",
+    "subscriptionTitle": "Subscription",
+    "freePlan": "Free Plan",
+    "proPlan": "Pro",
+    "premiumPlan": "Premium",
+    "earlyBirdPlan": "Early Bird",
+    "billingMonthly": "Monthly",
+    "billingYearly": "Yearly",
+    "nextBilling": "Next billing",
+    "cancelSubscription": "Cancel Subscription",
+    "cancelConfirm": "Cancel your subscription? You'll keep access until the end of the billing period.",
+    "cancelled": "Cancelled",
+    "upgradeToPro": "Upgrade to Pro",
+    "subscriptionActive": "Active",
+    "subscriptionCancelled": "Cancelled — access until",
+    "aiQuota": "AI generations today",
+    "aiQuotaFree": "3 / day",
+    "aiQuotaPro": "50 / day",
+    "aiQuotaPremium": "Unlimited"
   },
   "gallery": {
     "title": "Eastern Aesthetics Gallery",
@@ -514,9 +534,7 @@
       "aiGenerate": "Mood",
       "stamp": "Stamp",
       "wabiSabi": "Wabi-Sabi",
-      "visualComponents": "Visual",
-      "undo": "Undo",
-      "redo": "Redo"
+      "visualComponents": "Visual"
     },
     "properties": "Properties",
     "layers": "Layers",
@@ -527,7 +545,6 @@
     "removeBackground": "Remove Background",
     "processing": "Processing...",
     "preview3D": "3D Preview",
-    "myDesigns": "My Designs",
     "myDesigns": "My Designs",
     "fill": "Fill",
     "stroke": "Stroke",
@@ -718,35 +735,43 @@
     "items": [
       {
         "q": "What is NemoClaw Culture?",
-        "a": "NemoClaw Culture is an AI-powered platform for creating Eastern aesthetics artwork. Design on a professional canvas, generate AI art, preview in 3D, and print on custom products."
+        "a": "NemoClaw Culture is an AI-powered creative platform for Eastern aesthetics. We help North American creators understand and confidently use Eastern aesthetic symbols — not just slapping a dragon or a fan on their design. Our tools include AI image generation, a professional design canvas, stamp/talisman systems, and print-on-demand integration."
+      },
+      {
+        "q": "How does AI image generation work?",
+        "a": "Type a prompt describing your vision, and our AI generates artwork inspired by Eastern aesthetics — ink wash paintings, Tang dynasty patterns, Guochao street art, and more. Free users get 3 generations per day. Pro users get 50 per day."
       },
       {
         "q": "Is there a free plan?",
-        "a": "Yes! The Explorer plan is completely free. You get access to basic canvas tools, 100 templates, and up to 5 layers. Upgrade to Pro for unlimited features."
+        "a": "Yes! The Free plan gives you access to the design canvas, AI generation (3/day), and basic stamp tools. No credit card required. Upgrade to Pro for 50 AI generations/day, all talisman types, and no watermarks on shared images."
       },
       {
         "q": "What is the Early Bird price?",
-        "a": "The first 200 subscribers lock in $4.9/month forever — even after we raise prices. This is a lifetime rate that never changes."
+        "a": "The first subscribers lock in a special Early Bird rate forever — even after we raise prices. This is a lifetime rate that never changes as long as your subscription stays active."
       },
       {
         "q": "Can I cancel my subscription anytime?",
-        "a": "Yes, cancel anytime from your dashboard. No questions asked, no hidden fees. Your access continues until the end of the billing period."
+        "a": "Yes, cancel anytime from your Dashboard. No questions asked, no hidden fees. Your access continues until the end of the current billing period."
       },
       {
         "q": "Do you offer refunds?",
         "a": "Yes. Full refund within 7 days of purchase if you're not satisfied. Email hello@nemoclaw-web.com to request one."
       },
       {
+        "q": "Who owns the designs I create?",
+        "a": "You do. All designs you create on NemoClaw are yours. Pro subscribers receive a commercial license for AI-generated designs, meaning you can use them in products you sell."
+      },
+      {
+        "q": "Which browsers are supported?",
+        "a": "NemoClaw works best on Chrome, Edge, and Safari (latest versions). Firefox is supported but some canvas features may behave differently. Mobile browsers have limited canvas functionality — we recommend desktop for the best experience."
+      },
+      {
         "q": "Is my payment secure?",
-        "a": "All payments are processed by PayPal. We never store your card information on our servers."
+        "a": "All payments are processed by PayPal. We never store your card information on our servers. PayPal's buyer protection applies to all transactions."
       },
       {
-        "q": "What languages are supported?",
-        "a": "NemoClaw Culture supports English, Chinese (Simplified), Japanese, and Korean."
-      },
-      {
-        "q": "Can I use AI-generated designs commercially?",
-        "a": "Creator Pro subscribers receive a commercial license for all AI-generated designs created on the platform."
+        "q": "How do you handle cultural sensitivity?",
+        "a": "We take cultural respect seriously. All content is described as 'inspired by' Eastern aesthetics, not claimed as authentic cultural artifacts. We avoid sacred symbols from specific indigenous traditions. Our FAQ and product descriptions clearly state that NemoClaw is a creative inspiration tool, not a cultural certification service."
       }
     ],
     "stillHaveQuestions": "Still have questions?",
@@ -775,37 +800,44 @@
   },
   "about": {
     "title": "About NemoClaw Culture",
-    "heroHeadline": "Bridging Eastern Aesthetics\nand Global Creators",
-    "heroSub": "We believe traditional Eastern art belongs to the world — and AI is the bridge.",
+    "heroHeadline": "Eastern aesthetics,\nproperly done.",
+    "heroSub": "We're your cultural translator — helping creators worldwide understand and confidently use Eastern aesthetic symbols.",
     "storyTitle": "Our Story",
-    "storyBody": "NemoClaw Culture was born from a simple question: why is it so hard for global creators to access and remix the rich visual heritage of Eastern art?\n\nWe started as a one-person studio, combining AI generation, professional design tools, and print-on-demand fulfillment into a single platform. Our mission is to make Eastern aesthetics — Tang dynasty patterns, Song dynasty minimalism, Guochao street culture, and ink wash traditions — accessible, remixable, and wearable for creators everywhere.",
+    "storyBody": "NemoClaw Culture was born from a simple question: why is it so hard for global creators to access and remix the rich visual heritage of Eastern art?\n\nWe started as a one-person studio, combining AI generation, professional design tools, and print-on-demand fulfillment into a single platform. Our mission is to make Eastern aesthetics — Tang dynasty patterns, Song dynasty minimalism, Guochao street culture, and ink wash traditions — accessible, remixable, and wearable for creators everywhere.\n\nWe believe every symbol has a story. And we're here to help you tell it.",
     "missionTitle": "Our Mission",
-    "missionBody": "Empower independent creators worldwide to discover, create, and share Eastern aesthetics — one design at a time.",
+    "missionBody": "Empower independent creators worldwide to discover, create, and share Eastern aesthetics — not just as decoration, but as meaning.",
     "valuesTitle": "What We Stand For",
-    "value1Title": "Cultural Respect",
-    "value1Body": "We celebrate Eastern art traditions with depth and authenticity, not as a trend.",
+    "value1Title": "Cultural Depth",
+    "value1Body": "Every symbol in NemoClaw has a story. We go beyond surface aesthetics to explain the history, meaning, and proper context of each design element.",
     "value2Title": "Creator First",
-    "value2Body": "Every feature is built for creators — fast, intuitive, and powerful.",
-    "value3Title": "Open & Global",
-    "value3Body": "Available in 4 languages, designed for creators everywhere.",
-    "teamTitle": "Built by Creators, for Creators",
-    "teamBody": "We're a small, passionate team. If you share our vision, we'd love to hear from you.",
-    "ctaTitle": "Ready to Create?",
+    "value2Body": "Every feature is built for creators — fast, intuitive, and powerful. We write the code so you can focus on creating.",
+    "value3Title": "Respect, Not Appropriation",
+    "value3Body": "We celebrate Eastern art traditions with depth and authenticity. Our content is inspired by culture, not extracted from it.",
+    "teamTitle": "Built by One Person, for Many Creators",
+    "teamBody": "NemoClaw is a one-person studio. If you share our vision of making Eastern aesthetics accessible to the world, we'd love to hear from you.",
+    "ctaTitle": "Ready to Create with Meaning?",
     "ctaButton": "Open Studio",
     "ctaSecondary": "Explore Gallery"
   },
   "blog": {
     "title": "Blog",
     "subtitle": "Stories, tutorials, and updates from the NemoClaw Culture team.",
-    "comingSoonTitle": "Coming Soon",
-    "comingSoonBody": "We're working on articles about Eastern aesthetics, AI art creation, and creator stories. Subscribe to the waitlist to be notified when we publish.",
-    "joinWaitlist": "Join the Waitlist",
+    "backToBlog": "Back to Blog",
     "categories": {
       "all": "All",
       "culture": "Culture",
       "tutorials": "Tutorials",
       "updates": "Updates"
-    }
+    },
+    "post1Title": "The Art of the Talisman: How Eastern Symbols Carry Meaning",
+    "post1Excerpt": "From Tang dynasty amulets to modern streetwear, Eastern symbols have always been more than decoration. Here's what they actually mean — and how to use them with intention.",
+    "post1Content": "Walk into any Chinatown gift shop and you'll find red envelopes, jade pendants, and paper talismans. But most visitors have no idea what these objects actually mean.\n\nThat's the gap NemoClaw was built to close.\n\n**What is a talisman?**\n\nIn Eastern traditions, a talisman (符 fú in Chinese) is an object inscribed with symbols believed to carry protective or auspicious energy. Unlike Western amulets, which are often passive objects, Eastern talismans are active — they're written, drawn, or stamped with intention.\n\nThe four most common intentions:\n- **Courage (勇 yǒng)**: Represented by the eagle feather and flame. Used before challenges.\n- **Serenity (静 jìng)**: Moon and water waves. Used for healing and calm.\n- **Abundance (丰 fēng)**: Sun and grain. Used for prosperity and gratitude.\n- **Wisdom (慧 huì)**: Owl and stars. Used for clarity and guidance.\n\n**How to use symbols with intention**\n\nThe key difference between cultural appreciation and cultural appropriation is *understanding*. When you use a symbol knowing its history and meaning, you're participating in a tradition. When you use it as decoration without context, you're extracting from it.\n\nNemoClaw's talisman system is designed to give you that context — so every design you create carries meaning, not just style.\n\n*Eastern aesthetics, properly done.*",
+    "post2Title": "How to Generate Eastern Aesthetic Art with AI (Step-by-Step)",
+    "post2Excerpt": "A practical guide to writing prompts that produce authentic-feeling Eastern aesthetic imagery — ink wash, Tang patterns, Guochao, and more.",
+    "post2Content": "AI image generation is powerful, but getting *Eastern aesthetic* results requires knowing how to prompt correctly. Here's what works.\n\n**The anatomy of a good Eastern aesthetic prompt**\n\nA strong prompt has four parts:\n1. **Style reference**: ink wash painting, Tang dynasty pattern, Song dynasty minimalism, Guochao streetwear\n2. **Subject**: crane, lotus, mountain, tiger, koi fish\n3. **Mood/color**: muted earth tones, vermillion and gold, monochrome ink\n4. **Composition**: negative space, asymmetric balance, vertical scroll format\n\n**Example prompts that work well:**\n\n- *\"Ink wash painting of a lone crane standing in mist, Song dynasty style, monochrome, negative space, vertical composition\"*\n- *\"Tang dynasty floral pattern, peony and butterfly, vermillion and gold, symmetrical, textile design\"*\n- *\"Guochao streetwear graphic, dragon motif, bold lines, neon on black, urban energy\"*\n\n**What to avoid:**\n\n- Generic terms like \"Chinese style\" or \"Asian art\" — too broad, produces generic results\n- Mixing incompatible aesthetics (e.g., wabi-sabi + Guochao)\n- Overloading the prompt — 3-4 strong descriptors beat 10 vague ones\n\n**After generation: the design canvas**\n\nOnce you have your AI image, bring it into the NemoClaw canvas to add stamps, adjust composition, and prepare for print. The talisman overlay system lets you add meaning to any design in seconds.\n\nStart with the free plan — 3 generations per day is enough to find your style.",
+    "post3Title": "NemoClaw Studio Update: Horizontal Toolbar, Auto-Save & Undo/Redo",
+    "post3Excerpt": "The Studio just got a major UX upgrade. Here's what changed and why.",
+    "post3Content": "We shipped a significant update to NemoClaw Studio this week. Here's what's new:\n\n**Horizontal toolbar**\n\nThe toolbar moved from a vertical sidebar to a horizontal top bar. This gives the canvas more vertical space — especially important for portrait-format designs (4:5 ratio for Instagram, for example).\n\nThe shape/visual components dropdown now uses a portal, so it renders above all other elements without being clipped by overflow containers.\n\n**Auto-save**\n\nYour work now saves automatically every 3 seconds after the last change. The save indicator in the header shows the current state: saving, saved, or error. You can still save manually with Cmd/Ctrl+S.\n\n**Undo/Redo**\n\nFull undo/redo history is now available. Use Cmd/Ctrl+Z to undo and Cmd/Ctrl+Shift+Z to redo. The toolbar buttons show whether undo/redo is available.\n\n**Canvas auto-fit**\n\nThe canvas now scales automatically to fit your browser window. No more scrolling to see the full canvas — it scales down proportionally while keeping the actual design at full resolution.\n\n**What's next**\n\nWe're working on AI Oracle (daily Eastern aesthetic inspiration), Stamp Talisman (4 intention-based talisman types), and Totem Mapping (place your design on the culturally meaningful position of a product). Stay tuned."
   },
   "careers": {
     "title": "Careers",
