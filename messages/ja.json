@@ -809,6 +809,7 @@
     "regenerateLimitReached": "本日の抽選上限に達しました。Proにアップグレードしてください。",
     "regenerated": "本日{count}回再抽選済み",
     "share": "シェア",
+    "sharing": "生成中...",
     "shareComingSoon": "シェア機能は近日公開！",
     "upgradeHint": "無料ユーザーは1日1回。Proユーザーは最大3回再抽選できます。",
     "upgradeToPro": "Proにアップグレード"

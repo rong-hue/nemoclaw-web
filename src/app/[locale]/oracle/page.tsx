@@ -28,6 +28,7 @@ export default function OraclePage() {
   const [canRegenerate, setCanRegenerate] = useState(false);
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -55,6 +56,26 @@ export default function OraclePage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleShare() {
+    if (!oracle) return;
+    setSharing(true);
+    try {
+      const res = await fetch(`/api/oracle/share?id=${oracle.id}&locale=${locale}`);
+      if (!res.ok) throw new Error('Failed to generate share image');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `oracle-${oracle.date}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -185,14 +206,12 @@ export default function OraclePage() {
           </button>
 
           <button
-            onClick={() => {
-              // TODO: 实现分享功能
-              alert(t('shareComingSoon'));
-            }}
-            className="flex items-center gap-2 px-6 py-3 rounded-full font-medium bg-white/5 hover:bg-white/10 text-white transition-colors"
+            onClick={handleShare}
+            disabled={sharing}
+            className="flex items-center gap-2 px-6 py-3 rounded-full font-medium bg-white/5 hover:bg-white/10 text-white transition-colors disabled:opacity-50"
           >
-            <Share2 className="w-4 h-4" />
-            {t('share')}
+            <Share2 className={`w-4 h-4 ${sharing ? 'animate-pulse' : ''}`} />
+            {sharing ? t('sharing') : t('share')}
           </button>
         </div>
 

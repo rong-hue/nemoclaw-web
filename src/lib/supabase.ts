@@ -277,6 +277,18 @@ export const oracleService = {
     return data;
   },
 
+  /** 根据 ID 获取神谕记录 */
+  async getOracleById(id: string): Promise<any | null> {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('oracle_logs')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
   /** 更新神谕（重新生成） */
   async updateOracle(userId: string, date: string, updates: {
     image_url: string;

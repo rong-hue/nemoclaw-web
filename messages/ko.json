@@ -809,6 +809,7 @@
     "regenerateLimitReached": "오늘의 뽑기 한도에 도달했습니다. Pro로 업그레이드하세요.",
     "regenerated": "오늘 {count}회 재뽑기",
     "share": "공유",
+    "sharing": "생성 중...",
     "shareComingSoon": "공유 기능 곧 출시!",
     "upgradeHint": "무료 사용자는 하루 1회. Pro 사용자는 최대 3회 재뽑기 가능합니다.",
     "upgradeToPro": "Pro로 업그레이드"

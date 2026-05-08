@@ -897,6 +897,7 @@
     "regenerateLimitReached": "Daily limit reached. Upgrade to Pro for more.",
     "regenerated": "Refreshed {count}x today",
     "share": "Share",
+    "sharing": "Generating...",
     "shareComingSoon": "Share feature coming soon!",
     "upgradeHint": "Free users get 1 oracle per day. Pro users can refresh up to 3 times.",
     "upgradeToPro": "Upgrade to Pro"
