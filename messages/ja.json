@@ -5,7 +5,8 @@
     "gallery": "ギャラリー",
     "pricing": "料金プラン",
     "login": "ログイン / 登録",
-    "studio": "スタジオ"
+    "studio": "スタジオ",
+    "oracle": "お告げ"
   },
   "home": {
     "heroTitle1": "すべての",
@@ -86,7 +87,8 @@
     "blog": "ブログ",
     "careers": "採用情報",
     "rights": "All rights reserved.",
-    "privacy": "プライバシーポリシー"
+    "privacy": "プライバシーポリシー",
+    "oracle": "毎日のお告げ"
   },
   "auth": {
     "loginTitle": "おかえりなさい",
@@ -473,7 +475,6 @@
     "processing": "処理中...",
     "preview3D": "3Dプレビュー",
     "myDesigns": "マイデザイン",
-    "myDesigns": "マイデザイン",
     "fill": "塗りつぶし",
     "stroke": "ストローク",
     "opacity": "不透明度",
@@ -767,5 +768,23 @@
     "howTitle": "興味がありますか？",
     "howBody": "hello@nemoclaw-web.comに件名「コラボレーション」でメールをお送りください。",
     "contactButton": "お問い合わせ"
+  },
+  "oracle": {
+    "title": "毎日のお告げ",
+    "subtitle": "今日の東洋の知恵——夜明けごとに新しいお告げが待っています。",
+    "back": "戻る",
+    "loading": "お告げを召喚中...",
+    "loginRequired": "ログインして毎日のお告げを受け取る",
+    "loginButton": "ログイン",
+    "retry": "再試行",
+    "noOracle": "お告げがありません",
+    "regenerate": "再抽選",
+    "regenerating": "召喚中...",
+    "regenerateLimitReached": "本日の抽選上限に達しました。Proにアップグレードしてください。",
+    "regenerated": "本日{count}回再抽選済み",
+    "share": "シェア",
+    "shareComingSoon": "シェア機能は近日公開！",
+    "upgradeHint": "無料ユーザーは1日1回。Proユーザーは最大3回再抽選できます。",
+    "upgradeToPro": "Proにアップグレード"
   }
 }

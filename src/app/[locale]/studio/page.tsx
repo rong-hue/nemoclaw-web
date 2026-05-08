@@ -580,6 +580,7 @@ function StudioContent() {
           onSelectLayer={(id) => canvasRef.current?.selectLayer(id)}
           onToggleLock={(id) => canvasRef.current?.toggleLayerLock(id)}
           onToggleVisibility={(id) => canvasRef.current?.toggleLayerVisibility(id)}
+          onRenameLayer={(id, label) => canvasRef.current?.renameLayer(id, label)}
           onBringForward={() => canvasRef.current?.bringForward()}
           onSendBackward={() => canvasRef.current?.sendBackward()}
           onBringToFront={() => canvasRef.current?.bringToFront()}

@@ -5,7 +5,8 @@
     "gallery": "创作者画廊",
     "pricing": "价格方案",
     "login": "登录 / 注册",
-    "studio": "设计工坊"
+    "studio": "设计工坊",
+    "oracle": "神谕"
   },
   "home": {
     "heroTitle1": "精准捕捉",
@@ -86,7 +87,8 @@
     "blog": "博客",
     "careers": "加入我们",
     "rights": "版权所有。",
-    "privacy": "隐私政策"
+    "privacy": "隐私政策",
+    "oracle": "每日神谕"
   },
   "auth": {
     "loginTitle": "欢迎回来",
@@ -801,5 +803,23 @@
     "howTitle": "感兴趣？",
     "howBody": "发送邮件至 hello@nemoclaw-web.com，主题写合作，告诉我们关于您自己的故事。",
     "contactButton": "联系我们"
+  },
+  "oracle": {
+    "title": "每日神谕",
+    "subtitle": "今日东方智慧——每天黎明，新的神谕等待着你。",
+    "back": "返回",
+    "loading": "正在召唤神谕...",
+    "loginRequired": "登录以接收每日神谕",
+    "loginButton": "登录",
+    "retry": "重试",
+    "noOracle": "暂无神谕",
+    "regenerate": "重新抽取",
+    "regenerating": "召唤中...",
+    "regenerateLimitReached": "今日抽取次数已达上限。升级至 Pro 可获得更多次数。",
+    "regenerated": "今日已重抽 {count} 次",
+    "share": "分享",
+    "shareComingSoon": "分享功能即将推出！",
+    "upgradeHint": "免费用户每日可抽取 1 次神谕。Pro 用户可重抽最多 3 次。",
+    "upgradeToPro": "升级至 Pro"
   }
 }

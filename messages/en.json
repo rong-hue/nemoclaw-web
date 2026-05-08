@@ -5,7 +5,8 @@
     "gallery": "Gallery",
     "pricing": "Pricing",
     "login": "Sign In / Sign Up",
-    "studio": "Studio"
+    "studio": "Studio",
+    "oracle": "Oracle"
   },
   "home": {
     "heroTitle1": "Capture Every",
@@ -86,7 +87,8 @@
     "blog": "Blog",
     "careers": "Careers",
     "rights": "All rights reserved.",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "oracle": "Daily Oracle"
   },
   "auth": {
     "loginTitle": "Welcome Back",
@@ -854,5 +856,23 @@
     "howTitle": "Interested?",
     "howBody": "Send us a note at hello@nemoclaw-web.com with the subject line \"Collaboration\" and tell us about yourself.",
     "contactButton": "Get in Touch"
+  },
+  "oracle": {
+    "title": "Daily Oracle",
+    "subtitle": "Your Eastern wisdom for today — a new oracle awaits each dawn.",
+    "back": "Back",
+    "loading": "Summoning your oracle...",
+    "loginRequired": "Sign in to receive your daily oracle",
+    "loginButton": "Sign In",
+    "retry": "Try Again",
+    "noOracle": "No oracle available",
+    "regenerate": "New Oracle",
+    "regenerating": "Summoning...",
+    "regenerateLimitReached": "Daily limit reached. Upgrade to Pro for more.",
+    "regenerated": "Refreshed {count}x today",
+    "share": "Share",
+    "shareComingSoon": "Share feature coming soon!",
+    "upgradeHint": "Free users get 1 oracle per day. Pro users can refresh up to 3 times.",
+    "upgradeToPro": "Upgrade to Pro"
   }
 }

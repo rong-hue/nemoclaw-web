@@ -1,8 +1,8 @@
 'use client';
 
-import { Layers, Sliders, Lock, Unlock, Eye, EyeOff, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, AlignLeft, AlignCenter, AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical } from 'lucide-react';
+import { Layers, Sliders, Lock, Unlock, Eye, EyeOff, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, AlignLeft, AlignCenter, AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical, Pencil } from 'lucide-react';
 import { LayerItem } from './StudioCanvas';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface PropsPanel {
@@ -17,6 +17,7 @@ interface PropsPanel {
   onSelectLayer: (id: string) => void;
   onToggleLock: (id: string) => void;
   onToggleVisibility: (id: string) => void;
+  onRenameLayer?: (id: string, newLabel: string) => void;
   onBringForward: () => void;
   onSendBackward: () => void;
   onBringToFront: () => void;
@@ -31,7 +32,7 @@ interface PropsPanel {
 
 export default function PropertiesPanel({
   selected, onFillChange, onGradientChange, onStrokeChange, onOpacityChange, onShadowChange, onFilterChange,
-  layers, onSelectLayer, onToggleLock, onToggleVisibility,
+  layers, onSelectLayer, onToggleLock, onToggleVisibility, onRenameLayer,
   onBringForward, onSendBackward, onBringToFront, onSendToBack,
   onAlignLeft, onAlignCenter, onAlignRight, onAlignTop, onAlignMiddle, onAlignBottom
 }: PropsPanel) {
@@ -45,6 +46,25 @@ export default function PropertiesPanel({
   const [shadowColor, setShadowColor] = useState('#00000080');
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
+  // 图层重命名状态
+  const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
+  const [editingLabel, setEditingLabel] = useState('');
+  const renameInputRef = useRef<HTMLInputElement>(null);
+
+  const startRename = (layer: LayerItem) => {
+    setEditingLayerId(layer.id);
+    setEditingLabel(layer.label);
+    setTimeout(() => renameInputRef.current?.select(), 30);
+  };
+
+  const commitRename = () => {
+    if (editingLayerId && onRenameLayer) {
+      onRenameLayer(editingLayerId, editingLabel);
+    }
+    setEditingLayerId(null);
+  };
+
+  const cancelRename = () => setEditingLayerId(null);
 
   const typeIcons: Record<string, string> = {
     textbox: '🔤', rect: '▭', circle: '⬤', image: '🖼️', polygon: '⬡', line: '—', group: '📦',
@@ -211,17 +231,53 @@ export default function PropertiesPanel({
           ) : (
             layers.map((layer, i) => (
               <div key={layer.id} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-800 transition-colors group">
-                <button onClick={() => onSelectLayer(layer.id)} className="flex items-center gap-2 flex-1 text-left">
-                  <span className="text-base">{typeIcons[layer.type] || '📦'}</span>
-                  <span className="text-xs text-slate-300 truncate flex-1">{layer.label}</span>
-                  <span className="text-xs text-slate-600">{layers.length - i}</span>
-                </button>
-                <button onClick={() => onToggleVisibility(layer.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  {layer.visible !== false ? <Eye size={14} className="text-slate-400" /> : <EyeOff size={14} className="text-slate-600" />}
-                </button>
-                <button onClick={() => onToggleLock(layer.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  {layer.locked ? <Lock size={14} className="text-orange-400" /> : <Unlock size={14} className="text-slate-400" />}
-                </button>
+                {editingLayerId === layer.id ? (
+                  <div className="flex items-center gap-1 flex-1">
+                    <span className="text-base">{typeIcons[layer.type] || '📦'}</span>
+                    <input
+                      ref={renameInputRef}
+                      value={editingLabel}
+                      onChange={e => setEditingLabel(e.target.value)}
+                      onBlur={commitRename}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') commitRename();
+                        if (e.key === 'Escape') cancelRename();
+                      }}
+                      className="flex-1 bg-slate-700 text-slate-200 text-xs px-2 py-0.5 rounded outline-none border border-orange-500 min-w-0"
+                      maxLength={30}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => onSelectLayer(layer.id)}
+                    onDoubleClick={() => onRenameLayer && startRename(layer)}
+                    className="flex items-center gap-2 flex-1 text-left"
+                    title={onRenameLayer ? t('renameLayerHint') || '双击重命名' : undefined}
+                  >
+                    <span className="text-base">{typeIcons[layer.type] || '📦'}</span>
+                    <span className="text-xs text-slate-300 truncate flex-1">{layer.label}</span>
+                    <span className="text-xs text-slate-600">{layers.length - i}</span>
+                  </button>
+                )}
+                {editingLayerId !== layer.id && (
+                  <>
+                    {onRenameLayer && (
+                      <button
+                        onClick={() => startRename(layer)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        title={t('renameLayerHint') || '重命名'}
+                      >
+                        <Pencil size={13} className="text-slate-500 hover:text-slate-300" />
+                      </button>
+                    )}
+                    <button onClick={() => onToggleVisibility(layer.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {layer.visible !== false ? <Eye size={14} className="text-slate-400" /> : <EyeOff size={14} className="text-slate-600" />}
+                    </button>
+                    <button onClick={() => onToggleLock(layer.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {layer.locked ? <Lock size={14} className="text-orange-400" /> : <Unlock size={14} className="text-slate-400" />}
+                    </button>
+                  </>
+                )}
               </div>
             ))
           )}

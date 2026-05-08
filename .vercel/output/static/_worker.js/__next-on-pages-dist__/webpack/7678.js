@@ -1,0 +1,1 @@
+var t={},_=(o,s,c)=>(t.__chunk_7678=(r,a,e)=>{"use strict";e.d(a,{A:()=>l});let l=(0,e(4835).A)("loader-circle",[["path",{d:"M21 12a9 9 0 1 1-6.219-8.56",key:"13zald"}]])},t);export{_ as __getNamedExports};

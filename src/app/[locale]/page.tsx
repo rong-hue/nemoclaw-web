@@ -222,6 +222,7 @@ export default function Home() {
               <h4 className="text-slate-200 font-semibold text-sm mb-4">{t('footer.product')}</h4>
               <ul className="space-y-3 text-sm text-slate-500">
                 <li><Link href={`/${locale}/studio`} className="hover:text-slate-300 transition-colors">{t('footer.studio')}</Link></li>
+                <li><Link href={`/${locale}/oracle`} className="hover:text-slate-300 transition-colors">{t('footer.oracle')}</Link></li>
                 <li><Link href={`/${locale}/gallery`} className="hover:text-slate-300 transition-colors">{t('footer.gallery')}</Link></li>
                 <li><Link href={`/${locale}/pricing`} className="hover:text-slate-300 transition-colors">{t('footer.pricing')}</Link></li>
               </ul>

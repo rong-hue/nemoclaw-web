@@ -45,6 +45,7 @@ export interface CanvasRef {
   selectLayer: (id: string) => void;
   toggleLayerLock: (id: string) => void;
   toggleLayerVisibility: (id: string) => void;
+  renameLayer: (id: string, newLabel: string) => void;
   exportJSON: () => string;
   exportImage: () => void;
   exportImageDataUrl: () => string;
@@ -68,6 +69,7 @@ export interface LayerItem {
   label: string;
   locked?: boolean;
   visible?: boolean;
+  customLabel?: string;
 }
 
 interface CanvasProps {
@@ -109,14 +111,20 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const stampHandlerRef = useRef<((opt: any) => void) | null>(null);
 
   const syncLayers = (canvas: FabricCanvas) => {
-    const layers: LayerItem[] = canvas.getObjects().map((obj: any, i) => ({
-      id: obj.__id || String(i),
-      type: obj.type || 'object',
-      label: obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
+    const layers: LayerItem[] = canvas.getObjects().map((obj: any, i) => {
+      const defaultLabel = obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
         obj.type === 'rect' ? `矩形 ${i + 1}` :
         obj.type === 'circle' ? `圆形 ${i + 1}` :
-        obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`,
-    }));
+        obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`;
+      return {
+        id: obj.__id || String(i),
+        type: obj.type || 'object',
+        label: obj.__customLabel || defaultLabel,
+        customLabel: obj.__customLabel,
+        locked: obj.lockMovementX || false,
+        visible: obj.visible !== false,
+      };
+    });
     onLayersChange([...layers].reverse());
   };
 
@@ -570,16 +578,20 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     getLayers: () => {
       const canvas = fabricRef.current; if (!canvas) return [];
-      return canvas.getObjects().map((obj: any, i) => ({
-        id: obj.__id || String(i),
-        type: obj.type || 'object',
-        label: obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
+      return canvas.getObjects().map((obj: any, i) => {
+        const defaultLabel = obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
           obj.type === 'rect' ? `矩形 ${i + 1}` :
           obj.type === 'circle' ? `圆形 ${i + 1}` :
-          obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`,
-        locked: obj.lockMovementX || false,
-        visible: obj.visible !== false,
-      }));
+          obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`;
+        return {
+          id: obj.__id || String(i),
+          type: obj.type || 'object',
+          label: obj.__customLabel || defaultLabel,
+          customLabel: obj.__customLabel,
+          locked: obj.lockMovementX || false,
+          visible: obj.visible !== false,
+        };
+      });
     },
     selectLayer: (id: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
@@ -599,6 +611,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       const obj = canvas.getObjects().find((o: any) => o.__id === id);
       if (obj) { obj.set('visible', !obj.visible); canvas.renderAll(); syncLayers(canvas); }
+    },
+    renameLayer: (id: string, newLabel: string) => {
+      const canvas = fabricRef.current; if (!canvas) return;
+      const obj = canvas.getObjects().find((o: any) => o.__id === id) as any;
+      if (obj) { obj.__customLabel = newLabel.trim() || undefined; syncLayers(canvas); }
     },
     exportJSON: () => {
       return fabricRef.current?.toJSON() ? JSON.stringify(fabricRef.current.toJSON()) : '';

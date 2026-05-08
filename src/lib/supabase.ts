@@ -238,3 +238,62 @@ export const aiUsageService = {
     if (error) throw error;
   },
 };
+
+// ── Oracle 神谕相关操作 ──────────────────────────────────────────────────────
+export const FREE_DAILY_ORACLE_LIMIT = 1;
+export const PRO_DAILY_ORACLE_LIMIT = 3;
+
+export const oracleService = {
+  /** 获取用户今日神谕（如果存在） */
+  async getTodayOracle(userId: string): Promise<any | null> {
+    const supabase = getServiceClient();
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const { data, error } = await supabase
+      .from('oracle_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', today)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
+    return data;
+  },
+
+  /** 创建今日神谕记录 */
+  async createOracle(oracle: {
+    user_id: string;
+    date: string;
+    image_url: string;
+    oracle_text: string;
+    oracle_text_en: string;
+    seed: string;
+  }) {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('oracle_logs')
+      .insert(oracle)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /** 更新神谕（重新生成） */
+  async updateOracle(userId: string, date: string, updates: {
+    image_url: string;
+    oracle_text: string;
+    oracle_text_en: string;
+    seed: string;
+    regenerate_count: number;
+  }) {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('oracle_logs')
+      .update(updates)
+      .eq('user_id', userId)
+      .eq('date', date)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+};
