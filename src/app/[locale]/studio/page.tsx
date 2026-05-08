@@ -18,6 +18,7 @@ import StampCursor from '@/components/StampCursor';
 import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
 import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
 import { designsService, subscriptionsService } from '@/lib/supabase';
+import { getTalismanById } from '@/lib/talismans';
 import type { Stamp } from '@/lib/stamps';
 
 function StudioContent() {
@@ -493,8 +494,10 @@ function StudioContent() {
           <TalismanPanel
             isPro={isPro}
             onSelectTalisman={(talismanId, symbol, color) => {
-              // 将护身符作为文字印章添加到画布
-              canvasRef.current?.addCustomTextStamp(symbol);
+              // 将护身符作为 emoji + 名称组合添加到画布
+              const talisman = getTalismanById(talismanId);
+              const name = talisman?.meaning.zh || '';
+              canvasRef.current?.addTalisman(symbol, name, color);
               setShowTalismanPanel(false);
             }}
           />
