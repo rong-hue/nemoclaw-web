@@ -431,6 +431,7 @@ function StudioContent() {
             select: t('tools.select'),
             brush: t('tools.brush'),
             stamp: t('tools.stamp'),
+            talisman: t('tools.talisman'),
             wabiSabi: t('tools.wabiSabi'),
             text: t('tools.text'),
             rect: t('tools.rect'),
