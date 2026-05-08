@@ -44,6 +44,7 @@ export default function Home() {
             <Link href="#features" className="hover:text-white transition-colors">{t('nav.features')}</Link>
             <Link href="#how" className="hover:text-white transition-colors">{t('nav.howItWorks')}</Link>
             <Link href={`/${locale}/gallery`} className="hover:text-white transition-colors">{t('nav.gallery')}</Link>
+            <Link href={`/${locale}/oracle`} className="hover:text-white transition-colors">{t('nav.oracle')}</Link>
             <Link href={`/${locale}/pricing`} className="hover:text-white transition-colors">{t('nav.pricing')}</Link>
           </div>
 
@@ -77,6 +78,7 @@ export default function Home() {
             <Link href="#features" onClick={() => setMenuOpen(false)} className="text-slate-300 hover:text-white text-sm font-medium py-1">{t('nav.features')}</Link>
             <Link href="#how" onClick={() => setMenuOpen(false)} className="text-slate-300 hover:text-white text-sm font-medium py-1">{t('nav.howItWorks')}</Link>
             <Link href={`/${locale}/gallery`} onClick={() => setMenuOpen(false)} className="text-slate-300 hover:text-white text-sm font-medium py-1">{t('nav.gallery')}</Link>
+            <Link href={`/${locale}/oracle`} onClick={() => setMenuOpen(false)} className="text-slate-300 hover:text-white text-sm font-medium py-1">{t('nav.oracle')}</Link>
             <Link href={`/${locale}/pricing`} onClick={() => setMenuOpen(false)} className="text-slate-300 hover:text-white text-sm font-medium py-1">{t('nav.pricing')}</Link>
             <div className="pt-2 border-t border-slate-800">
               {user ? (
