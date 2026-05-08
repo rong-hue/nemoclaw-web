@@ -60,7 +60,7 @@ export interface CanvasRef {
   disableWabiSabiBrush: () => void;
   updateWabiSabiParams: (params: import('@/components/WabiSabiBrushPanel').WabiSabiParams) => void;
   addCustomTextStamp: (text: string) => void;
-  addTalisman: (symbol: string, name: string, color: string) => void;
+  addTalisman: (symbol: string, name: string, color: string, blessing: string) => void;
   addComboStamp: (stampSrc: string, stampSize: number, stampAngle: number, text: string, offsetX: number, offsetY: number) => void;
 }
 
@@ -815,28 +815,36 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       canvas.renderAll();
     },
 
-    addTalisman: (symbol: string, name: string, color: string) => {
+    addTalisman: (symbol: string, name: string, color: string, blessing: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { IText, Group: FabricGroup } = require('fabric');
       const cx = canvas.width! / 2;
       const cy = canvas.height! / 2;
       const symbolObj = new IText(symbol, {
-        left: cx, top: cy - 20,
+        left: cx, top: cy - 60,
         originX: 'center', originY: 'center',
         fontSize: 120, fontFamily: 'serif',
         fill: color, opacity: 0.9,
         selectable: false, evented: false,
       });
       const nameObj = new IText(name, {
-        left: cx, top: cy + 80,
+        left: cx, top: cy + 60,
         originX: 'center', originY: 'center',
         fontSize: 22, fontFamily: 'serif',
         fill: color, opacity: 0.85,
         fontWeight: 'bold', charSpacing: 200,
         selectable: false, evented: false,
       });
-      const group = new FabricGroup([symbolObj, nameObj], {
+      const blessingObj = new IText(blessing, {
+        left: cx, top: cy + 90,
+        originX: 'center', originY: 'center',
+        fontSize: 16, fontFamily: 'serif',
+        fill: color, opacity: 0.75,
+        charSpacing: 100,
+        selectable: false, evented: false,
+      });
+      const group = new FabricGroup([symbolObj, nameObj, blessingObj], {
         left: cx, top: cy,
         originX: 'center', originY: 'center',
       });

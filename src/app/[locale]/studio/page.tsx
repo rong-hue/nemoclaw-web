@@ -494,10 +494,11 @@ function StudioContent() {
           <TalismanPanel
             isPro={isPro}
             onSelectTalisman={(talismanId, symbol, color) => {
-              // 将护身符作为 emoji + 名称组合添加到画布
+              // 将护身符作为 emoji + 名称 + 祝福语组合添加到画布
               const talisman = getTalismanById(talismanId);
-              const name = talisman?.meaning.zh || '';
-              canvasRef.current?.addTalisman(symbol, name, color);
+              const name = locale === 'zh' ? talisman?.meaning.zh : talisman?.meaning.en;
+              const blessing = locale === 'zh' ? talisman?.blessing.zh : talisman?.blessing.en;
+              canvasRef.current?.addTalisman(symbol, name || '', blessing || '', color);
               setShowTalismanPanel(false);
             }}
           />

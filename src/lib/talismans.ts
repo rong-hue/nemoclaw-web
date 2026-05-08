@@ -8,6 +8,10 @@ export interface Talisman {
     zh: string;
     en: string;
   };
+  blessing: {
+    zh: string;
+    en: string;
+  };
   description: {
     zh: string;
     en: string;
@@ -28,6 +32,10 @@ export const TALISMANS: Talisman[] = [
       zh: '勇气',
       en: 'Courage',
     },
+    blessing: {
+      zh: '勇往直前，无所畏惧',
+      en: 'Be bold, be fearless, forge your own path',
+    },
     description: {
       zh: '鹰羽与火焰的象征。面对挑战时，唤醒内心的勇气与决心。适合在重要决策、突破困境、开启新篇章时使用。',
       en: 'Symbolized by eagle feather and flame. Awakens inner courage and determination when facing challenges. Use before important decisions, breakthroughs, or new beginnings.',
@@ -45,6 +53,10 @@ export const TALISMANS: Talisman[] = [
     meaning: {
       zh: '宁静',
       en: 'Serenity',
+    },
+    blessing: {
+      zh: '心如止水，万事皆安',
+      en: 'May peace find you wherever you go',
     },
     description: {
       zh: '月亮与水波的象征。带来内心的平静与疗愈。适合在焦虑不安、需要冷静思考、寻求心灵慰藉时使用。',
@@ -64,6 +76,10 @@ export const TALISMANS: Talisman[] = [
       zh: '丰收',
       en: 'Abundance',
     },
+    blessing: {
+      zh: '财源广进，福气满满',
+      en: 'May abundance flow into every corner of your life',
+    },
     description: {
       zh: '太阳与谷穗的象征。吸引繁荣与丰盛。适合在祈求好运、庆祝成就、感恩当下时使用。',
       en: 'Symbolized by sun and grain. Attracts prosperity and abundance. Use when seeking good fortune, celebrating achievements, or expressing gratitude.',
@@ -81,6 +97,10 @@ export const TALISMANS: Talisman[] = [
     meaning: {
       zh: '智慧',
       en: 'Wisdom',
+    },
+    blessing: {
+      zh: '慧眼识真，明辨是非',
+      en: 'May clarity and wisdom light your way forward',
     },
     description: {
       zh: '猫头鹰与星辰的象征。照亮前路，指引方向。适合在迷茫困惑、寻求答案、需要洞察时使用。',
