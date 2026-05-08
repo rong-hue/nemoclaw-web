@@ -821,13 +821,16 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const { IText, Group: FabricGroup } = require('fabric');
       const cx = canvas.width! / 2;
       const cy = canvas.height! / 2;
+
+      // emoji 符号（装饰性，不可编辑）
       const symbolObj = new IText(symbol, {
-        left: cx, top: cy - 60,
+        left: cx, top: cy - 40,
         originX: 'center', originY: 'center',
         fontSize: 120, fontFamily: 'serif',
         fill: color, opacity: 0.9,
         selectable: false, evented: false,
       });
+      // 护身符名称（装饰性，不可编辑）
       const nameObj = new IText(name, {
         left: cx, top: cy + 60,
         originX: 'center', originY: 'center',
@@ -836,21 +839,30 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
         fontWeight: 'bold', charSpacing: 200,
         selectable: false, evented: false,
       });
-      const blessingObj = new IText(blessing, {
-        left: cx, top: cy + 90,
-        originX: 'center', originY: 'center',
-        fontSize: 16, fontFamily: 'serif',
-        fill: color, opacity: 0.75,
-        charSpacing: 100,
-        selectable: false, evented: false,
-      });
-      const group = new FabricGroup([symbolObj, nameObj, blessingObj], {
-        left: cx, top: cy,
+      // emoji + 名称组合成 Group
+      const group = new FabricGroup([symbolObj, nameObj], {
+        left: cx, top: cy - 10,
         originX: 'center', originY: 'center',
       });
       (group as any).__id = `talisman-${Date.now()}`;
       canvas.add(group);
-      canvas.setActiveObject(group);
+
+      // 祝福语：单独可编辑的 IText，用户可双击修改
+      const blessingObj = new IText(blessing, {
+        left: cx, top: cy + 110,
+        originX: 'center', originY: 'center',
+        fontSize: 16, fontFamily: 'serif',
+        fill: color, opacity: 0.8,
+        charSpacing: 80,
+        textAlign: 'center',
+        fontStyle: 'italic',
+        selectable: true, evented: true,
+        editable: true,
+      });
+      (blessingObj as any).__id = `talisman-blessing-${Date.now()}`;
+      canvas.add(blessingObj);
+
+      canvas.setActiveObject(blessingObj);
       canvas.renderAll();
     },
 
