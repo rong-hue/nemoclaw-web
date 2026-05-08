@@ -43,14 +43,20 @@ export async function GET(req: Request) {
       fetch(new URL('/fonts/NotoSansSC-Regular.woff2', req.url)).then(r => r.arrayBuffer()),
     ]);
 
-    // 神谕图片转 base64（避免跨域）
+    // 神谕图片转 base64（避免跨域，用 Buffer 安全处理大图）
     let imageDataUrl = '';
     try {
       const imgRes = await fetch(oracle.image_url);
       const imgBuf = await imgRes.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(imgBuf)));
       const mime = imgRes.headers.get('content-type') || 'image/jpeg';
-      imageDataUrl = `data:${mime};base64,${base64}`;
+      // Edge Runtime 安全的 base64 编码（避免 btoa + spread 栈溢出）
+      const bytes = new Uint8Array(imgBuf);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+      }
+      imageDataUrl = `data:${mime};base64,${btoa(binary)}`;
     } catch {
       imageDataUrl = oracle.image_url; // fallback
     }
@@ -73,19 +79,19 @@ export async function GET(req: Request) {
           {/* 神谕图片卡片 */}
           <div
             style={{
-              width: 720,
-              height: 720,
+              width: 600,
+              height: 600,
               borderRadius: 24,
               overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.1)',
-              marginBottom: 40,
+              marginBottom: 32,
               display: 'flex',
             }}
           >
             <img
               src={imageDataUrl}
-              width={720}
-              height={720}
+              width={600}
+              height={600}
               style={{ objectFit: 'cover' }}
             />
           </div>
