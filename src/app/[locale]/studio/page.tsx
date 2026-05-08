@@ -498,7 +498,7 @@ function StudioContent() {
               const talisman = getTalismanById(talismanId);
               const name = locale === 'zh' ? talisman?.meaning.zh : talisman?.meaning.en;
               const blessing = locale === 'zh' ? talisman?.blessing.zh : talisman?.blessing.en;
-              canvasRef.current?.addTalisman(symbol, name || '', blessing || '', color);
+              canvasRef.current?.addTalisman(symbol, name || '', color, blessing || '');
               setShowTalismanPanel(false);
             }}
           />
