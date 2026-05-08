@@ -565,6 +565,31 @@
       "dryBrush": "건필 확률",
       "color": "브러시 색상",
       "quote": "와비사비는 불완전함에서 아름다움을 찾는다 — 불완전하고, 불균일하고, 비대칭적이지만 생명력이 넘친다."
+    },
+    "talisman": {
+      "title": "디지털 부적",
+      "subtitle": "디자인에 동양 수호 상징 추가",
+      "upgradeRequired": "Pro로 업그레이드하여 모든 부적 잠금 해제",
+      "freeLimit": "무료 사용자는 용기 부적 사용 가능. Pro로 전체 4종 해제.",
+      "upgradeToPro": "Pro로 업그레이드",
+      "talismans": {
+        "courage": {
+          "name": "용기",
+          "desc": "독수리 깃털과 불꽃. 결단력으로 도전에 맞서다."
+        },
+        "serenity": {
+          "name": "평온",
+          "desc": "달과 물결. 내면의 평화와 치유를 찾다."
+        },
+        "abundance": {
+          "name": "풍요",
+          "desc": "태양과 곡식. 번영과 감사를 끌어당기다."
+        },
+        "wisdom": {
+          "name": "지혜",
+          "desc": "부엉이와 별. 앞으로 나아갈 길을 밝히다."
+        }
+      }
     }
   },
   "success": {

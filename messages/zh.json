@@ -585,6 +585,31 @@
       "dryBrush": "枯笔概率",
       "color": "笔刷颜色",
       "quote": "残缺美源于侘寂美学——不完整、不均匀、不对称，反而更有生命力。"
+    },
+    "talisman": {
+      "title": "数字护身符",
+      "subtitle": "为你的设计添加东方守护符号",
+      "upgradeRequired": "升级至 Pro 解锁全部护身符",
+      "freeLimit": "免费用户可使用勇气护身符。升级至 Pro 解锁全部 4 种。",
+      "upgradeToPro": "升级至 Pro",
+      "talismans": {
+        "courage": {
+          "name": "勇气",
+          "desc": "鹰羽与火焰。以决心面对挑战。"
+        },
+        "serenity": {
+          "name": "宁静",
+          "desc": "月亮与水波。寻找内心的平静与疗愈。"
+        },
+        "abundance": {
+          "name": "丰收",
+          "desc": "太阳与谷穗。吸引繁荣与感恩。"
+        },
+        "wisdom": {
+          "name": "智慧",
+          "desc": "猫头鹰与星辰。照亮前行的道路。"
+        }
+      }
     }
   },
   "success": {

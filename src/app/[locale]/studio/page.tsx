@@ -13,6 +13,7 @@ import PropertiesPanel from '@/components/StudioProperties';
 import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
 import StampPanel from '@/components/StampPanel';
+import TalismanPanel from '@/components/TalismanPanel';
 import StampCursor from '@/components/StampCursor';
 import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
 import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
@@ -25,11 +26,17 @@ function StudioContent() {
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     supabaseAuth.getCurrentUser().then(user => {
       setCurrentUser(user);
       setAuthLoading(false);
+      if (user) {
+        subscriptionsService.getActiveByUser(user.id).then(sub => {
+          setIsPro(!!sub);
+        }).catch(() => setIsPro(false));
+      }
     });
     const subscription = supabaseAuth.onAuthStateChange(user => setCurrentUser(user));
     return () => subscription.unsubscribe();
@@ -49,6 +56,7 @@ function StudioContent() {
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showStampPanel, setShowStampPanel] = useState(false);
+  const [showTalismanPanel, setShowTalismanPanel] = useState(false);
   const [showWabiPanel, setShowWabiPanel] = useState(false);
   const [wabiParams, setWabiParams] = useState<WabiSabiParams>({ size: 8, opacity: 0.7, gap: 0.15, noise: 4 });
   const [activeStampId, setActiveStampId] = useState<string | null>(null);
@@ -408,6 +416,7 @@ function StudioContent() {
           onDelete={() => canvasRef.current?.deleteSelected()}
           onDuplicate={() => canvasRef.current?.duplicate()}
           onStamp={() => { handleToolChange('stamp'); setShowStampPanel(true); }}
+          onTalisman={() => { setShowTalismanPanel(v => !v); }}
           onWabiSabi={() => { handleToolChange('wabisabi'); setShowWabiPanel(true); canvasRef.current?.enableWabiSabiBrush?.(wabiParams); }}
           onClear={() => canvasRef.current?.clearCanvas()}
           onExport={handleExportJSON}
@@ -474,6 +483,18 @@ function StudioContent() {
             onParamsChange={(p) => {
               setWabiParams(p);
               canvasRef.current?.updateWabiSabiParams?.(p);
+            }}
+          />
+        )}
+
+        {/* 护身符面板 */}
+        {showTalismanPanel && (
+          <TalismanPanel
+            isPro={isPro}
+            onSelectTalisman={(talismanId, symbol, color) => {
+              // 将护身符作为文字印章添加到画布
+              canvasRef.current?.addCustomTextStamp(symbol);
+              setShowTalismanPanel(false);
             }}
           />
         )}

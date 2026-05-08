@@ -638,6 +638,31 @@
       "dryBrush": "Dry Brush",
       "color": "Brush Color",
       "quote": "Wabi-sabi finds beauty in imperfection — incomplete, uneven, asymmetric, yet full of life."
+    },
+    "talisman": {
+      "title": "Digital Talisman",
+      "subtitle": "Add Eastern protective symbols to your design",
+      "upgradeRequired": "Upgrade to Pro to unlock all talismans",
+      "freeLimit": "Free users can use Courage talisman. Upgrade to Pro for all 4.",
+      "upgradeToPro": "Upgrade to Pro",
+      "talismans": {
+        "courage": {
+          "name": "Courage",
+          "desc": "Eagle feather & flame. Face challenges with determination."
+        },
+        "serenity": {
+          "name": "Serenity",
+          "desc": "Moon & water. Find inner peace and healing."
+        },
+        "abundance": {
+          "name": "Abundance",
+          "desc": "Sun & grain. Attract prosperity and gratitude."
+        },
+        "wisdom": {
+          "name": "Wisdom",
+          "desc": "Owl & stars. Illuminate your path forward."
+        }
+      }
     }
   },
   "success": {

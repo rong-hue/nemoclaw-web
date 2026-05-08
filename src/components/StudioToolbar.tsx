@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import {
   Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download,
   MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy,
-  Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2, ChevronDown, Cpu,
+  Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2, ChevronDown, Cpu, Shield,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -20,6 +20,7 @@ interface ToolbarProps {
   onAiGenerate: () => void;
   onEnableDrawing: () => void;
   onWabiSabi?: () => void;
+  onTalisman?: () => void;
   onRemoveBackground: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
@@ -41,7 +42,7 @@ const SHAPE_IDS = ['text', 'rect', 'circle', 'polygon', 'star', 'line', 'arrow',
 export default function Toolbar({
   onAddText, onAddRect, onAddCircle, onAddPolygon, onAddStar, onAddLine, onAddArrow,
   onUploadImage, onAiGenerate, onEnableDrawing, onRemoveBackground, onDelete, onDuplicate,
-  onClear, onExport, onExportImage, onStamp, onWabiSabi, onUndo, onRedo,
+  onClear, onExport, onExportImage, onStamp, onTalisman, onWabiSabi, onUndo, onRedo,
   canUndo = false, canRedo = false, activeTool, setActiveTool, toolLabels = {}
 }: ToolbarProps) {
   const L = (key: string, fallback: string) => toolLabels[key] || fallback;
@@ -90,6 +91,7 @@ export default function Toolbar({
     { id: 'draw',     icon: <Pencil size={16} />,       label: L('brush', 'Brush'),     action: () => { setActiveTool('draw'); onEnableDrawing(); },                  color: 'default' },
     { id: 'wabisabi', icon: <Brush size={16} />,        label: L('wabiSabi', '残缺'),   action: () => { setActiveTool('wabisabi'); onWabiSabi?.(); },                  color: 'amber'   },
     { id: 'stamp',    icon: <Stamp size={16} />,        label: L('stamp', '印章'),      action: () => { setActiveTool('stamp'); onStamp?.(); },                        color: 'purple'  },
+    { id: 'talisman', icon: <span className="text-sm">☯</span>,  label: L('talisman', '护身符'),  action: () => { setActiveTool('talisman'); onTalisman?.(); },                  color: 'rose'    },
     { id: 'ai',       icon: <Wand2 size={16} />,        label: L('aiGenerate', '意境'), action: () => { setActiveTool('ai'); onAiGenerate(); },                        color: 'amber'   },
   ];
 
