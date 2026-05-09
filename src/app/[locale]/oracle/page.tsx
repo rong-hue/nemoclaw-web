@@ -92,7 +92,7 @@ export default function OraclePage() {
       // 神谕图片
       const img = document.createElement('img');
       img.crossOrigin = 'anonymous';
-      img.src = oracle.image_url;
+      img.src = `/api/proxy-image?url=${encodeURIComponent(oracle.image_url)}`;
       img.style.cssText = 'width:360px;height:360px;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-bottom:20px;display:block';
       await new Promise((resolve, reject) => {
         img.onload = resolve;
