@@ -63,7 +63,7 @@ export default function OraclePage() {
     if (!oracle) return;
     setSharing(true);
     try {
-      const res = await fetch(`/api/oracle/share?id=${oracle.id}&locale=${locale}`);
+      const res = await fetch(`/api/oracle/share?locale=${locale}`, { credentials: 'include' });
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`Share failed (${res.status}): ${text}`);

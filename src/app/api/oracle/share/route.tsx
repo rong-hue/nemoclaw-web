@@ -7,12 +7,7 @@ import { oracleService, subscriptionsService } from '@/lib/supabase';
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const oracleId = searchParams.get('id');
     const locale = searchParams.get('locale') || 'en';
-
-    if (!oracleId) {
-      return new Response('Missing id', { status: 400 });
-    }
 
     // 鉴权
     const user = await getServerUser(req);
@@ -20,10 +15,10 @@ export async function GET(req: Request) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // 查神谕记录
-    const oracle = await oracleService.getOracleById(oracleId);
-    if (!oracle || oracle.user_id !== user.id) {
-      return new Response('Not found', { status: 404 });
+    // 直接查今日神谕（用 user_id + date，不依赖 id）
+    const oracle = await oracleService.getTodayOracle(user.id);
+    if (!oracle) {
+      return new Response('No oracle found for today', { status: 404 });
     }
 
     // 判断是否 Pro（Pro 版只保留 ✦，免费版加完整水印文字）
