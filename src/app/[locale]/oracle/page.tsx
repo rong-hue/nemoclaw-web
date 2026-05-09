@@ -64,7 +64,10 @@ export default function OraclePage() {
     setSharing(true);
     try {
       const res = await fetch(`/api/oracle/share?id=${oracle.id}&locale=${locale}`);
-      if (!res.ok) throw new Error('Failed to generate share image');
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Share failed (${res.status}): ${text}`);
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
