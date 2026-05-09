@@ -686,6 +686,8 @@ function StudioContent() {
                 productType={productPreviewType}
                 designImageUrl={previewDataUrl}
                 locale={locale as 'zh' | 'en'}
+                userId={currentUser?.id}
+                userEmail={currentUser?.email || ''}
               />
             </div>
           </div>
