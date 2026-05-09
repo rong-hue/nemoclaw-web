@@ -14,6 +14,8 @@ import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
 import StampPanel from '@/components/StampPanel';
 import TalismanPanel from '@/components/TalismanPanel';
+import ProductPreview from '@/components/studio/ProductPreview';
+import type { ProductType } from '@/lib/totem-mapping';
 import StampCursor from '@/components/StampCursor';
 import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
 import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
@@ -58,6 +60,8 @@ function StudioContent() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showStampPanel, setShowStampPanel] = useState(false);
   const [showTalismanPanel, setShowTalismanPanel] = useState(false);
+  const [showProductPreview, setShowProductPreview] = useState(false);
+  const [productPreviewType, setProductPreviewType] = useState<ProductType>('tshirt');
   const [showWabiPanel, setShowWabiPanel] = useState(false);
   const [wabiParams, setWabiParams] = useState<WabiSabiParams>({ size: 8, opacity: 0.7, gap: 0.15, noise: 4 });
   const [activeStampId, setActiveStampId] = useState<string | null>(null);
@@ -369,6 +373,13 @@ function StudioContent() {
             </div>
           )}
           <button
+            onClick={() => setShowProductPreview(v => !v)}
+            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          >
+            <Box size={16} />
+            {locale === 'zh' ? '图腾映射' : 'Totem Map'}
+          </button>
+          <button
             onClick={handleOpen3D}
             className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
           >
@@ -634,6 +645,45 @@ function StudioContent() {
           canvasDataUrl={previewDataUrl}
           onClose={() => setShow3D(false)}
         />
+      )}
+
+      {showProductPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+              <div>
+                <h2 className="text-white font-semibold text-lg">
+                  {locale === 'zh' ? '图腾映射' : 'Totem Mapping'}
+                </h2>
+                <p className="text-slate-400 text-sm mt-0.5">
+                  {locale === 'zh' ? '选择商品，点击区域放置你的图腾' : 'Choose a product and click a zone to place your totem'}
+                </p>
+              </div>
+              <button onClick={() => setShowProductPreview(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <div className="flex border-b border-slate-700 px-6 pt-4 gap-2 flex-wrap">
+              {(['tshirt','mug','phonecase','totebag','sticker'] as ProductType[]).map(type => (
+                <button key={type} onClick={() => setProductPreviewType(type)}
+                  className={`px-3 py-1 rounded-full text-xs border mb-4 transition-all ${
+                    productPreviewType === type
+                      ? 'border-amber-500 text-amber-400 bg-amber-500/10'
+                      : 'border-slate-600 text-slate-400 hover:border-slate-400'
+                  }`}>
+                  {locale === 'zh'
+                    ? {tshirt:'T恤',mug:'马克杯',phonecase:'手机壳',totebag:'帆布包',sticker:'贴纸'}[type]
+                    : {tshirt:'T-Shirt',mug:'Mug',phonecase:'Phone Case',totebag:'Tote Bag',sticker:'Sticker'}[type]}
+                </button>
+              ))}
+            </div>
+            <div className="p-6">
+              <ProductPreview
+                productType={productPreviewType}
+                designImageUrl={previewDataUrl}
+                locale={locale as 'zh' | 'en'}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       {showAiPanel && (
