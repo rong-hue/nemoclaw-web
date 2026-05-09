@@ -108,7 +108,7 @@ function StudioContent() {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
       autoSaveRef.current();
-    }, 3000);
+    }, 10000);
   }, []);
 
   const PRESETS = [
@@ -297,11 +297,11 @@ function StudioContent() {
         setDesignId(saved.id);
       }
       setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setTimeout(() => setSaveStatus('idle'), 10000);
     } catch (err) {
       console.error('Save failed:', err);
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setTimeout(() => setSaveStatus('idle'), 10000);
     }
   };
   // 始终保持 ref 最新
