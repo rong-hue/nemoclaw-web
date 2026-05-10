@@ -470,7 +470,7 @@ function StudioContent() {
           }}
         />
 
-        <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 flex overflow-hidden min-h-0 relative">
         {/* 印章面板 */}
         {showStampPanel && (
           <StampPanel
