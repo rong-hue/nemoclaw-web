@@ -409,7 +409,7 @@ function StudioContent() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         <Toolbar
           onAddText={() => canvasRef.current?.addText()}
           onAddRect={() => canvasRef.current?.addRect()}
