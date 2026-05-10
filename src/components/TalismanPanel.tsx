@@ -24,7 +24,7 @@ export default function TalismanPanel({ isPro, onSelectTalisman }: TalismanPanel
   };
 
   return (
-    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col select-none absolute inset-y-0 left-0 z-10">
+    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col select-none" style={{ position: 'fixed', top: '104px', left: 0, bottom: 0, zIndex: 50 }}>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
       <div>
         <h3 className="text-sm font-semibold mb-2">{t('title')}</h3>
