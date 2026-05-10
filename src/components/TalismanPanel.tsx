@@ -24,8 +24,8 @@ export default function TalismanPanel({ isPro, onSelectTalisman }: TalismanPanel
   };
 
   return (
-    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-full overflow-y-auto">
-      <div className="p-4 space-y-4">
+    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
       <div>
         <h3 className="text-sm font-semibold mb-2">{t('title')}</h3>
         <p className="text-xs text-gray-400 mb-4">{t('subtitle')}</p>
