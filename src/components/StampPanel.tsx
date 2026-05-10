@@ -55,13 +55,13 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
       </div>
 
       {/* Stamp grid */}
-      <div className="flex-1 overflow-y-auto p-3 grid grid-cols-3 gap-2 content-start">
+      <div className="flex-1 overflow-y-auto p-3 grid grid-cols-3 gap-2 content-start auto-rows-auto">
         {stamps.map(stamp => (
           <button
             key={stamp.id}
             onClick={() => onStampSelect(stamp, size, angle)}
             title={stamp.nameZh}
-            className={`aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+            className={`h-20 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
               activeStampId === stamp.id
                 ? 'border-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.5)]'
                 : 'border-slate-700 hover:border-slate-500'
