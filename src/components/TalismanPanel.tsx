@@ -24,7 +24,7 @@ export default function TalismanPanel({ isPro, onSelectTalisman }: TalismanPanel
   };
 
   return (
-    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col shrink-0 self-stretch">
+    <div className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-full select-none">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
       <div>
         <h3 className="text-sm font-semibold mb-2">{t('title')}</h3>
@@ -41,7 +41,7 @@ export default function TalismanPanel({ isPro, onSelectTalisman }: TalismanPanel
               key={talisman.id}
               onClick={() => handleSelect(talisman.id, talisman.symbol, talisman.color)}
               disabled={!canUse}
-              className={`relative p-4 rounded-xl border-2 transition-all ${
+              className={`relative p-3 rounded-xl border-2 transition-all ${
                 isSelected
                   ? 'border-orange-500 bg-orange-500/10'
                   : canUse
@@ -55,7 +55,7 @@ export default function TalismanPanel({ isPro, onSelectTalisman }: TalismanPanel
                 </div>
               )}
               
-              <div className="text-3xl mb-2">{talisman.symbol}</div>
+              <div className="text-2xl mb-1">{talisman.symbol}</div>
               <div className="text-xs font-medium text-white mb-1">
                 {t(`talismans.${talisman.id}.name`)}
               </div>
