@@ -655,7 +655,7 @@ function StudioContent() {
 
       {showProductPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-y-auto shadow-2xl" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
               <div>
                 <h2 className="text-white font-semibold text-lg">
