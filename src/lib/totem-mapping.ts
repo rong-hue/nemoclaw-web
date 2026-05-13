@@ -9,20 +9,32 @@ export interface PlacementZone {
   y: number; // 左上角 y
   width: number;
   height: number;
+  // 角标长度（相对于 zone 短边的比例，默认 0.15）
+  cornerRatio?: number;
 }
 
 export interface ProductConfig {
   type: ProductType;
   label: { zh: string; en: string };
-  mockupImage: string; // public/ 下的路径
+  mockupBase: string;   // 底图（完整商品图）
+  mockupFg?: string;    // 前景遮罩（不可印刷区域，其余透明）
+  // 设计图混合模式：'normal' | 'multiply'（模拟印刷效果）
+  blendMode?: 'normal' | 'multiply';
   zones: PlacementZone[];
+}
+
+/** @deprecated 兼容旧代码，等同于 mockupBase */
+export function getMockupImage(config: ProductConfig): string {
+  return config.mockupBase;
 }
 
 export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
   tshirt: {
     type: 'tshirt',
     label: { zh: 'T恤', en: 'T-Shirt' },
-    mockupImage: '/mockups/tshirt.png',
+    mockupBase: '/mockups/tshirt.png',
+    mockupFg: '/mockups/tshirt-fg.png',
+    blendMode: 'multiply',
     zones: [
       {
         id: 'chest',
@@ -47,26 +59,32 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
   mug: {
     type: 'mug',
     label: { zh: '马克杯', en: 'Mug' },
-    mockupImage: '/mockups/mug.png',
+    mockupBase: '/mockups/mug.png',
+    mockupFg: '/mockups/mug-fg.png',
+    blendMode: 'multiply',
     zones: [
       {
         id: 'front',
         label: { zh: '正面', en: 'Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
         x: 0.25, y: 0.25, width: 0.50, height: 0.50,
+        cornerRatio: 0.12,
       },
     ],
   },
   phonecase: {
     type: 'phonecase',
     label: { zh: '手机壳', en: 'Phone Case' },
-    mockupImage: '/mockups/phonecase.png',
+    mockupBase: '/mockups/phonecase.png',
+    mockupFg: '/mockups/phonecase-fg.png',
+    blendMode: 'multiply',
     zones: [
       {
         id: 'center',
         label: { zh: '中央', en: 'Center' },
         meaning: { zh: '随身携带的护身符，时刻守护', en: 'A talisman you carry everywhere' },
         x: 0.20, y: 0.25, width: 0.60, height: 0.50,
+        cornerRatio: 0.12,
       },
       {
         id: 'top',
@@ -79,20 +97,24 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
   totebag: {
     type: 'totebag',
     label: { zh: '帆布包', en: 'Tote Bag' },
-    mockupImage: '/mockups/totebag.png',
+    mockupBase: '/mockups/totebag.png',
+    mockupFg: '/mockups/totebag-fg.png',
+    blendMode: 'multiply',
     zones: [
       {
         id: 'center',
         label: { zh: '正面中央', en: 'Front Center' },
         meaning: { zh: '展示于世，传递你的文化态度', en: 'Show the world your cultural identity' },
         x: 0.25, y: 0.20, width: 0.50, height: 0.55,
+        cornerRatio: 0.12,
       },
     ],
   },
   sticker: {
     type: 'sticker',
     label: { zh: '贴纸', en: 'Sticker' },
-    mockupImage: '/mockups/sticker.png',
+    mockupBase: '/mockups/sticker.png',
+    // 贴纸不需要前景遮罩
     zones: [
       {
         id: 'circle',

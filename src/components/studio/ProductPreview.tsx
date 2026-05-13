@@ -38,7 +38,125 @@ export default function ProductPreview({
     setHoveredZone(null);
   }, [productType]);
 
-  // ─── Canvas 渲染 ────────────────────────────────────────────────────────────
+  // ─── 辅助：画角标（L 形标记线）─────────────────────────────────────────────
+  function drawCornerBrackets(
+    ctx: CanvasRenderingContext2D,
+    zx: number,
+    zy: number,
+    zw: number,
+    zh: number,
+    cornerLen: number,
+    color: string,
+    lineWidth: number,
+  ) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.setLineDash([]);
+    ctx.lineCap = 'round';
+
+    // 左上角
+    ctx.beginPath();
+    ctx.moveTo(zx, zy + cornerLen);
+    ctx.lineTo(zx, zy);
+    ctx.lineTo(zx + cornerLen, zy);
+    ctx.stroke();
+
+    // 右上角
+    ctx.beginPath();
+    ctx.moveTo(zx + zw - cornerLen, zy);
+    ctx.lineTo(zx + zw, zy);
+    ctx.lineTo(zx + zw, zy + cornerLen);
+    ctx.stroke();
+
+    // 左下角
+    ctx.beginPath();
+    ctx.moveTo(zx, zy + zh - cornerLen);
+    ctx.lineTo(zx, zy + zh);
+    ctx.lineTo(zx + cornerLen, zy + zh);
+    ctx.stroke();
+
+    // 右下角
+    ctx.beginPath();
+    ctx.moveTo(zx + zw - cornerLen, zy + zh);
+    ctx.lineTo(zx + zw, zy + zh);
+    ctx.lineTo(zx + zw, zy + zh - cornerLen);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ─── 辅助：画中心十字准星 ──────────────────────────────────────────────────
+  function drawCrosshair(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    size: number,
+    color: string,
+  ) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx - size, cy);
+    ctx.lineTo(cx + size, cy);
+    ctx.moveTo(cx, cy - size);
+    ctx.lineTo(cx, cy + size);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ─── 辅助：加载图片 Promise ─────────────────────────────────────────────────
+  function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  // ─── 辅助：在 zone 内绘制设计图 ────────────────────────────────────────────
+  function drawDesignInZone(
+    ctx: CanvasRenderingContext2D,
+    designImg: HTMLImageElement,
+    zone: PlacementZone,
+    width: number,
+    height: number,
+    blendMode?: 'normal' | 'multiply',
+  ) {
+    const zx = zone.x * width;
+    const zy = zone.y * height;
+    const zw = zone.width * width;
+    const zh = zone.height * height;
+
+    const imgAspect = designImg.width / designImg.height;
+    const zoneAspect = zw / zh;
+    let drawW = zw * 0.9;
+    let drawH = zh * 0.9;
+    if (imgAspect > zoneAspect) {
+      drawH = drawW / imgAspect;
+    } else {
+      drawW = drawH * imgAspect;
+    }
+    const drawX = zx + (zw - drawW) / 2;
+    const drawY = zy + (zh - drawH) / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(zx, zy, zw, zh);
+    ctx.clip();
+    if (blendMode === 'multiply') {
+      ctx.globalCompositeOperation = 'multiply';
+    }
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+    ctx.restore();
+  }
+
+  // ─── Canvas 渲染（分层：底图 → 设计图 → 前景遮罩 → 角标）──────────────────
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -50,52 +168,47 @@ export default function ProductPreview({
     canvas.height = height;
     ctx.clearRect(0, 0, width, height);
 
-    const productImg = new Image();
-    productImg.crossOrigin = 'anonymous';
-    productImg.src = config.mockupImage;
+    // 1. 加载底图
+    const baseImg = new Image();
+    baseImg.crossOrigin = 'anonymous';
+    baseImg.src = config.mockupBase;
 
-    productImg.onload = () => {
-      ctx.drawImage(productImg, 0, 0, width, height);
+    baseImg.onload = () => {
+      // Layer 1: 底图
+      ctx.drawImage(baseImg, 0, 0, width, height);
 
-      const afterProduct = () => {
-        drawZoneOverlays(ctx, width, height);
+      const afterDesign = () => {
+        // Layer 3: 前景遮罩（把手、边框等盖住设计图）
+        if (config.mockupFg) {
+          const fgImg = new Image();
+          fgImg.crossOrigin = 'anonymous';
+          fgImg.src = config.mockupFg;
+          fgImg.onload = () => {
+            ctx.drawImage(fgImg, 0, 0, width, height);
+            // Layer 4: 角标高亮框
+            drawZoneOverlays(ctx, width, height);
+          };
+          fgImg.onerror = () => {
+            // 前景图加载失败，仍然画角标
+            drawZoneOverlays(ctx, width, height);
+          };
+        } else {
+          drawZoneOverlays(ctx, width, height);
+        }
       };
 
+      // Layer 2: 设计图
       if (designImageUrl && selectedZone) {
         const designImg = new Image();
         designImg.crossOrigin = 'anonymous';
         designImg.src = designImageUrl;
         designImg.onload = () => {
-          const zx = selectedZone.x * width;
-          const zy = selectedZone.y * height;
-          const zw = selectedZone.width * width;
-          const zh = selectedZone.height * height;
-
-          const imgAspect = designImg.width / designImg.height;
-          const zoneAspect = zw / zh;
-          let drawW = zw * 0.9;
-          let drawH = zh * 0.9;
-          if (imgAspect > zoneAspect) {
-            drawH = drawW / imgAspect;
-          } else {
-            drawW = drawH * imgAspect;
-          }
-          const drawX = zx + (zw - drawW) / 2;
-          const drawY = zy + (zh - drawH) / 2;
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(zx, zy, zw, zh);
-          ctx.clip();
-          ctx.globalAlpha = 0.92;
-          ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
-          ctx.restore();
-
-          afterProduct();
+          drawDesignInZone(ctx, designImg, selectedZone, width, height, config.blendMode);
+          afterDesign();
         };
-        designImg.onerror = afterProduct;
+        designImg.onerror = afterDesign;
       } else {
-        afterProduct();
+        afterDesign();
       }
     };
   }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config]);
@@ -104,118 +217,102 @@ export default function ProductPreview({
     renderCanvas();
   }, [renderCanvas]);
 
+  // ─── 角标高亮框绘制 ─────────────────────────────────────────────────────────
   function drawZoneOverlays(ctx: CanvasRenderingContext2D, width: number, height: number) {
     config.zones.forEach((zone) => {
       const zx = zone.x * width;
       const zy = zone.y * height;
       const zw = zone.width * width;
       const zh = zone.height * height;
+      const shortSide = Math.min(zw, zh);
+      const cornerRatio = zone.cornerRatio ?? 0.15;
+      const cornerLen = shortSide * cornerRatio;
 
       const isSelected = selectedZone?.id === zone.id;
       const isHovered = hoveredZone?.id === zone.id;
 
-      ctx.save();
       if (isSelected) {
-        ctx.strokeStyle = '#C9A84C';
-        ctx.lineWidth = 2.5;
-        ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(201,168,76,0.15)';
-        ctx.fillRect(zx, zy, zw, zh);
-        ctx.strokeRect(zx, zy, zw, zh);
-      } else if (isHovered) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([6, 4]);
-        ctx.fillStyle = 'rgba(255,255,255,0.08)';
-        ctx.fillRect(zx, zy, zw, zh);
-        ctx.strokeRect(zx, zy, zw, zh);
-      } else {
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        // 选中：金色角标 + 极淡虚线边框
+        ctx.save();
+        ctx.strokeStyle = 'rgba(201,168,76,0.3)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
         ctx.strokeRect(zx, zy, zw, zh);
+        ctx.restore();
+        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, '#C9A84C', 2.5);
+      } else if (isHovered) {
+        // Hover：白色角标 + 中心十字准星
+        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.85)', 2);
+        drawCrosshair(ctx, zx + zw / 2, zy + zh / 2, shortSide * 0.08, 'rgba(255,255,255,0.6)');
+      } else {
+        // 默认：淡白色角标
+        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.4)', 1.5);
       }
-      ctx.restore();
 
+      // Label 文字（放在 zone 上方，不覆盖商品）
       const labelText = locale === 'zh' ? zone.label.zh : zone.label.en;
       ctx.save();
-      ctx.font = `${isSelected ? 'bold ' : ''}12px sans-serif`;
+      ctx.font = `${isSelected ? 'bold ' : ''}11px sans-serif`;
       ctx.fillStyle = isSelected ? '#C9A84C' : 'rgba(255,255,255,0.7)';
-      ctx.fillText(labelText, zx + 6, zy + 16);
+      // 文字放在 zone 上方 4px 处；如果 zone 太靠顶部则放内部
+      const labelY = zy > 20 ? zy - 4 : zy + 14;
+      ctx.fillText(labelText, zx + 2, labelY);
       ctx.restore();
     });
   }
 
-  // ─── 导出合成图（无区域框线）────────────────────────────────────────────────
+  // ─── 导出合成图（无角标，分层渲染）──────────────────────────────────────────
   const exportCompositeImage = useCallback((): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const { width, height } = canvasSize;
-      const offscreen = document.createElement('canvas');
-      offscreen.width = width;
-      offscreen.height = height;
-      const ctx = offscreen.getContext('2d')!;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { width, height } = canvasSize;
+        const offscreen = document.createElement('canvas');
+        offscreen.width = width;
+        offscreen.height = height;
+        const ctx = offscreen.getContext('2d')!;
 
-      const productImg = new Image();
-      productImg.crossOrigin = 'anonymous';
-      productImg.src = config.mockupImage;
-      productImg.onload = () => {
-        ctx.drawImage(productImg, 0, 0, width, height);
+        // 1. 底图
+        const baseImg = await loadImage(config.mockupBase);
+        ctx.drawImage(baseImg, 0, 0, width, height);
 
-        const finish = () => {
-          // NemoClaw 水印
-          ctx.save();
-          ctx.font = '13px sans-serif';
-          ctx.fillStyle = 'rgba(255,255,255,0.45)';
-          ctx.textAlign = 'right';
-          ctx.fillText('nemoclaw.com', width - 12, height - 12);
-          ctx.restore();
-          resolve(offscreen.toDataURL('image/png'));
-        };
-
+        // 2. 设计图
         if (designImageUrl && selectedZone) {
-          const designImg = new Image();
-          designImg.crossOrigin = 'anonymous';
-          designImg.src = designImageUrl;
-          designImg.onload = () => {
-            const zx = selectedZone.x * width;
-            const zy = selectedZone.y * height;
-            const zw = selectedZone.width * width;
-            const zh = selectedZone.height * height;
-
-            const imgAspect = designImg.width / designImg.height;
-            const zoneAspect = zw / zh;
-            let drawW = zw * 0.9;
-            let drawH = zh * 0.9;
-            if (imgAspect > zoneAspect) {
-              drawH = drawW / imgAspect;
-            } else {
-              drawW = drawH * imgAspect;
-            }
-            const drawX = zx + (zw - drawW) / 2;
-            const drawY = zy + (zh - drawH) / 2;
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(zx, zy, zw, zh);
-            ctx.clip();
-            ctx.globalAlpha = 0.92;
-            ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
-            ctx.restore();
-            finish();
-          };
-          designImg.onerror = () => finish();
-        } else {
-          finish();
+          try {
+            const designImg = await loadImage(designImageUrl);
+            drawDesignInZone(ctx, designImg, selectedZone, width, height, config.blendMode);
+          } catch {
+            // 设计图加载失败，跳过
+          }
         }
-      };
-      productImg.onerror = reject;
+
+        // 3. 前景遮罩
+        if (config.mockupFg) {
+          try {
+            const fgImg = await loadImage(config.mockupFg);
+            ctx.drawImage(fgImg, 0, 0, width, height);
+          } catch {
+            // 前景图加载失败，跳过
+          }
+        }
+
+        // 4. 水印
+        ctx.save();
+        ctx.font = '13px sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.textAlign = 'right';
+        ctx.fillText('nemoclaw.com', width - 12, height - 12);
+        ctx.restore();
+
+        resolve(offscreen.toDataURL('image/png'));
+      } catch (err) {
+        reject(err);
+      }
     });
   }, [config, designImageUrl, selectedZone, canvasSize]);
 
   // ─── 下载合成图 ─────────────────────────────────────────────────────────────
   const handleDownload = async () => {
     const dataUrl = await exportCompositeImage();
-    const productLabel = locale === 'zh' ? config.label.zh : config.label.en;
     const a = document.createElement('a');
     a.href = dataUrl;
     a.download = `nemoclaw-totem-${productType}-${Date.now()}.png`;
@@ -234,7 +331,6 @@ export default function ProductPreview({
         : '';
       const title = `${productLabel}${zoneLabel ? ` · ${zoneLabel}` : ''} — Totem`;
 
-      // canvas_json: 以合成图为背景的 Fabric.js 画布结构
       const canvasJson = {
         version: '5.3.0',
         objects: [
@@ -369,7 +465,6 @@ export default function ProductPreview({
 
       {/* 操作按钮 */}
       <div className="flex gap-3 w-full max-w-sm">
-        {/* 下载 */}
         <button
           onClick={handleDownload}
           disabled={!canAct}
@@ -379,7 +474,6 @@ export default function ProductPreview({
           {locale === 'zh' ? '下载合成图' : 'Download'}
         </button>
 
-        {/* 保存到 My Designs */}
         <button
           onClick={handleSaveToDesigns}
           disabled={!canAct || !userId || saveStatus === 'saving'}
