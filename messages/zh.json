@@ -510,6 +510,7 @@
     "saveFailed": "保存失败",
     "untitled": "未命名作品",
     "noLayers": "暂无图层",
+    "renameLayerHint": "双击重命名",
     "type": "类型",
     "solidColor": "纯色",
     "gradientFill": "渐变",

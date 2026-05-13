@@ -563,6 +563,7 @@
     "saveFailed": "Save Failed",
     "untitled": "Untitled",
     "noLayers": "No layers yet",
+    "renameLayerHint": "Double-click to rename",
     "solidColor": "Solid",
     "gradientFill": "Gradient",
     "linearGradient": "Linear",

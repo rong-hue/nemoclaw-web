@@ -490,6 +490,7 @@
     "saveFailed": "저장 실패",
     "untitled": "제목 없음",
     "noLayers": "레이어 없음",
+    "renameLayerHint": "더블클릭하여 이름 변경",
     "type": "유형",
     "solidColor": "단색",
     "gradientFill": "그라데이션",

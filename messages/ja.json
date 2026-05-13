@@ -490,6 +490,7 @@
     "saveFailed": "保存に失敗しました",
     "untitled": "無題",
     "noLayers": "レイヤーなし",
+    "renameLayerHint": "ダブルクリックで名前変更",
     "type": "タイプ",
     "solidColor": "単色",
     "gradientFill": "グラデーション",
