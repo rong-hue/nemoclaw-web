@@ -177,25 +177,29 @@ export default function ProductPreview({
     fillRatio: number,
     blendMode?: 'normal' | 'multiply',
   ) {
-    // 先把设计图渲染到离屏 canvas，保持宽高比 contain
-    // 注意：离屏 canvas 的高度就是未变形时的最大高度（即 zh * fillRatio）
-    // 圆柱变形后中心列高度 = zh，两侧列高度 < zh，所以离屏高度用 zh * fillRatio 即可
     const maxH = zh * fillRatio;
     const { w: srcW, h: srcH } = calcContainSize(
       designImg.width, designImg.height,
-      zw,   // 宽度用 zone 全宽（圆柱变形会压缩列宽，不会超出）
-      maxH, // 高度上限就是 zone 高度 * fillRatio
-      1.0,  // 已经用 maxH 控制了，这里不再乘以 fillRatio
+      zw,
+      maxH,
+      1.0,
     );
+
+    // 离屏 canvas：白色背景 + 设计图居中
+    // 白色背景确保 multiply 模式下白色区域不影响杯身颜色，有颜色区域才叀加
     const offscreen = document.createElement('canvas');
-    offscreen.width = Math.max(1, Math.round(srcW));
-    offscreen.height = Math.max(1, Math.round(srcH));
+    offscreen.width = Math.max(1, Math.round(zw));
+    offscreen.height = Math.max(1, Math.round(maxH));
     const offCtx = offscreen.getContext('2d')!;
-    offCtx.drawImage(designImg, 0, 0, offscreen.width, offscreen.height);
+    // 白色底色
+    offCtx.fillStyle = '#ffffff';
+    offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+    // 设计图居中绘制
+    const drawX = (offscreen.width - srcW) / 2;
+    const drawY = (offscreen.height - srcH) / 2;
+    offCtx.drawImage(designImg, drawX, drawY, srcW, srcH);
 
-    // 圆柱体参数
     const halfAngle = curvature * Math.PI * 0.5;
-
     const cols = Math.round(zw);
     const centerY = zy + zh / 2;
 
@@ -207,18 +211,15 @@ export default function ProductPreview({
     ctx.globalAlpha = 0.92;
 
     for (let i = 0; i < cols; i++) {
-      const t = (i / Math.max(cols - 1, 1)) * 2 - 1; // -1 ~ +1
+      const t = (i / Math.max(cols - 1, 1)) * 2 - 1;
       const angle = t * halfAngle;
       const cosA = Math.cos(angle);
-      // perspective 可为负值（cylinder-inner），用 Math.abs 防止超过 1
       const perspScale = 1 - Math.abs(perspective) * Math.abs(t) * Math.sign(perspective);
       const colScale = cosA * perspScale;
 
-      // 目标列高度：不超过 zone 高度
       const destH = Math.min(zh, offscreen.height * colScale);
       const destY = centerY - destH / 2;
       const destX = zx + i;
-
       const srcX = (i / cols) * offscreen.width;
 
       ctx.drawImage(

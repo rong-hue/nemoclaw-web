@@ -96,28 +96,29 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     label: { zh: '马克杯', en: 'Mug' },
     mockupBase: '/mockups/mug.png',
     mockupFg: '/mockups/mug-fg.png',
-    blendMode: 'normal',
+    blendMode: 'multiply',
     zones: [
       {
         // 外壁正面：杯身中间 60% 宽度，精确对齐杯身像素边界
         // 杯身实测: x=0.344~0.816, y=0.440~0.894（1024x1024 图）
+        // 杯身可印刷区域（去掉杯口和杯底边缘）：y=0.46~0.86
         id: 'outer-front',
         label: { zh: '外壁正面', en: 'Outer Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
-        x: 0.438, y: 0.445, width: 0.284, height: 0.409,
+        x: 0.440, y: 0.460, width: 0.280, height: 0.380,
         cornerRatio: 0.10,
         shape: 'cylinder-outer',
-        shapeParams: { curvature: 0.45, perspective: 0.18, fillRatio: 0.95 },
+        shapeParams: { curvature: 0.42, perspective: 0.14, fillRatio: 0.82 },
       },
       {
         // 外壁环绕：杯身全宽
         id: 'outer-wrap',
         label: { zh: '外壁环绕', en: 'Full Wrap' },
         meaning: { zh: '360° 环绕印刷，图腾守护四方', en: '360° wrap — your totem guards every angle' },
-        x: 0.344, y: 0.445, width: 0.473, height: 0.409,
+        x: 0.344, y: 0.460, width: 0.473, height: 0.380,
         cornerRatio: 0.08,
         shape: 'cylinder-outer',
-        shapeParams: { curvature: 0.65, perspective: 0.22, fillRatio: 0.95 },
+        shapeParams: { curvature: 0.62, perspective: 0.20, fillRatio: 0.85 },
       },
     ],
   },
