@@ -107,25 +107,26 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
       {
         // 外壁正面：杯身可印刷区域（透明背景方案，不需要圆柱变形）
         // 杯身实测: x=0.344~0.816, y=0.440~0.894（1024x1024 图）
-        // 可印刷区域（排除把手）: x=0.38~0.77
+        // 可印刷区域（排除把手）: 把手左边界实测 x=0.680，clipX2 设为 0.670
         id: 'outer-front',
         label: { zh: '外壁正面', en: 'Outer Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
-        x: 0.390, y: 0.460, width: 0.340, height: 0.400,
+        x: 0.390, y: 0.460, width: 0.280, height: 0.400,
         cornerRatio: 0.10,
         shape: 'rect',
         shapeParams: { fillRatio: 0.85 },
+        clipX2: 0.670,  // 把手左边界实测 x=0.680，留 1% 安全边距
       },
       {
         // 外壁环绕：杯身全宽
         id: 'outer-wrap',
         label: { zh: '外壁环绕', en: 'Full Wrap' },
         meaning: { zh: '360° 环绕印刷，图腾守护四方', en: '360° wrap — your totem guards every angle' },
-        x: 0.344, y: 0.460, width: 0.430, height: 0.400,
+        x: 0.344, y: 0.460, width: 0.326, height: 0.400,
         cornerRatio: 0.08,
         shape: 'rect',
         shapeParams: { fillRatio: 0.88 },
-        clipX2: 0.740,  // 把手从 x≈0.76 开始，clip 右边界留 2% 安全边距
+        clipX2: 0.670,  // 把手左边界实测 x=0.680，留 1% 安全边距
       },
     ],
   },
