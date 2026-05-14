@@ -46,6 +46,12 @@ export interface PlacementZone {
   shapeParams?: ZoneShapeParams;
   /** 四边形透视变形顶点（仅 shape='perspective-quad' 时使用） */
   quad?: ZoneQuad;
+  /**
+   * 可选：clip 区域的确切右边界（相对坐标 0-1）。
+   * 用于排除把手等不可印刷区域，确保设计图不超出该边界。
+   * 未设置时默认为 x + width。
+   */
+  clipX2?: number;
 }
 
 export interface ProductConfig {
@@ -119,6 +125,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         cornerRatio: 0.08,
         shape: 'rect',
         shapeParams: { fillRatio: 0.88 },
+        clipX2: 0.740,  // 把手从 x≈0.76 开始，clip 右边界留 2% 安全边距
       },
     ],
   },

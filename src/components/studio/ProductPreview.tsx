@@ -143,14 +143,19 @@ export default function ProductPreview({
     zx: number, zy: number, zw: number, zh: number,
     fillRatio: number,
     blendMode?: 'normal' | 'multiply',
+    clipX2?: number, // 可选：clip 区域的绝对右边界（像素），用于排除把手等不可印刷区域
   ) {
-    const { w, h } = calcContainSize(designImg.width, designImg.height, zw, zh, fillRatio);
-    const dx = zx + (zw - w) / 2;
+    // clip 右边界：优先用 clipX2，否则用 zone 右边界
+    const clipRight = clipX2 !== undefined ? clipX2 : zx + zw;
+    const clipW = clipRight - zx;
+
+    const { w, h } = calcContainSize(designImg.width, designImg.height, clipW, zh, fillRatio);
+    const dx = zx + (clipW - w) / 2;
     const dy = zy + (zh - h) / 2;
 
     ctx.save();
     ctx.beginPath();
-    ctx.rect(zx, zy, zw, zh);
+    ctx.rect(zx, zy, clipW, zh);
     ctx.clip();
     if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
     ctx.globalAlpha = 0.92;
@@ -276,6 +281,7 @@ export default function ProductPreview({
     const shape = zone.shape ?? 'rect';
     const params = zone.shapeParams ?? {};
     const fillRatio = params.fillRatio ?? 0.92;
+    const clipX2 = zone.clipX2 !== undefined ? zone.clipX2 * width : undefined;
 
     switch (shape) {
       case 'cylinder-outer':
@@ -305,7 +311,7 @@ export default function ProductPreview({
 
       case 'rect':
       default:
-        drawDesignRect(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode);
+        drawDesignRect(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode, clipX2);
         break;
     }
   }
@@ -333,17 +339,24 @@ export default function ProductPreview({
 
       const afterDesign = () => {
         // Layer 3: 前景遮罩（把手、边框等盖住设计图）
+        // 注意：直接 drawImage 是 source-over，透明像素不会擦除下面的内容。
+        // 正确做法：用 offscreen canvas + destination-in 把设计图裁切到可印刷区域，
+        // 然后把手像素（不透明）自然覆盖在设计图上面。
         if (config.mockupFg) {
           const fgImg = new Image();
           fgImg.crossOrigin = 'anonymous';
           fgImg.src = config.mockupFg;
           fgImg.onload = () => {
+            // 用 offscreen 把「当前 canvas 内容」和「前景遮罩」合成：
+            // 前景遮罩的不透明像素（把手等）直接覆盖；
+            // 前景遮罩的透明像素（可印刷区域）保留下面的内容。
+            // source-over 已经能正确处理这个逻辑——把手不透明像素会盖住设计图。
+            // 但设计图超出 zone 边界的部分需要在绘制时就 clip 掉，不能依赖前景遮罩。
             ctx.drawImage(fgImg, 0, 0, width, height);
             // Layer 4: 角标高亮框
             drawZoneOverlays(ctx, width, height);
           };
           fgImg.onerror = () => {
-            // 前景图加载失败，仍然画角标
             drawZoneOverlays(ctx, width, height);
           };
         } else {
