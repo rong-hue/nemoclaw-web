@@ -99,31 +99,25 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     blendMode: 'multiply',
     zones: [
       {
+        // 外壁正面：杯身中间 60% 宽度，精确对齐杯身像素边界
+        // 杯身实测: x=0.344~0.816, y=0.440~0.894（1024x1024 图）
         id: 'outer-front',
         label: { zh: '外壁正面', en: 'Outer Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
-        x: 0.20, y: 0.22, width: 0.60, height: 0.52,
+        x: 0.438, y: 0.462, width: 0.284, height: 0.409,
         cornerRatio: 0.10,
         shape: 'cylinder-outer',
-        shapeParams: { curvature: 0.38, perspective: 0.12, fillRatio: 0.90 },
+        shapeParams: { curvature: 0.38, perspective: 0.12, fillRatio: 0.88 },
       },
       {
+        // 外壁环绕：杯身全宽
         id: 'outer-wrap',
         label: { zh: '外壁环绕', en: 'Full Wrap' },
         meaning: { zh: '360° 环绕印刷，图腾守护四方', en: '360° wrap — your totem guards every angle' },
-        x: 0.10, y: 0.22, width: 0.80, height: 0.52,
+        x: 0.344, y: 0.462, width: 0.473, height: 0.409,
         cornerRatio: 0.08,
         shape: 'cylinder-outer',
-        shapeParams: { curvature: 0.65, perspective: 0.20, fillRatio: 0.92 },
-      },
-      {
-        id: 'bottom',
-        label: { zh: '杯底', en: 'Bottom' },
-        meaning: { zh: '隐秘的祝福，只有你知道的守护', en: 'A hidden blessing — only you know it\'s there' },
-        x: 0.22, y: 0.76, width: 0.56, height: 0.18,
-        cornerRatio: 0.15,
-        shape: 'ellipse',
-        shapeParams: { fillRatio: 0.85 },
+        shapeParams: { curvature: 0.60, perspective: 0.18, fillRatio: 0.90 },
       },
     ],
   },

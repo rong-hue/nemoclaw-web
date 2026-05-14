@@ -178,26 +178,28 @@ export default function ProductPreview({
     blendMode?: 'normal' | 'multiply',
   ) {
     // 先把设计图渲染到离屏 canvas，保持宽高比 contain
+    // 注意：离屏 canvas 的高度就是未变形时的最大高度（即 zh * fillRatio）
+    // 圆柱变形后中心列高度 = zh，两侧列高度 < zh，所以离屏高度用 zh * fillRatio 即可
+    const maxH = zh * fillRatio;
     const { w: srcW, h: srcH } = calcContainSize(
-      designImg.width, designImg.height, zw, zh, fillRatio,
+      designImg.width, designImg.height,
+      zw,   // 宽度用 zone 全宽（圆柱变形会压缩列宽，不会超出）
+      maxH, // 高度上限就是 zone 高度 * fillRatio
+      1.0,  // 已经用 maxH 控制了，这里不再乘以 fillRatio
     );
     const offscreen = document.createElement('canvas');
-    offscreen.width = Math.round(srcW);
-    offscreen.height = Math.round(srcH);
+    offscreen.width = Math.max(1, Math.round(srcW));
+    offscreen.height = Math.max(1, Math.round(srcH));
     const offCtx = offscreen.getContext('2d')!;
     offCtx.drawImage(designImg, 0, 0, offscreen.width, offscreen.height);
 
     // 圆柱体参数
-    // halfAngle：圆柱体可见弧度的一半（弧度制）
-    // curvature=0.5 → halfAngle=π/2（半圆柱，两侧 90°）
     const halfAngle = curvature * Math.PI * 0.5;
 
     const cols = Math.round(zw);
-    const centerX = zx + zw / 2;
     const centerY = zy + zh / 2;
 
     ctx.save();
-    // 裁切到 zone 范围，防止溢出
     ctx.beginPath();
     ctx.rect(zx, zy, zw, zh);
     ctx.clip();
@@ -205,31 +207,24 @@ export default function ProductPreview({
     ctx.globalAlpha = 0.92;
 
     for (let i = 0; i < cols; i++) {
-      // 当前列在 zone 内的归一化位置 [-1, 1]
-      const t = (i / (cols - 1)) * 2 - 1; // -1(左) ~ +1(右)
-      // 对应圆柱体上的角度
+      const t = (i / Math.max(cols - 1, 1)) * 2 - 1; // -1 ~ +1
       const angle = t * halfAngle;
-      // cos(angle)：中心=1，两侧<1，模拟圆柱体曲面的高度收缩
       const cosA = Math.cos(angle);
-      // 额外透视衰减：两侧再乘以 (1 - perspective * |t|)
-      const perspScale = 1 - perspective * Math.abs(t);
+      // perspective 可为负值（cylinder-inner），用 Math.abs 防止超过 1
+      const perspScale = 1 - Math.abs(perspective) * Math.abs(t) * Math.sign(perspective);
       const colScale = cosA * perspScale;
 
-      // 目标列的高度
-      const destH = zh * colScale;
-      // 目标列的 y（垂直居中）
+      // 目标列高度：不超过 zone 高度
+      const destH = Math.min(zh, offscreen.height * colScale);
       const destY = centerY - destH / 2;
-      // 目标列的 x
       const destX = zx + i;
 
-      // 源图对应列的 x（线性映射）
       const srcX = (i / cols) * offscreen.width;
 
-      // 逐列绘制（宽度=1px）
       ctx.drawImage(
         offscreen,
-        srcX, 0, 1, offscreen.height,  // 源：第 i 列
-        destX, destY, 1, destH,         // 目标：变形后的列
+        srcX, 0, 1, offscreen.height,
+        destX, destY, 1, destH,
       );
     }
 
@@ -293,12 +288,11 @@ export default function ProductPreview({
         break;
 
       case 'cylinder-inner':
-        // 内壁：curvature 方向相反（两侧扩张而非收缩）
-        // 用负 curvature 实现：cos(-angle) = cos(angle)，但我们翻转 perspective
+        // 内壁：两侧高度略大于中心（perspective 取负实现）
         drawDesignCylinderOuter(
           ctx, designImg, zx, zy, zw, zh,
           params.curvature ?? 0.35,
-          -(params.perspective ?? 0.15), // 负值 → 两侧高度略大于中心
+          -(params.perspective ?? 0.15),
           fillRatio,
           blendMode,
         );
