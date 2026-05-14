@@ -1,5 +1,34 @@
 export type ProductType = 'tshirt' | 'mug' | 'phonecase' | 'totebag' | 'sticker';
 
+/**
+ * zone 的形状类型：
+ * - 'rect'            矩形（默认，直接贴图）
+ * - 'cylinder-outer'  圆柱体外壁（逐列扫描，两侧透视收缩）
+ * - 'cylinder-inner'  圆柱体内壁（逐列扫描，两侧透视扩张）
+ * - 'ellipse'         椭圆裁切（杯底、圆形区域）
+ * - 'perspective-quad' 四边形透视变形（自由四点控制）
+ */
+export type ZoneShape = 'rect' | 'cylinder-outer' | 'cylinder-inner' | 'ellipse' | 'perspective-quad';
+
+export interface ZoneShapeParams {
+  /** 圆柱弯曲度 0~1，0=平面，0.5=半圆柱，默认 0.35 */
+  curvature?: number;
+  /** 透视强度 0~1，控制两侧高度收缩幅度，默认 0.15 */
+  perspective?: number;
+  /** 椭圆旋转角度（度），默认 0 */
+  rotation?: number;
+  /** 设计图在 zone 内的填充比例，默认 0.92 */
+  fillRatio?: number;
+}
+
+/** 四边形透视变形的四个顶点（相对坐标 0-1，基于 zone 的 bounding box） */
+export interface ZoneQuad {
+  tl: [number, number]; // 左上
+  tr: [number, number]; // 右上
+  bl: [number, number]; // 左下
+  br: [number, number]; // 右下
+}
+
 export interface PlacementZone {
   id: string;
   label: { zh: string; en: string };
@@ -11,6 +40,12 @@ export interface PlacementZone {
   height: number;
   // 角标长度（相对于 zone 短边的比例，默认 0.15）
   cornerRatio?: number;
+  /** zone 的形状类型，决定设计图如何变形贴合，默认 'rect' */
+  shape?: ZoneShape;
+  /** 形状参数 */
+  shapeParams?: ZoneShapeParams;
+  /** 四边形透视变形顶点（仅 shape='perspective-quad' 时使用） */
+  quad?: ZoneQuad;
 }
 
 export interface ProductConfig {
@@ -64,11 +99,31 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     blendMode: 'multiply',
     zones: [
       {
-        id: 'front',
-        label: { zh: '正面', en: 'Front' },
+        id: 'outer-front',
+        label: { zh: '外壁正面', en: 'Outer Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
-        x: 0.25, y: 0.25, width: 0.50, height: 0.50,
-        cornerRatio: 0.12,
+        x: 0.20, y: 0.22, width: 0.60, height: 0.52,
+        cornerRatio: 0.10,
+        shape: 'cylinder-outer',
+        shapeParams: { curvature: 0.38, perspective: 0.12, fillRatio: 0.90 },
+      },
+      {
+        id: 'outer-wrap',
+        label: { zh: '外壁环绕', en: 'Full Wrap' },
+        meaning: { zh: '360° 环绕印刷，图腾守护四方', en: '360° wrap — your totem guards every angle' },
+        x: 0.10, y: 0.22, width: 0.80, height: 0.52,
+        cornerRatio: 0.08,
+        shape: 'cylinder-outer',
+        shapeParams: { curvature: 0.65, perspective: 0.20, fillRatio: 0.92 },
+      },
+      {
+        id: 'bottom',
+        label: { zh: '杯底', en: 'Bottom' },
+        meaning: { zh: '隐秘的祝福，只有你知道的守护', en: 'A hidden blessing — only you know it\'s there' },
+        x: 0.22, y: 0.76, width: 0.56, height: 0.18,
+        cornerRatio: 0.15,
+        shape: 'ellipse',
+        shapeParams: { fillRatio: 0.85 },
       },
     ],
   },

@@ -118,7 +118,153 @@ export default function ProductPreview({
     });
   }
 
-  // ─── 辅助：在 zone 内绘制设计图 ────────────────────────────────────────────
+  // ─── 辅助：计算 contain 尺寸（保持宽高比，fit 进目标区域）──────────────────
+  function calcContainSize(
+    imgW: number, imgH: number,
+    boxW: number, boxH: number,
+    fillRatio = 0.92,
+  ): { w: number; h: number } {
+    const imgAspect = imgW / imgH;
+    const boxAspect = boxW / boxH;
+    let w = boxW * fillRatio;
+    let h = boxH * fillRatio;
+    if (imgAspect > boxAspect) {
+      h = w / imgAspect;
+    } else {
+      w = h * imgAspect;
+    }
+    return { w, h };
+  }
+
+  // ─── 渲染器 A：矩形（默认）────────────────────────────────────────────────
+  function drawDesignRect(
+    ctx: CanvasRenderingContext2D,
+    designImg: HTMLImageElement,
+    zx: number, zy: number, zw: number, zh: number,
+    fillRatio: number,
+    blendMode?: 'normal' | 'multiply',
+  ) {
+    const { w, h } = calcContainSize(designImg.width, designImg.height, zw, zh, fillRatio);
+    const dx = zx + (zw - w) / 2;
+    const dy = zy + (zh - h) / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(zx, zy, zw, zh);
+    ctx.clip();
+    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(designImg, dx, dy, w, h);
+    ctx.restore();
+  }
+
+  // ─── 渲染器 B：圆柱体外壁（逐列扫描，cos 曲率压缩）──────────────────────
+  //
+  // 原理：把设计图按列切片，每列根据圆柱体曲率计算：
+  //   - 高度缩放：cos(angle) — 两侧列比中心列矮（透视收缩）
+  //   - 垂直偏移：居中对齐，两侧列向中心靠拢
+  //   - 水平压缩：cos(angle) — 两侧列在 x 方向也略微收窄（可选）
+  //
+  // curvature: 0=平面, 0.5=半圆柱(180°), 1=全圆柱(360°)
+  // perspective: 额外的高度衰减系数，模拟仰视/俯视透视
+  // ─────────────────────────────────────────────────────────────────────────
+  function drawDesignCylinderOuter(
+    ctx: CanvasRenderingContext2D,
+    designImg: HTMLImageElement,
+    zx: number, zy: number, zw: number, zh: number,
+    curvature: number,
+    perspective: number,
+    fillRatio: number,
+    blendMode?: 'normal' | 'multiply',
+  ) {
+    // 先把设计图渲染到离屏 canvas，保持宽高比 contain
+    const { w: srcW, h: srcH } = calcContainSize(
+      designImg.width, designImg.height, zw, zh, fillRatio,
+    );
+    const offscreen = document.createElement('canvas');
+    offscreen.width = Math.round(srcW);
+    offscreen.height = Math.round(srcH);
+    const offCtx = offscreen.getContext('2d')!;
+    offCtx.drawImage(designImg, 0, 0, offscreen.width, offscreen.height);
+
+    // 圆柱体参数
+    // halfAngle：圆柱体可见弧度的一半（弧度制）
+    // curvature=0.5 → halfAngle=π/2（半圆柱，两侧 90°）
+    const halfAngle = curvature * Math.PI * 0.5;
+
+    const cols = Math.round(zw);
+    const centerX = zx + zw / 2;
+    const centerY = zy + zh / 2;
+
+    ctx.save();
+    // 裁切到 zone 范围，防止溢出
+    ctx.beginPath();
+    ctx.rect(zx, zy, zw, zh);
+    ctx.clip();
+    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.92;
+
+    for (let i = 0; i < cols; i++) {
+      // 当前列在 zone 内的归一化位置 [-1, 1]
+      const t = (i / (cols - 1)) * 2 - 1; // -1(左) ~ +1(右)
+      // 对应圆柱体上的角度
+      const angle = t * halfAngle;
+      // cos(angle)：中心=1，两侧<1，模拟圆柱体曲面的高度收缩
+      const cosA = Math.cos(angle);
+      // 额外透视衰减：两侧再乘以 (1 - perspective * |t|)
+      const perspScale = 1 - perspective * Math.abs(t);
+      const colScale = cosA * perspScale;
+
+      // 目标列的高度
+      const destH = zh * colScale;
+      // 目标列的 y（垂直居中）
+      const destY = centerY - destH / 2;
+      // 目标列的 x
+      const destX = zx + i;
+
+      // 源图对应列的 x（线性映射）
+      const srcX = (i / cols) * offscreen.width;
+
+      // 逐列绘制（宽度=1px）
+      ctx.drawImage(
+        offscreen,
+        srcX, 0, 1, offscreen.height,  // 源：第 i 列
+        destX, destY, 1, destH,         // 目标：变形后的列
+      );
+    }
+
+    ctx.restore();
+  }
+
+  // ─── 渲染器 C：椭圆裁切（杯底、圆形区域）────────────────────────────────
+  function drawDesignEllipse(
+    ctx: CanvasRenderingContext2D,
+    designImg: HTMLImageElement,
+    zx: number, zy: number, zw: number, zh: number,
+    fillRatio: number,
+    blendMode?: 'normal' | 'multiply',
+  ) {
+    const cx = zx + zw / 2;
+    const cy = zy + zh / 2;
+    const rx = (zw / 2) * fillRatio;
+    const ry = (zh / 2) * fillRatio;
+
+    const { w, h } = calcContainSize(designImg.width, designImg.height, zw * fillRatio, zh * fillRatio, 1);
+    const dx = cx - w / 2;
+    const dy = cy - h / 2;
+
+    ctx.save();
+    // 椭圆裁切路径
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.clip();
+    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(designImg, dx, dy, w, h);
+    ctx.restore();
+  }
+
+  // ─── 主分发函数：根据 zone.shape 选择渲染器 ──────────────────────────────
   function drawDesignInZone(
     ctx: CanvasRenderingContext2D,
     designImg: HTMLImageElement,
@@ -131,29 +277,42 @@ export default function ProductPreview({
     const zy = zone.y * height;
     const zw = zone.width * width;
     const zh = zone.height * height;
+    const shape = zone.shape ?? 'rect';
+    const params = zone.shapeParams ?? {};
+    const fillRatio = params.fillRatio ?? 0.92;
 
-    const imgAspect = designImg.width / designImg.height;
-    const zoneAspect = zw / zh;
-    let drawW = zw * 0.9;
-    let drawH = zh * 0.9;
-    if (imgAspect > zoneAspect) {
-      drawH = drawW / imgAspect;
-    } else {
-      drawW = drawH * imgAspect;
-    }
-    const drawX = zx + (zw - drawW) / 2;
-    const drawY = zy + (zh - drawH) / 2;
+    switch (shape) {
+      case 'cylinder-outer':
+        drawDesignCylinderOuter(
+          ctx, designImg, zx, zy, zw, zh,
+          params.curvature ?? 0.35,
+          params.perspective ?? 0.15,
+          fillRatio,
+          blendMode,
+        );
+        break;
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(zx, zy, zw, zh);
-    ctx.clip();
-    if (blendMode === 'multiply') {
-      ctx.globalCompositeOperation = 'multiply';
+      case 'cylinder-inner':
+        // 内壁：curvature 方向相反（两侧扩张而非收缩）
+        // 用负 curvature 实现：cos(-angle) = cos(angle)，但我们翻转 perspective
+        drawDesignCylinderOuter(
+          ctx, designImg, zx, zy, zw, zh,
+          params.curvature ?? 0.35,
+          -(params.perspective ?? 0.15), // 负值 → 两侧高度略大于中心
+          fillRatio,
+          blendMode,
+        );
+        break;
+
+      case 'ellipse':
+        drawDesignEllipse(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode);
+        break;
+
+      case 'rect':
+      default:
+        drawDesignRect(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode);
+        break;
     }
-    ctx.globalAlpha = 0.92;
-    ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
-    ctx.restore();
   }
 
   // ─── Canvas 渲染（分层：底图 → 设计图 → 前景遮罩 → 角标）──────────────────
