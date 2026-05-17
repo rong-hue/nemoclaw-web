@@ -16,6 +16,18 @@ interface ProductPreviewProps {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+type ShapeType = 'rect' | 'circle' | 'ellipse';
+
+interface CustomZone {
+  shape: ShapeType;
+  // 归一化坐标（0-1），相对 canvas 宽高
+  x: number;      // 左上角 x（rect/ellipse）或圆心 x（circle）
+  y: number;      // 左上角 y（rect/ellipse）或圆心 y（circle）
+  width: number;  // 宽（rect/ellipse）或直径（circle）
+  height: number; // 高（rect/ellipse），circle 时等于 width
+  label: string;  // 用户自定义描述，默认空字符串
+}
+
 export default function ProductPreview({
   productType,
   designImageUrl,
@@ -30,12 +42,23 @@ export default function ProductPreview({
   const [canvasSize, setCanvasSize] = useState({ width: 480, height: 480 });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
+  // ─── 自定义 zone 状态 ────────────────────────────────────────────────────────
+  const [drawMode, setDrawMode] = useState(false);
+  const [shapeType, setShapeType] = useState<ShapeType>('rect');
+  const [customZone, setCustomZone] = useState<CustomZone | null>(null);
+  const [customLabel, setCustomLabel] = useState('');
+  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
+  const [drawCurrent, setDrawCurrent] = useState<{ x: number; y: number } | null>(null);
+
   const config = PRODUCT_CONFIGS[productType];
 
   // 重置选区（切换商品时）
   useEffect(() => {
     setSelectedZone(null);
     setHoveredZone(null);
+    setCustomZone(null);
+    setCustomLabel('');
+    setDrawMode(false);
   }, [productType]);
 
   // ─── 辅助：画角标（L 形标记线）─────────────────────────────────────────────
@@ -118,6 +141,29 @@ export default function ProductPreview({
     });
   }
 
+  // ─── 辅助：clip 路径（customZone 形状）─────────────────────────────────────
+  function applyCustomZoneClip(
+    ctx: CanvasRenderingContext2D,
+    zone: CustomZone,
+    width: number,
+    height: number,
+  ) {
+    const zx = zone.x * width;
+    const zy = zone.y * height;
+    const zw = zone.width * width;
+    const zh = zone.height * height;
+    ctx.beginPath();
+    if (zone.shape === 'rect') {
+      ctx.rect(zx, zy, zw, zh);
+    } else if (zone.shape === 'circle') {
+      const r = Math.min(zw, zh) / 2;
+      ctx.arc(zx + zw / 2, zy + zh / 2, r, 0, Math.PI * 2);
+    } else {
+      // ellipse
+      ctx.ellipse(zx + zw / 2, zy + zh / 2, zw / 2, zh / 2, 0, 0, Math.PI * 2);
+    }
+  }
+
   // ─── Canvas 渲染（分层：底图 → 设计图 → 角标）──────────────────────────────
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -139,10 +185,80 @@ export default function ProductPreview({
 
       const afterDesign = () => {
         drawZoneOverlays(ctx, width, height);
+
+        // Layer 3.5: 自定义 zone 高亮框
+        if (customZone) {
+          const zx = customZone.x * width;
+          const zy = customZone.y * height;
+          const zw = customZone.width * width;
+          const zh = customZone.height * height;
+          ctx.save();
+          ctx.strokeStyle = '#C9A84C';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 4]);
+          applyCustomZoneClip(ctx, customZone, width, height);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Layer 4: 拖拽预览
+        if (drawStart && drawCurrent) {
+          const px = Math.min(drawStart.x, drawCurrent.x);
+          const py = Math.min(drawStart.y, drawCurrent.y);
+          const pw = Math.abs(drawCurrent.x - drawStart.x);
+          const ph = Math.abs(drawCurrent.y - drawStart.y);
+          const previewZone: CustomZone = {
+            shape: shapeType,
+            x: px / width,
+            y: py / height,
+            width: pw / width,
+            height: ph / height,
+            label: '',
+          };
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          applyCustomZoneClip(ctx, previewZone, width, height);
+          ctx.stroke();
+          ctx.restore();
+        }
       };
 
-      // Layer 2: 设计图（clip 到 zone 内）
-      if (designImageUrl && selectedZone) {
+      // Layer 2: 设计图（clip 到 selectedZone 内）
+      // Layer 2.5: 设计图（clip 到 customZone 内，优先级高于 selectedZone）
+      if (designImageUrl && customZone) {
+        const designImg = new Image();
+        designImg.crossOrigin = 'anonymous';
+        designImg.src = designImageUrl;
+        designImg.onload = () => {
+          const zx = customZone.x * width;
+          const zy = customZone.y * height;
+          const zw = customZone.width * width;
+          const zh = customZone.height * height;
+
+          ctx.save();
+          applyCustomZoneClip(ctx, customZone, width, height);
+          ctx.clip();
+
+          const imgAspect = designImg.width / designImg.height;
+          const zoneAspect = zw / zh;
+          let drawW = zw, drawH = zh;
+          if (imgAspect > zoneAspect) {
+            drawH = zw / imgAspect;
+          } else {
+            drawW = zh * imgAspect;
+          }
+          const drawX = zx + (zw - drawW) / 2;
+          const drawY = zy + (zh - drawH) / 2;
+
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+          ctx.restore();
+          afterDesign();
+        };
+        designImg.onerror = afterDesign;
+      } else if (designImageUrl && selectedZone) {
         const designImg = new Image();
         designImg.crossOrigin = 'anonymous';
         designImg.src = designImageUrl;
@@ -179,7 +295,7 @@ export default function ProductPreview({
         afterDesign();
       }
     };
-  }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config]);
+  }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config, customZone, drawStart, drawCurrent, drawMode, shapeType]);
 
 
   useEffect(() => {
@@ -245,17 +361,31 @@ export default function ProductPreview({
         ctx.drawImage(baseImg, 0, 0, width, height);
 
         // 2. 设计图（clip 到 zone 内，保持比例居中）
-        if (designImageUrl && selectedZone) {
+        // customZone 优先级高于 selectedZone
+        const activeExportZone = customZone ?? selectedZone;
+        if (designImageUrl && activeExportZone) {
           try {
             const designImg = await loadImage(designImageUrl);
-            const zx = selectedZone.x * width;
-            const zy = selectedZone.y * height;
-            const zw = selectedZone.width * width;
-            const zh = selectedZone.height * height;
+            let zx: number, zy: number, zw: number, zh: number;
+            if (customZone) {
+              zx = customZone.x * width;
+              zy = customZone.y * height;
+              zw = customZone.width * width;
+              zh = customZone.height * height;
+            } else {
+              zx = selectedZone!.x * width;
+              zy = selectedZone!.y * height;
+              zw = selectedZone!.width * width;
+              zh = selectedZone!.height * height;
+            }
 
             ctx.save();
             ctx.beginPath();
-            ctx.rect(zx, zy, zw, zh);
+            if (customZone) {
+              applyCustomZoneClip(ctx, customZone, width, height);
+            } else {
+              ctx.rect(zx, zy, zw, zh);
+            }
             ctx.clip();
 
             const imgAspect = designImg.width / designImg.height;
@@ -290,7 +420,7 @@ export default function ProductPreview({
         reject(err);
       }
     });
-  }, [config, designImageUrl, selectedZone, canvasSize]);
+  }, [config, designImageUrl, selectedZone, customZone, canvasSize]);
 
   // ─── 下载合成图 ─────────────────────────────────────────────────────────────
   const handleDownload = async () => {
@@ -353,6 +483,16 @@ export default function ProductPreview({
     }
   };
 
+  // ─── 辅助：获取 canvas 坐标 ──────────────────────────────────────────────────
+  function getCanvasPos(clientX: number, clientY: number) {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) * (canvasSize.width / rect.width),
+      y: (clientY - rect.top) * (canvasSize.height / rect.height),
+    };
+  }
+
   // ─── 命中检测 ────────────────────────────────────────────────────────────────
   function getZoneAtPoint(clientX: number, clientY: number): PlacementZone | null {
     const canvas = canvasRef.current;
@@ -374,12 +514,46 @@ export default function ProductPreview({
     );
   }
 
+  function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!drawMode) return;
+    const pos = getCanvasPos(e.clientX, e.clientY);
+    setDrawStart(pos);
+    setDrawCurrent(pos);
+  }
+
   function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (drawMode) {
+      if (drawStart) {
+        setDrawCurrent(getCanvasPos(e.clientX, e.clientY));
+      }
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'crosshair';
+      }
+      return;
+    }
     const zone = getZoneAtPoint(e.clientX, e.clientY);
     setHoveredZone(zone);
     if (canvasRef.current) {
       canvasRef.current.style.cursor = zone ? 'pointer' : 'default';
     }
+  }
+
+  function handleMouseUp(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!drawMode || !drawStart) return;
+    const pos = getCanvasPos(e.clientX, e.clientY);
+    const dx = Math.abs(pos.x - drawStart.x);
+    const dy = Math.abs(pos.y - drawStart.y);
+    if (dx > 30 || dy > 30) {
+      const x = Math.min(drawStart.x, pos.x) / canvasSize.width;
+      const y = Math.min(drawStart.y, pos.y) / canvasSize.height;
+      const w = dx / canvasSize.width;
+      const h = dy / canvasSize.height;
+      setCustomZone({ shape: shapeType, x, y, width: w, height: h, label: '' });
+      setSelectedZone(null);
+    }
+    setDrawStart(null);
+    setDrawCurrent(null);
+    setDrawMode(false);
   }
 
   function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
@@ -402,32 +576,92 @@ export default function ProductPreview({
   }, []);
 
   const activeZone = selectedZone ?? hoveredZone;
-  const canAct = !!selectedZone && !!designImageUrl;
+  const canAct = !!(selectedZone || customZone) && !!designImageUrl;
 
   return (
     <div className="flex flex-col items-center gap-4">
+      {/* 自定义 zone 工具栏 */}
+      <div className="flex items-center gap-2 w-full max-w-sm">
+        {/* 形状选择 */}
+        {(['rect', 'circle', 'ellipse'] as ShapeType[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => setShapeType(s)}
+            className={`px-2 py-1 rounded text-xs border transition-all ${
+              shapeType === s
+                ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
+                : 'border-white/20 text-white/50 hover:border-white/40'
+            }`}
+          >
+            {s === 'rect' ? '矩形' : s === 'circle' ? '圆形' : '渽圆'}
+          </button>
+        ))}
+        {/* 绘制按鈕 */}
+        <button
+          onClick={() => { setDrawMode(!drawMode); setCustomZone(null); }}
+          className={`ml-auto px-3 py-1 rounded text-xs border transition-all ${
+            drawMode
+              ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
+              : 'border-white/20 text-white/50 hover:border-white/40'
+          }`}
+        >
+          {drawMode ? '取消绘制' : '自定义位置'}
+        </button>
+        {/* 清除自定义 zone */}
+        {customZone && !drawMode && (
+          <button
+            onClick={() => { setCustomZone(null); setCustomLabel(''); }}
+            className="px-2 py-1 rounded text-xs border border-white/20 text-white/50 hover:border-red-400/60 hover:text-red-400 transition-all"
+          >
+            清除
+          </button>
+        )}
+      </div>
+
       {/* Canvas 预览 */}
       <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5">
         <canvas
           ref={canvasRef}
           width={canvasSize.width}
           height={canvasSize.height}
-          style={{ width: canvasSize.width, height: canvasSize.height, display: 'block' }}
+          style={{ width: canvasSize.width, height: canvasSize.height, display: 'block', cursor: drawMode ? 'crosshair' : undefined }}
+          onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
           onClick={handleClick}
-          onMouseLeave={() => setHoveredZone(null)}
+          onMouseLeave={() => { setHoveredZone(null); if (!drawMode) { setDrawStart(null); setDrawCurrent(null); } }}
         />
       </div>
 
       {/* 文化含义说明 */}
       <div
         className={`w-full max-w-sm min-h-[56px] px-4 py-3 rounded-lg border transition-all duration-300 ${
-          activeZone
+          activeZone || customZone
             ? 'border-[#C9A84C]/40 bg-[#C9A84C]/5 opacity-100'
             : 'border-white/10 bg-white/5 opacity-50'
         }`}
       >
-        {activeZone ? (
+        {customZone && !selectedZone ? (
+          <>
+            <p className="text-[#C9A84C] text-sm font-medium mb-1">
+              {locale === 'zh' ? '自定义区域' : 'Custom Zone'}
+            </p>
+            <input
+              type="text"
+              value={customLabel}
+              onChange={(e) => setCustomLabel(e.target.value)}
+              placeholder={locale === 'zh' ? '输入你的图腾吉祥语…' : 'Enter your totem blessing…'}
+              className="w-full bg-transparent text-white/70 text-xs outline-none placeholder:text-white/30 border-b border-white/20 pb-1"
+            />
+            {!customLabel && (
+              <p className="text-white/50 text-xs mt-1">
+                {locale === 'zh'
+                  ? '自定义区域 — 你选择的位置，承载你的图腾'
+                  : 'Custom zone — your chosen place for the totem'}
+              </p>
+            )}
+          </>
+        ) : activeZone ? (
           <>
             <p className="text-[#C9A84C] text-sm font-medium mb-1">
               {locale === 'zh' ? activeZone.label.zh : activeZone.label.en}
@@ -439,8 +673,8 @@ export default function ProductPreview({
         ) : (
           <p className="text-white/30 text-xs text-center pt-2">
             {locale === 'zh'
-              ? '点击高亮区域，选择图腾放置位置'
-              : 'Click a highlighted zone to place your totem'}
+              ? '点击高亮区域，或使用“自定义位置”绘制区域'
+              : 'Click a highlighted zone or draw a custom zone'}
           </p>
         )}
       </div>
@@ -485,7 +719,7 @@ export default function ProductPreview({
       {/* 未选区域时的提示 */}
       {!canAct && designImageUrl && (
         <p className="text-white/30 text-xs">
-          {locale === 'zh' ? '请先点击商品上的区域' : 'Select a zone on the product first'}
+          {locale === 'zh' ? '请先点击商品上的区域，或绘制自定义区域' : 'Select a zone or draw a custom zone first'}
         </p>
       )}
       {!designImageUrl && (
