@@ -61,6 +61,8 @@ export interface ProductConfig {
   mockupFg?: string;    // 前景遮罩（不可印刷区域，其余透明）
   // 设计图混合模式：'normal' | 'multiply'（模拟印刷效果）
   blendMode?: 'normal' | 'multiply';
+  /** 白底商品图：设计图用 multiply 融入，底图再画一次盖住超出区域 */
+  whiteBackground?: boolean;
   zones: PlacementZone[];
 }
 
@@ -74,8 +76,8 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'tshirt',
     label: { zh: 'T恤', en: 'T-Shirt' },
     mockupBase: '/mockups/tshirt.png',
-    mockupFg: '/mockups/tshirt-fg.png',
-    blendMode: 'normal',
+    blendMode: 'multiply',
+    whiteBackground: true,
     zones: [
       {
         id: 'chest',
@@ -134,8 +136,8 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'phonecase',
     label: { zh: '手机壳', en: 'Phone Case' },
     mockupBase: '/mockups/phonecase.png',
-    mockupFg: '/mockups/phonecase-fg.png',
-    blendMode: 'normal',
+    blendMode: 'multiply',
+    whiteBackground: true,
     zones: [
       {
         id: 'center',
@@ -156,8 +158,8 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'totebag',
     label: { zh: '帆布包', en: 'Tote Bag' },
     mockupBase: '/mockups/totebag.png',
-    mockupFg: '/mockups/totebag-fg.png',
-    blendMode: 'normal',
+    blendMode: 'multiply',
+    whiteBackground: true,
     zones: [
       {
         id: 'center',

@@ -338,11 +338,12 @@ export default function ProductPreview({
       ctx.drawImage(baseImg, 0, 0, width, height);
 
       const afterDesign = () => {
-        // Layer 3: 前景遮罩（把手、边框等盖住设计图）
-        // 注意：直接 drawImage 是 source-over，透明像素不会擦除下面的内容。
-        // 正确做法：用 offscreen canvas + destination-in 把设计图裁切到可印刷区域，
-        // 然后把手像素（不透明）自然覆盖在设计图上面。
-        if (config.mockupFg) {
+        if (config.whiteBackground) {
+          // 白底商品图：底图再画一次，白色区域盖住设计图超出 zone 的部分
+          // （source-over 模式下，白底图的白色不透明像素自然盖住下面的内容）
+          ctx.drawImage(baseImg, 0, 0, width, height);
+          drawZoneOverlays(ctx, width, height);
+        } else if (config.mockupFg) {
           const fgImg = new Image();
           fgImg.crossOrigin = 'anonymous';
           fgImg.src = config.mockupFg;
@@ -452,8 +453,11 @@ export default function ProductPreview({
           }
         }
 
-        // 3. 前景遮罩
-        if (config.mockupFg) {
+        // 3. 前景层
+        if (config.whiteBackground) {
+          // 白底商品：底图再画一次盖住超出 zone 的设计图
+          ctx.drawImage(baseImg, 0, 0, width, height);
+        } else if (config.mockupFg) {
           try {
             const fgImg = await loadImage(config.mockupFg);
             ctx.drawImage(fgImg, 0, 0, width, height);
