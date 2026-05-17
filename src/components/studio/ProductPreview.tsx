@@ -118,205 +118,7 @@ export default function ProductPreview({
     });
   }
 
-  // ─── 辅助：计算 contain 尺寸（保持宽高比，fit 进目标区域）──────────────────
-  function calcContainSize(
-    imgW: number, imgH: number,
-    boxW: number, boxH: number,
-    fillRatio = 0.92,
-  ): { w: number; h: number } {
-    const imgAspect = imgW / imgH;
-    const boxAspect = boxW / boxH;
-    let w = boxW * fillRatio;
-    let h = boxH * fillRatio;
-    if (imgAspect > boxAspect) {
-      h = w / imgAspect;
-    } else {
-      w = h * imgAspect;
-    }
-    return { w, h };
-  }
-
-  // ─── 渲染器 A：矩形（默认）────────────────────────────────────────────────
-  function drawDesignRect(
-    ctx: CanvasRenderingContext2D,
-    designImg: HTMLImageElement,
-    zx: number, zy: number, zw: number, zh: number,
-    fillRatio: number,
-    blendMode?: 'normal' | 'multiply',
-    clipX2?: number, // 可选：clip 区域的绝对右边界（像素），用于排除把手等不可印刷区域
-  ) {
-    // clip 右边界：优先用 clipX2，否则用 zone 右边界
-    const clipRight = clipX2 !== undefined ? clipX2 : zx + zw;
-    const clipW = clipRight - zx;
-
-    const { w, h } = calcContainSize(designImg.width, designImg.height, clipW, zh, fillRatio);
-    const dx = zx + (clipW - w) / 2;
-    const dy = zy + (zh - h) / 2;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(zx, zy, clipW, zh);
-    ctx.clip();
-    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.92;
-    ctx.drawImage(designImg, dx, dy, w, h);
-    ctx.restore();
-  }
-
-  // ─── 渲染器 B：圆柱体外壁（逐列扫描，cos 曲率压缩）──────────────────────
-  //
-  // 原理：把设计图按列切片，每列根据圆柱体曲率计算：
-  //   - 高度缩放：cos(angle) — 两侧列比中心列矮（透视收缩）
-  //   - 垂直偏移：居中对齐，两侧列向中心靠拢
-  //   - 水平压缩：cos(angle) — 两侧列在 x 方向也略微收窄（可选）
-  //
-  // curvature: 0=平面, 0.5=半圆柱(180°), 1=全圆柱(360°)
-  // perspective: 额外的高度衰减系数，模拟仰视/俯视透视
-  // ─────────────────────────────────────────────────────────────────────────
-  function drawDesignCylinderOuter(
-    ctx: CanvasRenderingContext2D,
-    designImg: HTMLImageElement,
-    zx: number, zy: number, zw: number, zh: number,
-    curvature: number,
-    perspective: number,
-    fillRatio: number,
-    blendMode?: 'normal' | 'multiply',
-  ) {
-    const maxH = zh * fillRatio;
-    const { w: srcW, h: srcH } = calcContainSize(
-      designImg.width, designImg.height,
-      zw,
-      maxH,
-      1.0,
-    );
-
-    // 离屏 canvas：白色背景 + 设计图居中
-    // 白色背景确保 multiply 模式下白色区域不影响杯身颜色，有颜色区域才叀加
-    const offscreen = document.createElement('canvas');
-    offscreen.width = Math.max(1, Math.round(zw));
-    offscreen.height = Math.max(1, Math.round(maxH));
-    const offCtx = offscreen.getContext('2d')!;
-    // 白色底色
-    offCtx.fillStyle = '#ffffff';
-    offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
-    // 设计图居中绘制
-    const drawX = (offscreen.width - srcW) / 2;
-    const drawY = (offscreen.height - srcH) / 2;
-    offCtx.drawImage(designImg, drawX, drawY, srcW, srcH);
-
-    const halfAngle = curvature * Math.PI * 0.5;
-    const cols = Math.round(zw);
-    const centerY = zy + zh / 2;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(zx, zy, zw, zh);
-    ctx.clip();
-    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.92;
-
-    for (let i = 0; i < cols; i++) {
-      const t = (i / Math.max(cols - 1, 1)) * 2 - 1;
-      const angle = t * halfAngle;
-      const cosA = Math.cos(angle);
-      const perspScale = 1 - Math.abs(perspective) * Math.abs(t) * Math.sign(perspective);
-      const colScale = cosA * perspScale;
-
-      const destH = Math.min(zh, offscreen.height * colScale);
-      const destY = centerY - destH / 2;
-      const destX = zx + i;
-      const srcX = (i / cols) * offscreen.width;
-
-      ctx.drawImage(
-        offscreen,
-        srcX, 0, 1, offscreen.height,
-        destX, destY, 1, destH,
-      );
-    }
-
-    ctx.restore();
-  }
-
-  // ─── 渲染器 C：椭圆裁切（杯底、圆形区域）────────────────────────────────
-  function drawDesignEllipse(
-    ctx: CanvasRenderingContext2D,
-    designImg: HTMLImageElement,
-    zx: number, zy: number, zw: number, zh: number,
-    fillRatio: number,
-    blendMode?: 'normal' | 'multiply',
-  ) {
-    const cx = zx + zw / 2;
-    const cy = zy + zh / 2;
-    const rx = (zw / 2) * fillRatio;
-    const ry = (zh / 2) * fillRatio;
-
-    const { w, h } = calcContainSize(designImg.width, designImg.height, zw * fillRatio, zh * fillRatio, 1);
-    const dx = cx - w / 2;
-    const dy = cy - h / 2;
-
-    ctx.save();
-    // 椭圆裁切路径
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.clip();
-    if (blendMode === 'multiply') ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.92;
-    ctx.drawImage(designImg, dx, dy, w, h);
-    ctx.restore();
-  }
-
-  // ─── 主分发函数：根据 zone.shape 选择渲染器 ──────────────────────────────
-  function drawDesignInZone(
-    ctx: CanvasRenderingContext2D,
-    designImg: HTMLImageElement,
-    zone: PlacementZone,
-    width: number,
-    height: number,
-    blendMode?: 'normal' | 'multiply',
-  ) {
-    const zx = zone.x * width;
-    const zy = zone.y * height;
-    const zw = zone.width * width;
-    const zh = zone.height * height;
-    const shape = zone.shape ?? 'rect';
-    const params = zone.shapeParams ?? {};
-    const fillRatio = params.fillRatio ?? 0.92;
-    const clipX2 = zone.clipX2 !== undefined ? zone.clipX2 * width : undefined;
-
-    switch (shape) {
-      case 'cylinder-outer':
-        drawDesignCylinderOuter(
-          ctx, designImg, zx, zy, zw, zh,
-          params.curvature ?? 0.35,
-          params.perspective ?? 0.15,
-          fillRatio,
-          blendMode,
-        );
-        break;
-
-      case 'cylinder-inner':
-        // 内壁：两侧高度略大于中心（perspective 取负实现）
-        drawDesignCylinderOuter(
-          ctx, designImg, zx, zy, zw, zh,
-          params.curvature ?? 0.35,
-          -(params.perspective ?? 0.15),
-          fillRatio,
-          blendMode,
-        );
-        break;
-
-      case 'ellipse':
-        drawDesignEllipse(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode);
-        break;
-
-      case 'rect':
-      default:
-        drawDesignRect(ctx, designImg, zx, zy, zw, zh, fillRatio, blendMode, clipX2);
-        break;
-    }
-  }
-
-  // ─── Canvas 渲染（分层：底图 → 设计图 → 前景遮罩 → 角标）──────────────────
+  // ─── Canvas 渲染（分层：底图 → 设计图 → 角标）──────────────────────────────
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -328,65 +130,48 @@ export default function ProductPreview({
     canvas.height = height;
     ctx.clearRect(0, 0, width, height);
 
-    // 1. 加载底图
-    const baseImg = new Image();
-    baseImg.crossOrigin = 'anonymous';
-    baseImg.src = config.mockupBase;
-
-    baseImg.onload = () => {
+    const productImg = new Image();
+    productImg.crossOrigin = 'anonymous';
+    productImg.src = config.mockupBase;
+    productImg.onload = () => {
       // Layer 1: 底图
-      ctx.drawImage(baseImg, 0, 0, width, height);
+      ctx.drawImage(productImg, 0, 0, width, height);
 
       const afterDesign = () => {
-        if (config.whiteBackground) {
-          // 白底商品图：底图再画一次，但只画 zone 外的区域（排除 zone 内部，避免盖住设计图）
-          ctx.save();
-          ctx.beginPath();
-          // 全局矩形
-          ctx.rect(0, 0, width, height);
-          // 排除所有 zone 区域（逆时针就是打洞）
-          config.zones.forEach((zone) => {
-            const zx = zone.x * width;
-            const zy = zone.y * height;
-            const zw = zone.width * width;
-            const zh = zone.height * height;
-            // 用 clipX2 限制右边界（如果有）
-            const clipRight = zone.clipX2 !== undefined ? zone.clipX2 * width : zx + zw;
-            ctx.rect(zx, zy, clipRight - zx, zh); // 逆时针打洞（需要 evenodd 规则）
-          });
-          ctx.clip('evenodd');
-          ctx.drawImage(baseImg, 0, 0, width, height);
-          ctx.restore();
-          drawZoneOverlays(ctx, width, height);
-        } else if (config.mockupFg) {
-          const fgImg = new Image();
-          fgImg.crossOrigin = 'anonymous';
-          fgImg.src = config.mockupFg;
-          fgImg.onload = () => {
-            // 用 offscreen 把「当前 canvas 内容」和「前景遮罩」合成：
-            // 前景遮罩的不透明像素（把手等）直接覆盖；
-            // 前景遮罩的透明像素（可印刷区域）保留下面的内容。
-            // source-over 已经能正确处理这个逻辑——把手不透明像素会盖住设计图。
-            // 但设计图超出 zone 边界的部分需要在绘制时就 clip 掉，不能依赖前景遮罩。
-            ctx.drawImage(fgImg, 0, 0, width, height);
-            // Layer 4: 角标高亮框
-            drawZoneOverlays(ctx, width, height);
-          };
-          fgImg.onerror = () => {
-            drawZoneOverlays(ctx, width, height);
-          };
-        } else {
-          drawZoneOverlays(ctx, width, height);
-        }
+        drawZoneOverlays(ctx, width, height);
       };
 
-      // Layer 2: 设计图
+      // Layer 2: 设计图（clip 到 zone 内）
       if (designImageUrl && selectedZone) {
         const designImg = new Image();
         designImg.crossOrigin = 'anonymous';
         designImg.src = designImageUrl;
         designImg.onload = () => {
-          drawDesignInZone(ctx, designImg, selectedZone, width, height, config.blendMode);
+          const zx = selectedZone.x * width;
+          const zy = selectedZone.y * height;
+          const zw = selectedZone.width * width;
+          const zh = selectedZone.height * height;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(zx, zy, zw, zh);
+          ctx.clip();
+
+          // 保持比例居中
+          const imgAspect = designImg.width / designImg.height;
+          const zoneAspect = zw / zh;
+          let drawW = zw, drawH = zh;
+          if (imgAspect > zoneAspect) {
+            drawH = zw / imgAspect;
+          } else {
+            drawW = zh * imgAspect;
+          }
+          const drawX = zx + (zw - drawW) / 2;
+          const drawY = zy + (zh - drawH) / 2;
+
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+          ctx.restore();
           afterDesign();
         };
         designImg.onerror = afterDesign;
@@ -395,6 +180,7 @@ export default function ProductPreview({
       }
     };
   }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config]);
+
 
   useEffect(() => {
     renderCanvas();
@@ -458,43 +244,40 @@ export default function ProductPreview({
         const baseImg = await loadImage(config.mockupBase);
         ctx.drawImage(baseImg, 0, 0, width, height);
 
-        // 2. 设计图
+        // 2. 设计图（clip 到 zone 内，保持比例居中）
         if (designImageUrl && selectedZone) {
           try {
             const designImg = await loadImage(designImageUrl);
-            drawDesignInZone(ctx, designImg, selectedZone, width, height, config.blendMode);
+            const zx = selectedZone.x * width;
+            const zy = selectedZone.y * height;
+            const zw = selectedZone.width * width;
+            const zh = selectedZone.height * height;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(zx, zy, zw, zh);
+            ctx.clip();
+
+            const imgAspect = designImg.width / designImg.height;
+            const zoneAspect = zw / zh;
+            let drawW = zw, drawH = zh;
+            if (imgAspect > zoneAspect) {
+              drawH = zw / imgAspect;
+            } else {
+              drawW = zh * imgAspect;
+            }
+            const drawX = zx + (zw - drawW) / 2;
+            const drawY = zy + (zh - drawH) / 2;
+
+            ctx.globalAlpha = 0.92;
+            ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+            ctx.restore();
           } catch {
             // 设计图加载失败，跳过
           }
         }
 
-        // 3. 前景层
-        if (config.whiteBackground) {
-          // 白底商品：底图再画一次，但只画 zone 外的区域
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(0, 0, width, height);
-          config.zones.forEach((zone) => {
-            const zx = zone.x * width;
-            const zy = zone.y * height;
-            const zw = zone.width * width;
-            const zh = zone.height * height;
-            const clipRight = zone.clipX2 !== undefined ? zone.clipX2 * width : zx + zw;
-            ctx.rect(zx, zy, clipRight - zx, zh);
-          });
-          ctx.clip('evenodd');
-          ctx.drawImage(baseImg, 0, 0, width, height);
-          ctx.restore();
-        } else if (config.mockupFg) {
-          try {
-            const fgImg = await loadImage(config.mockupFg);
-            ctx.drawImage(fgImg, 0, 0, width, height);
-          } catch {
-            // 前景图加载失败，跳过
-          }
-        }
-
-        // 4. 水印
+        // 3. 水印
         ctx.save();
         ctx.font = '13px sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.45)';
