@@ -75,7 +75,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     label: { zh: 'T恤', en: 'T-Shirt' },
     mockupBase: '/mockups/tshirt.png',
     mockupFg: '/mockups/tshirt-fg.png',
-    blendMode: 'multiply',
+    blendMode: 'normal',
     zones: [
       {
         id: 'chest',
@@ -135,7 +135,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     label: { zh: '手机壳', en: 'Phone Case' },
     mockupBase: '/mockups/phonecase.png',
     mockupFg: '/mockups/phonecase-fg.png',
-    blendMode: 'multiply',
+    blendMode: 'normal',
     zones: [
       {
         id: 'center',
@@ -157,7 +157,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     label: { zh: '帆布包', en: 'Tote Bag' },
     mockupBase: '/mockups/totebag.png',
     mockupFg: '/mockups/totebag-fg.png',
-    blendMode: 'multiply',
+    blendMode: 'normal',
     zones: [
       {
         id: 'center',
