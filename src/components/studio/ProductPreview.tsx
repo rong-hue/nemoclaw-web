@@ -339,9 +339,24 @@ export default function ProductPreview({
 
       const afterDesign = () => {
         if (config.whiteBackground) {
-          // 白底商品图：底图再画一次，白色区域盖住设计图超出 zone 的部分
-          // （source-over 模式下，白底图的白色不透明像素自然盖住下面的内容）
+          // 白底商品图：底图再画一次，但只画 zone 外的区域（排除 zone 内部，避免盖住设计图）
+          ctx.save();
+          ctx.beginPath();
+          // 全局矩形
+          ctx.rect(0, 0, width, height);
+          // 排除所有 zone 区域（逆时针就是打洞）
+          config.zones.forEach((zone) => {
+            const zx = zone.x * width;
+            const zy = zone.y * height;
+            const zw = zone.width * width;
+            const zh = zone.height * height;
+            // 用 clipX2 限制右边界（如果有）
+            const clipRight = zone.clipX2 !== undefined ? zone.clipX2 * width : zx + zw;
+            ctx.rect(zx, zy, clipRight - zx, zh); // 逆时针打洞（需要 evenodd 规则）
+          });
+          ctx.clip('evenodd');
           ctx.drawImage(baseImg, 0, 0, width, height);
+          ctx.restore();
           drawZoneOverlays(ctx, width, height);
         } else if (config.mockupFg) {
           const fgImg = new Image();
@@ -455,8 +470,21 @@ export default function ProductPreview({
 
         // 3. 前景层
         if (config.whiteBackground) {
-          // 白底商品：底图再画一次盖住超出 zone 的设计图
+          // 白底商品：底图再画一次，但只画 zone 外的区域
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, width, height);
+          config.zones.forEach((zone) => {
+            const zx = zone.x * width;
+            const zy = zone.y * height;
+            const zw = zone.width * width;
+            const zh = zone.height * height;
+            const clipRight = zone.clipX2 !== undefined ? zone.clipX2 * width : zx + zw;
+            ctx.rect(zx, zy, clipRight - zx, zh);
+          });
+          ctx.clip('evenodd');
           ctx.drawImage(baseImg, 0, 0, width, height);
+          ctx.restore();
         } else if (config.mockupFg) {
           try {
             const fgImg = await loadImage(config.mockupFg);
