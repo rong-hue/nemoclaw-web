@@ -8,7 +8,7 @@ export type ProductType = 'tshirt' | 'mug' | 'phonecase' | 'totebag' | 'sticker'
  * - 'ellipse'         椭圆裁切（杯底、圆形区域）
  * - 'perspective-quad' 四边形透视变形（自由四点控制）
  */
-export type ZoneShape = 'rect' | 'cylinder-outer' | 'cylinder-inner' | 'ellipse' | 'perspective-quad';
+export type ZoneShape = 'rect' | 'cylinder-outer' | 'cylinder-inner' | 'ellipse' | 'circle' | 'perspective-quad';
 
 export interface ZoneShapeParams {
   /** 圆柱弯曲度 0~1，0=平面，0.5=半圆柱，默认 0.35 */

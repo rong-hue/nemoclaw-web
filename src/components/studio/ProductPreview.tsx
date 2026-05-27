@@ -314,26 +314,51 @@ export default function ProductPreview({
       const shortSide = Math.min(zw, zh);
       const cornerRatio = zone.cornerRatio ?? 0.15;
       const cornerLen = shortSide * cornerRatio;
+      const isEllipse = zone.shape === 'ellipse' || zone.shape === 'circle';
 
       const isSelected = selectedZone?.id === zone.id;
       const isHovered = hoveredZone?.id === zone.id;
 
-      if (isSelected) {
-        // 选中：金色角标 + 极淡虚线边框
+      if (isEllipse) {
+        // 椭圆/圆形 zone：画椭圆轮廓
+        const cx = zx + zw / 2;
+        const cy = zy + zh / 2;
+        const rx = zw / 2;
+        const ry = zone.shape === 'circle' ? rx : zh / 2;
         ctx.save();
-        ctx.strokeStyle = 'rgba(201,168,76,0.3)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.strokeRect(zx, zy, zw, zh);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        if (isSelected) {
+          ctx.strokeStyle = '#C9A84C';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
+        } else if (isHovered) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+        }
+        ctx.stroke();
         ctx.restore();
-        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, '#C9A84C', 2.5);
-      } else if (isHovered) {
-        // Hover：白色角标 + 中心十字准星
-        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.85)', 2);
-        drawCrosshair(ctx, zx + zw / 2, zy + zh / 2, shortSide * 0.08, 'rgba(255,255,255,0.6)');
       } else {
-        // 默认：淡白色角标
-        drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.4)', 1.5);
+        // 矩形 zone：角标
+        if (isSelected) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(201,168,76,0.3)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.strokeRect(zx, zy, zw, zh);
+          ctx.restore();
+          drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, '#C9A84C', 2.5);
+        } else if (isHovered) {
+          drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.85)', 2);
+          drawCrosshair(ctx, zx + zw / 2, zy + zh / 2, shortSide * 0.08, 'rgba(255,255,255,0.6)');
+        } else {
+          drawCornerBrackets(ctx, zx, zy, zw, zh, cornerLen, 'rgba(255,255,255,0.4)', 1.5);
+        }
       }
 
       // Label 文字（放在 zone 上方，不覆盖商品）
@@ -511,6 +536,16 @@ export default function ProductPreview({
         const zy = zone.y * canvasSize.height;
         const zw = zone.width * canvasSize.width;
         const zh = zone.height * canvasSize.height;
+        if (zone.shape === 'ellipse' || zone.shape === 'circle') {
+          // 椭圆碰撞检测：(dx/rx)² + (dy/ry)² <= 1
+          const cx = zx + zw / 2;
+          const cy = zy + zh / 2;
+          const rx = zw / 2;
+          const ry = zone.shape === 'circle' ? rx : zh / 2;
+          const dx = (x - cx) / rx;
+          const dy = (y - cy) / ry;
+          return dx * dx + dy * dy <= 1;
+        }
         return x >= zx && x <= zx + zw && y >= zy && y <= zy + zh;
       }) ?? null
     );
