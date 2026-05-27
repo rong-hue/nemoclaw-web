@@ -75,19 +75,19 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
       {
         id: 'chest',
         label: { zh: '心脏位', en: 'Heart' },
-        meaning: { zh: '情感与勇气的所在，最贴近内心的位置', en: 'Closest to the heart — courage and emotion' },
+        meaning: { zh: '情感与勇气的所在，最贴近内心的位置，图腾守护你最柔软的地方', en: 'Closest to the heart — where courage and emotion live' },
         x: 0.38, y: 0.28, width: 0.24, height: 0.24,
       },
       {
         id: 'shoulder',
         label: { zh: '肩膀位', en: 'Shoulder' },
-        meaning: { zh: '承担责任与力量的象征', en: 'Symbol of strength and responsibility' },
+        meaning: { zh: '承担责任与力量的象征，图腾为你分担前行的重量', en: 'Symbol of strength — your totem shares the weight you carry' },
         x: 0.62, y: 0.18, width: 0.18, height: 0.18,
       },
       {
         id: 'back',
         label: { zh: '背部中央', en: 'Back Center' },
-        meaning: { zh: '守护与庇佑，护身符最有力的位置', en: 'Protection and guardianship — the most powerful placement' },
+        meaning: { zh: '守护与庇佑，护身符最有力的位置，无形中护你周全', en: 'The most powerful placement — unseen protection at your back' },
         x: 0.30, y: 0.25, width: 0.40, height: 0.40,
       },
     ],
@@ -98,28 +98,38 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     mockupBase: '/mockups/mug.png',
     zones: [
       {
-        // 外壁正面：杯身可印刷区域（透明背景方案，不需要圆柱变形）
-        // 杯身实测: x=0.344~0.816, y=0.440~0.894（1024x1024 图）
+        // 外壁正面：杯身正面矩形可印刷区域
         // 可印刷区域（排除把手）: 把手左边界实测 x=0.680，clipX2 设为 0.670
         id: 'outer-front',
         label: { zh: '外壁正面', en: 'Outer Front' },
-        meaning: { zh: '每次饮茶时与图腾相遇，日常仪式感', en: 'Meet your totem with every sip — daily ritual' },
+        meaning: { zh: '每次饮茶时与图腾相遇，将仪式感融入日常，一杯一念', en: 'Meet your totem with every sip — ritual woven into the everyday' },
         x: 0.390, y: 0.460, width: 0.280, height: 0.400,
         cornerRatio: 0.10,
         shape: 'rect',
         shapeParams: { fillRatio: 0.85 },
-        clipX2: 0.670,  // 把手左边界实测 x=0.680，留 1% 安全边距
+        clipX2: 0.670,
       },
       {
-        // 外壁环绕：杯身全宽
+        // 外壁环绕：杯身全宽矩形
         id: 'outer-wrap',
         label: { zh: '外壁环绕', en: 'Full Wrap' },
-        meaning: { zh: '360° 环绕印刷，图腾守护四方', en: '360° wrap — your totem guards every angle' },
+        meaning: { zh: '360° 环绕印刷，图腾守护四方，无论从哪个角度都与你同在', en: '360° wrap — your totem guards every angle, always present' },
         x: 0.344, y: 0.460, width: 0.326, height: 0.400,
         cornerRatio: 0.08,
         shape: 'rect',
         shapeParams: { fillRatio: 0.88 },
-        clipX2: 0.670,  // 把手左边界实测 x=0.680，留 1% 安全边距
+        clipX2: 0.670,
+      },
+      {
+        // 圆形印章：杯身正面圆形图腾，与外壁正面位置重叠，用户可选矩形或圆形
+        id: 'outer-circle',
+        label: { zh: '圆形印章', en: 'Circle Seal' },
+        meaning: { zh: '以圆为印，图腾如印章烙于杯身，圆满无缺，一印定乾坤', en: 'A circular seal — your totem stamped in wholeness, complete and enduring' },
+        x: 0.420, y: 0.500, width: 0.220, height: 0.220,
+        cornerRatio: 0.12,
+        shape: 'ellipse',
+        shapeParams: { fillRatio: 0.90 },
+        clipX2: 0.670,
       },
     ],
   },
@@ -130,15 +140,15 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     zones: [
       {
         id: 'center',
-        label: { zh: '中央', en: 'Center' },
-        meaning: { zh: '随身携带的护身符，时刻守护', en: 'A talisman you carry everywhere' },
+        label: { zh: '背面中央', en: 'Back Center' },
+        meaning: { zh: '随身携带的护身符，时刻守护，图腾与你形影不离', en: 'A talisman you carry everywhere — your totem never leaves your side' },
         x: 0.20, y: 0.25, width: 0.60, height: 0.50,
         cornerRatio: 0.12,
       },
       {
         id: 'top',
         label: { zh: '顶部', en: 'Top' },
-        meaning: { zh: '引领方向，智慧与远见', en: 'Guidance and foresight' },
+        meaning: { zh: '引领方向，智慧与远见，图腾在高处为你指路', en: 'Guidance from above — wisdom and foresight leading the way' },
         x: 0.30, y: 0.10, width: 0.40, height: 0.25,
       },
     ],
@@ -151,7 +161,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
       {
         id: 'center',
         label: { zh: '正面中央', en: 'Front Center' },
-        meaning: { zh: '展示于世，传递你的文化态度', en: 'Show the world your cultural identity' },
+        meaning: { zh: '展示于世，传递你的文化态度，每一次出行都是一次宣言', en: 'Show the world your cultural identity — every journey is a statement' },
         x: 0.25, y: 0.20, width: 0.50, height: 0.55,
         cornerRatio: 0.12,
       },
@@ -166,7 +176,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
       {
         id: 'circle',
         label: { zh: '圆形区域', en: 'Circle' },
-        meaning: { zh: '圆满与循环，东方宇宙观的核心', en: 'Wholeness and cycle — the Eastern cosmos' },
+        meaning: { zh: '圆满与循环，东方宇宙观的核心，图腾在圆中生生不息', en: 'Wholeness and cycle — the Eastern cosmos, endlessly renewed' },
         x: 0.15, y: 0.15, width: 0.70, height: 0.70,
       },
     ],
