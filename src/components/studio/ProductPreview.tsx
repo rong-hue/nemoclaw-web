@@ -43,6 +43,7 @@ export default function ProductPreview({
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
   // ─── 自定义 zone 状态 ────────────────────────────────────────────────────────
+  const [useCustomZone, setUseCustomZone] = useState(false); // 复选框：是否启用自定义
   const [drawMode, setDrawMode] = useState(false);
   const [shapeType, setShapeType] = useState<ShapeType>('rect');
   const [customZone, setCustomZone] = useState<CustomZone | null>(null);
@@ -59,6 +60,7 @@ export default function ProductPreview({
     setCustomZone(null);
     setCustomLabel('');
     setDrawMode(false);
+    setUseCustomZone(false);
   }, [productType]);
 
   // ─── 辅助：画角标（L 形标记线）─────────────────────────────────────────────
@@ -580,41 +582,75 @@ export default function ProductPreview({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* 自定义 zone 工具栏 */}
-      <div className="flex items-center gap-2 w-full max-w-sm">
-        {/* 形状选择 */}
-        {(['rect', 'circle', 'ellipse'] as ShapeType[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => setShapeType(s)}
-            className={`px-2 py-1 rounded text-xs border transition-all ${
-              shapeType === s
-                ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
-                : 'border-white/20 text-white/50 hover:border-white/40'
-            }`}
-          >
-            {s === 'rect' ? '矩形' : s === 'circle' ? '圆形' : '渽圆'}
-          </button>
-        ))}
-        {/* 绘制按鈕 */}
-        <button
-          onClick={() => { setDrawMode(!drawMode); setCustomZone(null); }}
-          className={`ml-auto px-3 py-1 rounded text-xs border transition-all ${
-            drawMode
-              ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
-              : 'border-white/20 text-white/50 hover:border-white/40'
-          }`}
-        >
-          {drawMode ? '取消绘制' : '自定义位置'}
-        </button>
-        {/* 清除自定义 zone */}
-        {customZone && !drawMode && (
-          <button
-            onClick={() => { setCustomZone(null); setCustomLabel(''); }}
-            className="px-2 py-1 rounded text-xs border border-white/20 text-white/50 hover:border-red-400/60 hover:text-red-400 transition-all"
-          >
-            清除
-          </button>
+      {/* 自定义 zone 入口：复选框 */}
+      <div className="w-full max-w-sm">
+        <label className="flex items-center gap-2 cursor-pointer select-none group">
+          <input
+            type="checkbox"
+            checked={useCustomZone}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setUseCustomZone(checked);
+              if (!checked) {
+                // 取消勾选时清空自定义状态
+                setCustomZone(null);
+                setCustomLabel('');
+                setDrawMode(false);
+              }
+            }}
+            className="w-3.5 h-3.5 accent-[#C9A84C] cursor-pointer"
+          />
+          <span className="text-white/60 text-xs group-hover:text-white/80 transition-colors">
+            {locale === 'zh'
+              ? '对位置有自己的想法？使用自定义区域'
+              : 'Have your own idea? Use a custom zone'}
+          </span>
+        </label>
+
+        {/* 展开的自定义工具栏（仅勾选后显示）*/}
+        {useCustomZone && (
+          <div className="flex items-center gap-2 mt-2">
+            {/* 形状选择 */}
+            {(['rect', 'circle', 'ellipse'] as ShapeType[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => setShapeType(s)}
+                className={`px-2 py-1 rounded text-xs border transition-all ${
+                  shapeType === s
+                    ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
+                    : 'border-white/20 text-white/50 hover:border-white/40'
+                }`}
+              >
+                {s === 'rect'
+                  ? (locale === 'zh' ? '矩形' : 'Rect')
+                  : s === 'circle'
+                  ? (locale === 'zh' ? '圆形' : 'Circle')
+                  : (locale === 'zh' ? '椭圆' : 'Ellipse')}
+              </button>
+            ))}
+            {/* 绘制按钮 */}
+            <button
+              onClick={() => { setDrawMode(!drawMode); setCustomZone(null); }}
+              className={`ml-auto px-3 py-1 rounded text-xs border transition-all ${
+                drawMode
+                  ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
+                  : 'border-white/20 text-white/50 hover:border-white/40'
+              }`}
+            >
+              {drawMode
+                ? (locale === 'zh' ? '取消绘制' : 'Cancel')
+                : (locale === 'zh' ? '开始绘制' : 'Draw Zone')}
+            </button>
+            {/* 清除自定义 zone */}
+            {customZone && !drawMode && (
+              <button
+                onClick={() => { setCustomZone(null); setCustomLabel(''); }}
+                className="px-2 py-1 rounded text-xs border border-white/20 text-white/50 hover:border-red-400/60 hover:text-red-400 transition-all"
+              >
+                {locale === 'zh' ? '清除' : 'Clear'}
+              </button>
+            )}
+          </div>
         )}
       </div>
 
