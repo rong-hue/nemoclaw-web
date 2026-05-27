@@ -139,17 +139,61 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     mockupBase: '/mockups/phonecase.png',
     zones: [
       {
-        id: 'center',
-        label: { zh: '背面中央', en: 'Back Center' },
-        meaning: { zh: '随身携带的护身符，时刻守护，图腾与你形影不离', en: 'A talisman you carry everywhere — your totem never leaves your side' },
-        x: 0.20, y: 0.25, width: 0.60, height: 0.50,
-        cornerRatio: 0.12,
-      },
-      {
+        // 顶部：透视四边形，左高右低（与商品视角一致）
+        // v11 确认坐标：tl=(0.290,0.253) tr=(0.563,0.248) bl=(0.290,0.338) br=(0.563,0.323)
         id: 'top',
         label: { zh: '顶部', en: 'Top' },
         meaning: { zh: '引领方向，智慧与远见，图腾在高处为你指路', en: 'Guidance from above — wisdom and foresight leading the way' },
-        x: 0.30, y: 0.10, width: 0.40, height: 0.25,
+        x: 0.290, y: 0.248, width: 0.273, height: 0.090,
+        shape: 'perspective-quad',
+        quad: {
+          tl: [0.290, 0.253],
+          tr: [0.563, 0.248],
+          bl: [0.290, 0.338],
+          br: [0.563, 0.323],
+        },
+        cornerRatio: 0.12,
+      },
+      {
+        // 背面中央：透视四边形，左低右高，中心与圆形印章对齐
+        // v11 确认坐标：tl=(0.289,0.485) tr=(0.562,0.436) bl=(0.289,0.755) br=(0.562,0.706)
+        id: 'center',
+        label: { zh: '背面中央', en: 'Back Center' },
+        meaning: { zh: '随身携带的护身符，时刻守护，图腾与你形影不离', en: 'A talisman you carry everywhere — your totem never leaves your side' },
+        x: 0.289, y: 0.436, width: 0.273, height: 0.319,
+        shape: 'perspective-quad',
+        quad: {
+          tl: [0.289, 0.485],
+          tr: [0.562, 0.436],
+          bl: [0.289, 0.755],
+          br: [0.562, 0.706],
+        },
+        cornerRatio: 0.10,
+      },
+      {
+        // 底部：透视四边形，左低右高，底边贴合手机壳底边沿
+        // v8 确认坐标：tl=(0.290,0.770) tr=(0.563,0.721) bl=(0.290,0.855) br=(0.563,0.806)
+        id: 'bottom',
+        label: { zh: '底部', en: 'Bottom' },
+        meaning: { zh: '根基稳固，图腾守护你的来路，脚踏实地方能行远', en: 'Grounded and steady — your totem anchors every step forward' },
+        x: 0.290, y: 0.721, width: 0.273, height: 0.134,
+        shape: 'perspective-quad',
+        quad: {
+          tl: [0.290, 0.770],
+          tr: [0.563, 0.721],
+          bl: [0.290, 0.855],
+          br: [0.563, 0.806],
+        },
+        cornerRatio: 0.12,
+      },
+      {
+        // 圆形印章：叠在背面中央，圆形图腾
+        id: 'circle-seal',
+        label: { zh: '圆形印章', en: 'Circle Seal' },
+        meaning: { zh: '以圆为印，图腾如印章烙于壳背，圆满无缺，随身一印', en: 'A circular seal — your totem stamped in wholeness, carried always' },
+        x: 0.310, y: 0.415, width: 0.230, height: 0.230,
+        shape: 'ellipse',
+        cornerRatio: 0.12,
       },
     ],
   },
