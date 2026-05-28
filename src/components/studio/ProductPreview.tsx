@@ -143,6 +143,78 @@ export default function ProductPreview({
     });
   }
 
+  // ─── 辅助：perspective-quad 变形贴图 ────────────────────────────────────────
+  // 用逐行扫描（scanline）模拟透视四边形变形。
+  // quad 四个顶点为绝对像素坐标：tl/tr/bl/br
+  function drawPerspectiveQuad(
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement,
+    tl: [number, number],
+    tr: [number, number],
+    bl: [number, number],
+    br: [number, number],
+    alpha: number = 0.92,
+  ) {
+    const STEPS = 80; // 扫描线数量，越多越精确
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    for (let i = 0; i < STEPS; i++) {
+      const t0 = i / STEPS;
+      const t1 = (i + 1) / STEPS;
+
+      // 左边插值
+      const lx0 = tl[0] + (bl[0] - tl[0]) * t0;
+      const ly0 = tl[1] + (bl[1] - tl[1]) * t0;
+      const lx1 = tl[0] + (bl[0] - tl[0]) * t1;
+      const ly1 = tl[1] + (bl[1] - tl[1]) * t1;
+
+      // 右边插值
+      const rx0 = tr[0] + (br[0] - tr[0]) * t0;
+      const ry0 = tr[1] + (br[1] - tr[1]) * t0;
+      const rx1 = tr[0] + (br[0] - tr[0]) * t1;
+      const ry1 = tr[1] + (br[1] - tr[1]) * t1;
+
+      // 源图对应的 y 范围（0~img.height）
+      const sy0 = t0 * img.height;
+      const sy1 = t1 * img.height;
+      const sh = sy1 - sy0;
+
+      // 目标四边形宽度（取上下边平均）
+      const dw0 = rx0 - lx0;
+      const dw1 = rx1 - lx1;
+      const dw = Math.max(dw0, dw1, 1);
+
+      // 用仿射变换把这一条 strip 贴到目标位置
+      // 源：(0, sy0, img.width, sh) → 目标：梯形 (lx0,ly0)-(rx0,ry0)-(rx1,ry1)-(lx1,ly1)
+      // 用上边中点做仿射近似（scanline 足够细时误差可忽略）
+      const scaleX = dw / img.width;
+      const skewY = (ly0 - ry0) / img.width; // 水平方向的 y 倾斜
+      const skewX = (lx1 - lx0) / sh;        // 垂直方向的 x 倾斜（近似 0）
+      const scaleY = (ly1 - ly0) / sh;        // 垂直缩放
+
+      ctx.save();
+      ctx.setTransform(
+        scaleX,          // a: x 方向缩放
+        skewY,           // b: x 方向倾斜
+        skewX,           // c: y 方向倾斜
+        scaleY,          // d: y 方向缩放
+        lx0,             // e: x 平移
+        ly0,             // f: y 平移
+      );
+      ctx.drawImage(
+        img,
+        0, sy0,          // 源起点
+        img.width, sh,   // 源尺寸
+        0, 0,            // 目标起点（已通过 transform 定位）
+        img.width, sh,   // 目标尺寸（transform 会缩放）
+      );
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
+
   // ─── 辅助：clip 路径（customZone 形状）─────────────────────────────────────
   function applyCustomZoneClip(
     ctx: CanvasRenderingContext2D,
@@ -270,26 +342,51 @@ export default function ProductPreview({
           const zw = selectedZone.width * width;
           const zh = selectedZone.height * height;
 
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(zx, zy, zw, zh);
-          ctx.clip();
-
-          // 保持比例居中
-          const imgAspect = designImg.width / designImg.height;
-          const zoneAspect = zw / zh;
-          let drawW = zw, drawH = zh;
-          if (imgAspect > zoneAspect) {
-            drawH = zw / imgAspect;
+          if (selectedZone.shape === 'perspective-quad' && selectedZone.quad) {
+            // 透视四边形变形贴图
+            const q = selectedZone.quad;
+            drawPerspectiveQuad(
+              ctx,
+              designImg,
+              [q.tl[0] * width, q.tl[1] * height],
+              [q.tr[0] * width, q.tr[1] * height],
+              [q.bl[0] * width, q.bl[1] * height],
+              [q.br[0] * width, q.br[1] * height],
+              0.92,
+            );
           } else {
-            drawW = zh * imgAspect;
-          }
-          const drawX = zx + (zw - drawW) / 2;
-          const drawY = zy + (zh - drawH) / 2;
+            ctx.save();
+            ctx.beginPath();
+            if (selectedZone.shape === 'ellipse' || selectedZone.shape === 'circle') {
+              const cx = zx + zw / 2;
+              const cy = zy + zh / 2;
+              const rx = zw / 2;
+              const ry = selectedZone.shape === 'circle' ? rx : zh / 2;
+              ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+            } else {
+              const clipRight = selectedZone.clipX2 !== undefined
+                ? selectedZone.clipX2 * width
+                : zx + zw;
+              ctx.rect(zx, zy, clipRight - zx, zh);
+            }
+            ctx.clip();
 
-          ctx.globalAlpha = 0.92;
-          ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
-          ctx.restore();
+            // 保持比例居中
+            const imgAspect = designImg.width / designImg.height;
+            const zoneAspect = zw / zh;
+            let drawW = zw, drawH = zh;
+            if (imgAspect > zoneAspect) {
+              drawH = zw / imgAspect;
+            } else {
+              drawW = zh * imgAspect;
+            }
+            const drawX = zx + (zw - drawW) / 2;
+            const drawY = zy + (zh - drawH) / 2;
+
+            ctx.globalAlpha = 0.92;
+            ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+            ctx.restore();
+          }
           afterDesign();
         };
         designImg.onerror = afterDesign;
@@ -410,25 +507,75 @@ export default function ProductPreview({
             ctx.beginPath();
             if (customZone) {
               applyCustomZoneClip(ctx, customZone, width, height);
-            } else {
-              ctx.rect(zx, zy, zw, zh);
-            }
-            ctx.clip();
+              ctx.clip();
 
-            const imgAspect = designImg.width / designImg.height;
-            const zoneAspect = zw / zh;
-            let drawW = zw, drawH = zh;
-            if (imgAspect > zoneAspect) {
-              drawH = zw / imgAspect;
-            } else {
-              drawW = zh * imgAspect;
-            }
-            const drawX = zx + (zw - drawW) / 2;
-            const drawY = zy + (zh - drawH) / 2;
+              const imgAspect = designImg.width / designImg.height;
+              const zoneAspect = zw / zh;
+              let drawW = zw, drawH = zh;
+              if (imgAspect > zoneAspect) {
+                drawH = zw / imgAspect;
+              } else {
+                drawW = zh * imgAspect;
+              }
+              const drawX = zx + (zw - drawW) / 2;
+              const drawY = zy + (zh - drawH) / 2;
+              ctx.globalAlpha = 0.92;
+              ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+              ctx.restore();
+            } else if (selectedZone!.shape === 'perspective-quad' && selectedZone!.quad) {
+              ctx.restore(); // 先恢复 save，drawPerspectiveQuad 自己管理 save/restore
+              const q = selectedZone!.quad;
+              drawPerspectiveQuad(
+                ctx,
+                designImg,
+                [q.tl[0] * width, q.tl[1] * height],
+                [q.tr[0] * width, q.tr[1] * height],
+                [q.bl[0] * width, q.bl[1] * height],
+                [q.br[0] * width, q.br[1] * height],
+                0.92,
+              );
+            } else if (selectedZone!.shape === 'ellipse' || selectedZone!.shape === 'circle') {
+              const cx = zx + zw / 2;
+              const cy = zy + zh / 2;
+              const rx = zw / 2;
+              const ry = selectedZone!.shape === 'circle' ? rx : zh / 2;
+              ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+              ctx.clip();
 
-            ctx.globalAlpha = 0.92;
-            ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
-            ctx.restore();
+              const imgAspect = designImg.width / designImg.height;
+              const zoneAspect = zw / zh;
+              let drawW = zw, drawH = zh;
+              if (imgAspect > zoneAspect) {
+                drawH = zw / imgAspect;
+              } else {
+                drawW = zh * imgAspect;
+              }
+              const drawX = zx + (zw - drawW) / 2;
+              const drawY = zy + (zh - drawH) / 2;
+              ctx.globalAlpha = 0.92;
+              ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+              ctx.restore();
+            } else {
+              const clipRight = selectedZone!.clipX2 !== undefined
+                ? selectedZone!.clipX2 * width
+                : zx + zw;
+              ctx.rect(zx, zy, clipRight - zx, zh);
+              ctx.clip();
+
+              const imgAspect = designImg.width / designImg.height;
+              const zoneAspect = zw / zh;
+              let drawW = zw, drawH = zh;
+              if (imgAspect > zoneAspect) {
+                drawH = zw / imgAspect;
+              } else {
+                drawW = zh * imgAspect;
+              }
+              const drawX = zx + (zw - drawW) / 2;
+              const drawY = zy + (zh - drawH) / 2;
+              ctx.globalAlpha = 0.92;
+              ctx.drawImage(designImg, drawX, drawY, drawW, drawH);
+              ctx.restore();
+            }
           } catch {
             // 设计图加载失败，跳过
           }
