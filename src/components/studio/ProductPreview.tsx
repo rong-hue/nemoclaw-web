@@ -155,7 +155,7 @@ export default function ProductPreview({
     br: [number, number],
     alpha: number = 0.92,
   ) {
-    const STEPS = 80; // 扫描线数量，越多越精确
+    const STEPS = 100; // 扫描线数量，越多越精确
     ctx.save();
     ctx.globalAlpha = alpha;
 
@@ -163,13 +163,13 @@ export default function ProductPreview({
       const t0 = i / STEPS;
       const t1 = (i + 1) / STEPS;
 
-      // 左边插值
+      // 左边插值（tl→bl）
       const lx0 = tl[0] + (bl[0] - tl[0]) * t0;
       const ly0 = tl[1] + (bl[1] - tl[1]) * t0;
       const lx1 = tl[0] + (bl[0] - tl[0]) * t1;
       const ly1 = tl[1] + (bl[1] - tl[1]) * t1;
 
-      // 右边插值
+      // 右边插值（tr→br）
       const rx0 = tr[0] + (br[0] - tr[0]) * t0;
       const ry0 = tr[1] + (br[1] - tr[1]) * t0;
       const rx1 = tr[0] + (br[0] - tr[0]) * t1;
@@ -179,35 +179,38 @@ export default function ProductPreview({
       const sy0 = t0 * img.height;
       const sy1 = t1 * img.height;
       const sh = sy1 - sy0;
+      if (sh <= 0) continue;
 
-      // 目标四边形宽度（取上下边平均）
-      const dw0 = rx0 - lx0;
-      const dw1 = rx1 - lx1;
-      const dw = Math.max(dw0, dw1, 1);
+      // 目标这一条 strip 的宽度（取上边）
+      const dw = Math.max(rx0 - lx0, 1);
+      // 目标这一条 strip 的高度（取左边）
+      const dh = Math.max(
+        Math.sqrt((lx1 - lx0) ** 2 + (ly1 - ly0) ** 2),
+        1,
+      );
 
-      // 用仿射变换把这一条 strip 贴到目标位置
-      // 源：(0, sy0, img.width, sh) → 目标：梯形 (lx0,ly0)-(rx0,ry0)-(rx1,ry1)-(lx1,ly1)
-      // 用上边中点做仿射近似（scanline 足够细时误差可忽略）
-      const scaleX = dw / img.width;
-      const skewY = (ly0 - ry0) / img.width; // 水平方向的 y 倾斜
-      const skewX = (lx1 - lx0) / sh;        // 垂直方向的 x 倾斜（近似 0）
-      const scaleY = (ly1 - ly0) / sh;        // 垂直缩放
+      // 仿射变换矩阵：把源 strip (img.width × sh) 映射到目标梯形
+      // 目标左上角 (lx0, ly0)，x 轴方向 = (rx0-lx0, ry0-ly0)，y 轴方向 = (lx1-lx0, ly1-ly0)
+      const ax = (rx0 - lx0) / img.width;  // x 轴 x 分量（每像素）
+      const bx = (ry0 - ly0) / img.width;  // x 轴 y 分量（倾斜）
+      const ay = (lx1 - lx0) / sh;         // y 轴 x 分量（倾斜）
+      const by = (ly1 - ly0) / sh;         // y 轴 y 分量（每像素）
 
       ctx.save();
       ctx.setTransform(
-        scaleX,          // a: x 方向缩放
-        skewY,           // b: x 方向倾斜
-        skewX,           // c: y 方向倾斜
-        scaleY,          // d: y 方向缩放
-        lx0,             // e: x 平移
-        ly0,             // f: y 平移
+        ax,   // a
+        bx,   // b
+        ay,   // c
+        by,   // d
+        lx0,  // e: 平移到目标左上角 x
+        ly0,  // f: 平移到目标左上角 y
       );
       ctx.drawImage(
         img,
-        0, sy0,          // 源起点
-        img.width, sh,   // 源尺寸
-        0, 0,            // 目标起点（已通过 transform 定位）
-        img.width, sh,   // 目标尺寸（transform 会缩放）
+        0, sy0,        // 源起点
+        img.width, sh, // 源尺寸
+        0, 0,          // 目标起点（transform 已定位）
+        img.width, sh, // 目标尺寸（transform 会缩放）
       );
       ctx.restore();
     }
