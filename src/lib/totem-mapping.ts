@@ -138,22 +138,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     label: { zh: '手机壳', en: 'Phone Case' },
     mockupBase: '/mockups/phonecase.png',
     zones: [
-      {
-        // 顶部：透视四边形，上边框平行顶边沿（斜率-0.005），下边框平行底边沿（斜率-0.049）
-        // v12 坐标：tl=(0.290,0.253) tr=(0.563,0.248) bl=(0.290,0.338) br=(0.563,0.289)
-        id: 'top',
-        label: { zh: '顶部', en: 'Top' },
-        meaning: { zh: '引领方向，智慧与远见，图腾在高处为你指路', en: 'Guidance from above — wisdom and foresight leading the way' },
-        x: 0.290, y: 0.248, width: 0.273, height: 0.090,
-        shape: 'perspective-quad',
-        quad: {
-          tl: [0.290, 0.253],
-          tr: [0.563, 0.248],
-          bl: [0.290, 0.338],
-          br: [0.563, 0.289],
-        },
-        cornerRatio: 0.12,
-      },
+
       {
         // 背面中央：透视四边形，上边框平行于手机壳顶边沿（斜率≈-0.005），下边框平行于底边沿（斜率≈-0.049）
         // v12 坐标：tl=(0.289,0.485) tr=(0.562,0.480) bl=(0.289,0.755) br=(0.562,0.706)
@@ -171,16 +156,16 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         cornerRatio: 0.10,
       },
       {
-        // 底部：透视四边形，上边框平行顶边沿（斜率-0.005），下边框平行底边沿（斜率-0.049）
-        // v12 坐标：tl=(0.290,0.770) tr=(0.563,0.765) bl=(0.290,0.855) br=(0.563,0.806)
+        // 底部：透视四边形，高度翻倍（向上扩展），上边框平行顶边沿（斜率-0.005），下边框平行底边沿（斜率-0.049）
+        // v13 坐标：tl=(0.290,0.685) tr=(0.563,0.680) bl=(0.290,0.855) br=(0.563,0.806)
         id: 'bottom',
         label: { zh: '底部', en: 'Bottom' },
         meaning: { zh: '根基稳固，图腾守护你的来路，脚踏实地方能行远', en: 'Grounded and steady — your totem anchors every step forward' },
-        x: 0.290, y: 0.765, width: 0.273, height: 0.090,
+        x: 0.290, y: 0.680, width: 0.273, height: 0.175,
         shape: 'perspective-quad',
         quad: {
-          tl: [0.290, 0.770],
-          tr: [0.563, 0.765],
+          tl: [0.290, 0.685],
+          tr: [0.563, 0.680],
           bl: [0.290, 0.855],
           br: [0.563, 0.806],
         },
