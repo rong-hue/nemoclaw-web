@@ -155,16 +155,16 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         cornerRatio: 0.12,
       },
       {
-        // 背面中央：透视四边形，左低右高，中心与圆形印章对齐
-        // v11 确认坐标：tl=(0.289,0.485) tr=(0.562,0.436) bl=(0.289,0.755) br=(0.562,0.706)
+        // 背面中央：透视四边形，上边框平行于手机壳顶边沿（斜率≈-0.005），下边框平行于底边沿（斜率≈-0.049）
+        // v12 坐标：tl=(0.289,0.485) tr=(0.562,0.480) bl=(0.289,0.755) br=(0.562,0.706)
         id: 'center',
         label: { zh: '背面中央', en: 'Back Center' },
         meaning: { zh: '随身携带的护身符，时刻守护，图腾与你形影不离', en: 'A talisman you carry everywhere — your totem never leaves your side' },
-        x: 0.289, y: 0.436, width: 0.273, height: 0.319,
+        x: 0.289, y: 0.480, width: 0.273, height: 0.275,
         shape: 'perspective-quad',
         quad: {
           tl: [0.289, 0.485],
-          tr: [0.562, 0.436],
+          tr: [0.562, 0.480],
           bl: [0.289, 0.755],
           br: [0.562, 0.706],
         },
