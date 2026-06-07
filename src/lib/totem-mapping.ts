@@ -52,6 +52,10 @@ export interface PlacementZone {
   topSag?: number;
   /** perspective-quad 下边弧度：中点向下偏移像素数（正向下弯），默认 0 */
   bottomSag?: number;
+  /** perspective-quad 左边弧度：中点向左偏移像素数（正向左凸），默认 0 */
+  leftSag?: number;
+  /** perspective-quad 右边弧度：中点向右偏移像素数（正向右凸），默认 0 */
+  rightSag?: number;
   /**
    * 可选：clip 区域的确切右边界（相对坐标 0-1）。
    * 用于排除把手等不可印刷区域，确保设计图不超出该边界。
@@ -132,15 +136,17 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         x: 0.330, y: 0.520, width: 0.370, height: 0.306,
         cornerRatio: 0.08,
         shape: 'perspective-quad',
-        topSag: 29,
-        bottomSag: 51,
+        topSag: 23,      // 上8°
+        bottomSag: 40,   // 下12°
+        leftSag: 16,     // 左6°
+        rightSag: 14,    // 右5°
         quad: {
           tl: [0.354, 0.524],
           tr: [0.670, 0.520],
           bl: [0.330, 0.826],
           br: [0.700, 0.826],
         },
-        clipX2: 0.710,
+        clipX2: 0.714,
       },
       {
         // 圆形印章：杯身正面圆形图腾，与外壁正面位置重叠，用户可选矩形或圆形
