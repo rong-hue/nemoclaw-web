@@ -398,6 +398,7 @@ export default function ProductPreview({
             ctx.beginPath();
             if (selectedZone.shape === 'ellipse' || selectedZone.shape === 'circle') {
               const cx = zx + zw / 2;
+              const cy = zy + zh / 2;
               const rx = zw / 2;
               const ry = selectedZone.shape === 'circle' ? rx : zh / 2;
               ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);

@@ -124,15 +124,23 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         clipX2: 0.670,
       },
       {
-        // 外壁环绕：杯身全宽矩形
+        // 外壁环绕：perspective-quad，四边贝塞尔弧线贴合杯身曲面
+        // 上10° 下15° 左6° 右5°
         id: 'outer-wrap',
         label: { zh: '外壁环绕', en: 'Full Wrap' },
         meaning: { zh: '360° 环绕印刷，图腾守护四方，无论从哪个角度都与你同在', en: '360° wrap — your totem guards every angle, always present' },
-        x: 0.344, y: 0.460, width: 0.326, height: 0.400,
+        x: 0.330, y: 0.520, width: 0.370, height: 0.306,
         cornerRatio: 0.08,
-        shape: 'rect',
-        shapeParams: { fillRatio: 0.88 },
-        clipX2: 0.670,
+        shape: 'perspective-quad',
+        topSag: 29,
+        bottomSag: 51,
+        quad: {
+          tl: [0.354, 0.524],
+          tr: [0.670, 0.520],
+          bl: [0.330, 0.826],
+          br: [0.700, 0.826],
+        },
+        clipX2: 0.710,
       },
       {
         // 圆形印章：杯身正面圆形图腾，与外壁正面位置重叠，用户可选矩形或圆形
