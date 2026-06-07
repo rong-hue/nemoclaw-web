@@ -160,21 +160,18 @@ export default function ProductPreview({
     ctx.save();
     ctx.globalAlpha = alpha;
 
-    // contain 模式：按梯形上边宽/高计算目标宽高比，对源图做居中裁剪，保持图腾原始比例
-    const quadW = Math.sqrt((tr[0]-tl[0])**2 + (tr[1]-tl[1])**2); // 上边宽度（像素）
-    const quadH = Math.sqrt((bl[0]-tl[0])**2 + (bl[1]-tl[1])**2); // 左边高度（像素）
+    // contain 模式：按梯形宽高比居中裁剪源图，避免图腾被拉伸
+    const quadW = Math.sqrt((tr[0]-tl[0])**2 + (tr[1]-tl[1])**2);
+    const quadH = Math.sqrt((bl[0]-tl[0])**2 + (bl[1]-tl[1])**2);
     const quadAspect = quadW / Math.max(quadH, 1);
     const imgAspect = img.width / img.height;
 
-    // 源图裁剪区域（contain：以梯形宽高比为准，居中裁剪源图）
     let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
     if (contain) {
       if (imgAspect > quadAspect) {
-        // 源图更宽，裁两侧
         srcW = Math.round(img.height * quadAspect);
         srcX = Math.round((img.width - srcW) / 2);
       } else {
-        // 源图更高，裁上下
         srcH = Math.round(img.width / quadAspect);
         srcY = Math.round((img.height - srcH) / 2);
       }
@@ -184,36 +181,36 @@ export default function ProductPreview({
       const t0 = i / STEPS;
       const t1 = (i + 1) / STEPS;
 
-      // 左边插值（tl→bl）
+      // 目标四边形：左右边插值
       const lx0 = tl[0] + (bl[0] - tl[0]) * t0;
       const ly0 = tl[1] + (bl[1] - tl[1]) * t0;
       const lx1 = tl[0] + (bl[0] - tl[0]) * t1;
       const ly1 = tl[1] + (bl[1] - tl[1]) * t1;
-
-      // 右边插值（tr→br）
       const rx0 = tr[0] + (br[0] - tr[0]) * t0;
       const ry0 = tr[1] + (br[1] - tr[1]) * t0;
+      const rx1 = tr[0] + (br[0] - tr[0]) * t1;
+      const ry1 = tr[1] + (br[1] - tr[1]) * t1;
 
-      // 源图对应的 y 范围（在裁剪区域内）
-      const srcSliceY0 = srcY + t0 * srcH;
-      const srcSliceY1 = srcY + t1 * srcH;
-      const srcSliceH = srcSliceY1 - srcSliceY0;
-      if (srcSliceH <= 0) continue;
+      // 源图切片（每条扫描线对应源图的一薄片）
+      const sy = srcY + t0 * srcH;   // 源切片 y 起点
+      const sh = srcH / STEPS;        // 源切片高度（固定）
 
-      // 仿射变换：把源 strip (srcW × srcSliceH) 映射到目标梯形
+      // 仿射变换矩阵：把源 strip (srcW × sh) 映射到目标梯形 strip
+      // x 轴方向（源图水平方向 → 目标 strip 上边方向）
       const ax = (rx0 - lx0) / srcW;
       const bx = (ry0 - ly0) / srcW;
-      const ay = (lx1 - lx0) / srcSliceH;
-      const by = (ly1 - ly0) / srcSliceH;
+      // y 轴方向（源图垂直方向 → 目标 strip 高度方向）
+      const ay = (lx1 - lx0) / sh;
+      const by = (ly1 - ly0) / sh;
 
       ctx.save();
       ctx.setTransform(ax, bx, ay, by, lx0, ly0);
       ctx.drawImage(
         img,
-        srcX, srcSliceY0,  // 源起点（含裁剪偏移）
-        srcW, srcSliceH,   // 源尺寸
+        srcX, sy,    // 源起点
+        srcW, sh,    // 源尺寸（切片）
         0, 0,
-        srcW, srcSliceH,   // 目标尺寸（transform 会自动缩放）
+        srcW, sh,
       );
       ctx.restore();
     }
