@@ -84,8 +84,9 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         id: 'shoulder',
         label: { zh: '肩膀位', en: 'Shoulder' },
         meaning: { zh: '承担责任与力量的象征，图腾为你分担前行的重量', en: 'Symbol of strength — your totem shares the weight you carry' },
-        x: 0.62, y: 0.18, width: 0.18, height: 0.18,
+        x: 0.57, y: 0.19, width: 0.20, height: 0.14,
         shape: 'ellipse',
+        contain: true,
       },
       {
         id: 'back',
