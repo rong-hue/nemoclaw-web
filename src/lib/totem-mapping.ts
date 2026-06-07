@@ -48,6 +48,10 @@ export interface PlacementZone {
   quad?: ZoneQuad;
   /** contain 模式：贴图时保持设计图原始比例（居中裁剪），避免拉伸变形，默认 false */
   contain?: boolean;
+  /** perspective-quad 上边弧度：中点向下偏移像素数（正向下弯），默认 0 */
+  topSag?: number;
+  /** perspective-quad 下边弧度：中点向下偏移像素数（正向下弯），默认 0 */
+  bottomSag?: number;
   /**
    * 可选：clip 区域的确切右边界（相对坐标 0-1）。
    * 用于排除把手等不可印刷区域，确保设计图不超出该边界。
@@ -102,15 +106,21 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     mockupBase: '/mockups/mug.png',
     zones: [
       {
-        // 外壁正面：杯身正面矩形可印刷区域
-        // 可印刷区域（排除把手）: 把手左边界实测 x=0.680，clipX2 设为 0.670
+        // 外壁正面：perspective-quad，上下边贴合杯身横纹弧度
         id: 'outer-front',
         label: { zh: '外壁正面', en: 'Outer Front' },
         meaning: { zh: '每次饮茶时与图腾相遇，将仪式感融入日常，一杯一念', en: 'Meet your totem with every sip — ritual woven into the everyday' },
-        x: 0.390, y: 0.460, width: 0.280, height: 0.400,
+        x: 0.390, y: 0.550, width: 0.230, height: 0.280,
         cornerRatio: 0.10,
-        shape: 'rect',
-        shapeParams: { fillRatio: 0.85 },
+        shape: 'perspective-quad',
+        topSag: 8,
+        bottomSag: 8,
+        quad: {
+          tl: [0.390, 0.552],
+          tr: [0.620, 0.550],
+          bl: [0.390, 0.825],
+          br: [0.620, 0.822],
+        },
         clipX2: 0.670,
       },
       {

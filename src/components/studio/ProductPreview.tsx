@@ -155,8 +155,13 @@ export default function ProductPreview({
     br: [number, number],
     alpha: number = 0.92,
     contain: boolean = false,
+    topSag: number = 0,    // 上边弧度：中点向下偏移像素数（正值向下弯）
+    bottomSag: number = 0, // 下边弧度：中点向下偏移像素数（正值向下弯）
   ) {
-    const STEPS = 100;
+    // 双向网格扫描：水平 H_STEPS × 垂直 V_STEPS 个小格，每格独立仿射变换
+    // 可精确表达上下边弯曲（topSag/bottomSag）
+    const V_STEPS = 60;  // 垂直方向格数
+    const H_STEPS = topSag !== 0 || bottomSag !== 0 ? 60 : 1; // 有弧度时水平也分格
     ctx.save();
     ctx.globalAlpha = alpha;
 
@@ -177,42 +182,70 @@ export default function ProductPreview({
       }
     }
 
-    for (let i = 0; i < STEPS; i++) {
-      const t0 = i / STEPS;
-      const t1 = (i + 1) / STEPS;
+    for (let i = 0; i < V_STEPS; i++) {
+      const tv0 = i / V_STEPS;
+      const tv1 = (i + 1) / V_STEPS;
 
-      // 目标四边形：左右边插值
-      const lx0 = tl[0] + (bl[0] - tl[0]) * t0;
-      const ly0 = tl[1] + (bl[1] - tl[1]) * t0;
-      const lx1 = tl[0] + (bl[0] - tl[0]) * t1;
-      const ly1 = tl[1] + (bl[1] - tl[1]) * t1;
-      const rx0 = tr[0] + (br[0] - tr[0]) * t0;
-      const ry0 = tr[1] + (br[1] - tr[1]) * t0;
-      const rx1 = tr[0] + (br[0] - tr[0]) * t1;
-      const ry1 = tr[1] + (br[1] - tr[1]) * t1;
+      for (let j = 0; j < H_STEPS; j++) {
+        const th0 = j / H_STEPS;
+        const th1 = (j + 1) / H_STEPS;
 
-      // 源图切片（每条扫描线对应源图的一薄片）
-      const sy = srcY + t0 * srcH;   // 源切片 y 起点
-      const sh = srcH / STEPS;        // 源切片高度（固定）
+        // 二次贝塞尔差唃：水平方向弧度（topSag/bottomSag）
+        // 在垂直方向，弧度由上边向下边线性减少
+        function bezierH(
+          leftPt: [number, number], rightPt: [number, number],
+          sag: number, t: number
+        ): [number, number] {
+          const cx = (leftPt[0] + rightPt[0]) / 2;
+          const cy = (leftPt[1] + rightPt[1]) / 2 + sag;
+          const x = (1-t)*(1-t)*leftPt[0] + 2*(1-t)*t*cx + t*t*rightPt[0];
+          const y = (1-t)*(1-t)*leftPt[1] + 2*(1-t)*t*cy + t*t*rightPt[1];
+          return [x, y];
+        }
 
-      // 仿射变换矩阵：把源 strip (srcW × sh) 映射到目标梯形 strip
-      // x 轴方向（源图水平方向 → 目标 strip 上边方向）
-      const ax = (rx0 - lx0) / srcW;
-      const bx = (ry0 - ly0) / srcW;
-      // y 轴方向（源图垂直方向 → 目标 strip 高度方向）
-      const ay = (lx1 - lx0) / sh;
-      const by = (ly1 - ly0) / sh;
+        // 在垂直进度 tv 处，左右两边的端点（线性插値）
+        const leftAt  = (tv: number): [number, number] => [
+          tl[0] + (bl[0] - tl[0]) * tv,
+          tl[1] + (bl[1] - tl[1]) * tv,
+        ];
+        const rightAt = (tv: number): [number, number] => [
+          tr[0] + (br[0] - tr[0]) * tv,
+          tr[1] + (br[1] - tr[1]) * tv,
+        ];
 
-      ctx.save();
-      ctx.setTransform(ax, bx, ay, by, lx0, ly0);
-      ctx.drawImage(
-        img,
-        srcX, sy,    // 源起点
-        srcW, sh,    // 源尺寸（切片）
-        0, 0,
-        srcW, sh,
-      );
-      ctx.restore();
+        // 弧度在垂直方向的权重：上边弧度在 tv=0 时最大，tv=1 时为 0
+        const topSagAtV    = topSag    * (1 - tv0);
+        const topSagAtV1   = topSag    * (1 - tv1);
+        const botSagAtV    = bottomSag * tv0;
+        const botSagAtV1   = bottomSag * tv1;
+        const sagAtV0 = topSagAtV  + botSagAtV;   // 当前 strip 上边弧度
+        const sagAtV1 = topSagAtV1 + botSagAtV1;  // 当前 strip 下边弧度
+
+        // 当前小格的四个角（目标坐标）
+        const L0 = leftAt(tv0),  R0 = rightAt(tv0);
+        const L1 = leftAt(tv1),  R1 = rightAt(tv1);
+        const p00 = bezierH(L0, R0, sagAtV0, th0); // 左上
+        const p10 = bezierH(L0, R0, sagAtV0, th1); // 右上
+        const p01 = bezierH(L1, R1, sagAtV1, th0); // 左下
+        const p11 = bezierH(L1, R1, sagAtV1, th1); // 右下
+
+        // 源图小格
+        const sx = srcX + th0 * srcW;
+        const sy = srcY + tv0 * srcH;
+        const sw = srcW / H_STEPS;
+        const sh = srcH / V_STEPS;
+
+        // 仿射变换矩阵：把源 sw×sh 映射到目标小格
+        const ax = (p10[0] - p00[0]) / sw;
+        const bx = (p10[1] - p00[1]) / sw;
+        const ay = (p01[0] - p00[0]) / sh;
+        const by = (p01[1] - p00[1]) / sh;
+
+        ctx.save();
+        ctx.setTransform(ax, bx, ay, by, p00[0], p00[1]);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        ctx.restore();
+      }
     }
 
     ctx.restore();
@@ -357,13 +390,14 @@ export default function ProductPreview({
               [q.br[0] * width, q.br[1] * height],
               0.92,
               selectedZone.contain ?? false,
+              selectedZone.topSag ?? 0,
+              selectedZone.bottomSag ?? 0,
             );
           } else {
             ctx.save();
             ctx.beginPath();
             if (selectedZone.shape === 'ellipse' || selectedZone.shape === 'circle') {
               const cx = zx + zw / 2;
-              const cy = zy + zh / 2;
               const rx = zw / 2;
               const ry = selectedZone.shape === 'circle' ? rx : zh / 2;
               ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
@@ -539,6 +573,8 @@ export default function ProductPreview({
                 [q.br[0] * width, q.br[1] * height],
                 0.92,
                 selectedZone!.contain ?? false,
+                selectedZone!.topSag ?? 0,
+                selectedZone!.bottomSag ?? 0,
               );
             } else if (selectedZone!.shape === 'ellipse' || selectedZone!.shape === 'circle') {
               const cx = zx + zw / 2;
