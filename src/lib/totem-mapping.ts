@@ -138,7 +138,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         shape: 'perspective-quad',
         topSag: 17,      // 上6°
         bottomSag: 33,   // 下10°
-        leftSag: 8,      // 左3°
+        leftSag: 5,      // 左2°
         rightSag: 5,     // 右2°
         quad: {
           tl: [0.354, 0.524],
@@ -153,7 +153,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         id: 'outer-circle',
         label: { zh: '圆形印章', en: 'Circle Seal' },
         meaning: { zh: '以圆为印，图腾如印章烙于杯身，圆满无缺，一印定乾坤', en: 'A circular seal — your totem stamped in wholeness, complete and enduring' },
-        x: 0.420, y: 0.500, width: 0.220, height: 0.220,
+        x: 0.410, y: 0.600, width: 0.220, height: 0.220,
         cornerRatio: 0.12,
         shape: 'ellipse',
         shapeParams: { fillRatio: 0.90 },
