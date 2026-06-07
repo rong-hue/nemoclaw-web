@@ -136,10 +136,10 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         x: 0.330, y: 0.520, width: 0.370, height: 0.306,
         cornerRatio: 0.08,
         shape: 'perspective-quad',
-        topSag: 23,      // 上8°
-        bottomSag: 40,   // 下12°
-        leftSag: 16,     // 左6°
-        rightSag: 14,    // 右5°
+        topSag: 17,      // 上6°
+        bottomSag: 33,   // 下10°
+        leftSag: 8,      // 左3°
+        rightSag: 5,     // 右2°
         quad: {
           tl: [0.354, 0.524],
           tr: [0.670, 0.520],
