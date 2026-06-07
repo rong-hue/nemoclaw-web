@@ -193,28 +193,27 @@ export default function ProductPreview({
       // 右边插值（tr→br）
       const rx0 = tr[0] + (br[0] - tr[0]) * t0;
       const ry0 = tr[1] + (br[1] - tr[1]) * t0;
-      const rx1 = tr[0] + (br[0] - tr[0]) * t1;
-      const ry1 = tr[1] + (br[1] - tr[1]) * t1;
 
-      // 源图对应的 y 范围（在裁剪后的 srcH 内）
-      const sy0 = srcY + t0 * srcH;
-      const sy1 = srcY + t1 * srcH;
-      const sh = sy1 - sy0;
-      if (sh <= 0) continue;
+      // 源图对应的 y 范围（在裁剪区域内）
+      const srcSliceY0 = srcY + t0 * srcH;
+      const srcSliceY1 = srcY + t1 * srcH;
+      const srcSliceH = srcSliceY1 - srcSliceY0;
+      if (srcSliceH <= 0) continue;
 
+      // 仿射变换：把源 strip (srcW × srcSliceH) 映射到目标梯形
       const ax = (rx0 - lx0) / srcW;
       const bx = (ry0 - ly0) / srcW;
-      const ay = (lx1 - lx0) / sh;
-      const by = (ly1 - ly0) / sh;
+      const ay = (lx1 - lx0) / srcSliceH;
+      const by = (ly1 - ly0) / srcSliceH;
 
       ctx.save();
       ctx.setTransform(ax, bx, ay, by, lx0, ly0);
       ctx.drawImage(
         img,
-        srcX, sy0,   // 源起点（含裁剪偏移）
-        srcW, sh,    // 源尺寸
+        srcX, srcSliceY0,  // 源起点（含裁剪偏移）
+        srcW, srcSliceH,   // 源尺寸
         0, 0,
-        srcW, sh,
+        srcW, srcSliceH,   // 目标尺寸（transform 会自动缩放）
       );
       ctx.restore();
     }
