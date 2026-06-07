@@ -154,10 +154,31 @@ export default function ProductPreview({
     bl: [number, number],
     br: [number, number],
     alpha: number = 0.92,
+    contain: boolean = false,
   ) {
-    const STEPS = 100; // 扫描线数量，越多越精确
+    const STEPS = 100;
     ctx.save();
     ctx.globalAlpha = alpha;
+
+    // contain 模式：按梯形上边宽/高计算目标宽高比，对源图做居中裁剪，保持图腾原始比例
+    const quadW = Math.sqrt((tr[0]-tl[0])**2 + (tr[1]-tl[1])**2); // 上边宽度（像素）
+    const quadH = Math.sqrt((bl[0]-tl[0])**2 + (bl[1]-tl[1])**2); // 左边高度（像素）
+    const quadAspect = quadW / Math.max(quadH, 1);
+    const imgAspect = img.width / img.height;
+
+    // 源图裁剪区域（contain：以梯形宽高比为准，居中裁剪源图）
+    let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
+    if (contain) {
+      if (imgAspect > quadAspect) {
+        // 源图更宽，裁两侧
+        srcW = Math.round(img.height * quadAspect);
+        srcX = Math.round((img.width - srcW) / 2);
+      } else {
+        // 源图更高，裁上下
+        srcH = Math.round(img.width / quadAspect);
+        srcY = Math.round((img.height - srcH) / 2);
+      }
+    }
 
     for (let i = 0; i < STEPS; i++) {
       const t0 = i / STEPS;
@@ -175,42 +196,25 @@ export default function ProductPreview({
       const rx1 = tr[0] + (br[0] - tr[0]) * t1;
       const ry1 = tr[1] + (br[1] - tr[1]) * t1;
 
-      // 源图对应的 y 范围（0~img.height）
-      const sy0 = t0 * img.height;
-      const sy1 = t1 * img.height;
+      // 源图对应的 y 范围（在裁剪后的 srcH 内）
+      const sy0 = srcY + t0 * srcH;
+      const sy1 = srcY + t1 * srcH;
       const sh = sy1 - sy0;
       if (sh <= 0) continue;
 
-      // 目标这一条 strip 的宽度（取上边）
-      const dw = Math.max(rx0 - lx0, 1);
-      // 目标这一条 strip 的高度（取左边）
-      const dh = Math.max(
-        Math.sqrt((lx1 - lx0) ** 2 + (ly1 - ly0) ** 2),
-        1,
-      );
-
-      // 仿射变换矩阵：把源 strip (img.width × sh) 映射到目标梯形
-      // 目标左上角 (lx0, ly0)，x 轴方向 = (rx0-lx0, ry0-ly0)，y 轴方向 = (lx1-lx0, ly1-ly0)
-      const ax = (rx0 - lx0) / img.width;  // x 轴 x 分量（每像素）
-      const bx = (ry0 - ly0) / img.width;  // x 轴 y 分量（倾斜）
-      const ay = (lx1 - lx0) / sh;         // y 轴 x 分量（倾斜）
-      const by = (ly1 - ly0) / sh;         // y 轴 y 分量（每像素）
+      const ax = (rx0 - lx0) / srcW;
+      const bx = (ry0 - ly0) / srcW;
+      const ay = (lx1 - lx0) / sh;
+      const by = (ly1 - ly0) / sh;
 
       ctx.save();
-      ctx.setTransform(
-        ax,   // a
-        bx,   // b
-        ay,   // c
-        by,   // d
-        lx0,  // e: 平移到目标左上角 x
-        ly0,  // f: 平移到目标左上角 y
-      );
+      ctx.setTransform(ax, bx, ay, by, lx0, ly0);
       ctx.drawImage(
         img,
-        0, sy0,        // 源起点
-        img.width, sh, // 源尺寸
-        0, 0,          // 目标起点（transform 已定位）
-        img.width, sh, // 目标尺寸（transform 会缩放）
+        srcX, sy0,   // 源起点（含裁剪偏移）
+        srcW, sh,    // 源尺寸
+        0, 0,
+        srcW, sh,
       );
       ctx.restore();
     }
@@ -356,6 +360,7 @@ export default function ProductPreview({
               [q.bl[0] * width, q.bl[1] * height],
               [q.br[0] * width, q.br[1] * height],
               0.92,
+              selectedZone.contain ?? false,
             );
           } else {
             ctx.save();
@@ -536,6 +541,7 @@ export default function ProductPreview({
                 [q.bl[0] * width, q.bl[1] * height],
                 [q.br[0] * width, q.br[1] * height],
                 0.92,
+                selectedZone!.contain ?? false,
               );
             } else if (selectedZone!.shape === 'ellipse' || selectedZone!.shape === 'circle') {
               const cx = zx + zw / 2;

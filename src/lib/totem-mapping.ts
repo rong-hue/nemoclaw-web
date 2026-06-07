@@ -46,6 +46,8 @@ export interface PlacementZone {
   shapeParams?: ZoneShapeParams;
   /** 四边形透视变形顶点（仅 shape='perspective-quad' 时使用） */
   quad?: ZoneQuad;
+  /** contain 模式：贴图时保持设计图原始比例（居中裁剪），避免拉伸变形，默认 false */
+  contain?: boolean;
   /**
    * 可选：clip 区域的确切右边界（相对坐标 0-1）。
    * 用于排除把手等不可印刷区域，确保设计图不超出该边界。
@@ -213,8 +215,8 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         width: 0.5725, height: 0.06,
         cornerRatio: 0.12,
         shape: 'perspective-quad',
+        contain: true,
         quad: {
-          tl: [0.200, 0.80],
           tr: [0.7725, 0.80],
           bl: [0.232, 0.86],
           br: [0.735, 0.86],
