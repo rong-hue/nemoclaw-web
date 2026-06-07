@@ -717,14 +717,17 @@ export default function ProductPreview({
     const x = (clientX - rect.left) * scaleX;
     const y = (clientY - rect.top) * scaleY;
 
+    // 反向遍历：后定义的 zone 优先级更高（类似 z-index），
+    // 避免椭圆 zone 被同位置的矩形/quad zone 遮挡
+    const zones = [...config.zones].reverse();
     return (
-      config.zones.find((zone) => {
+      zones.find((zone) => {
         const zx = zone.x * canvasSize.width;
         const zy = zone.y * canvasSize.height;
         const zw = zone.width * canvasSize.width;
         const zh = zone.height * canvasSize.height;
         if (zone.shape === 'ellipse' || zone.shape === 'circle') {
-          // 椭圆碰撞检测：(dx/rx)² + (dy/ry)² <= 1
+          // 椭圆精确碰撞检测：(dx/rx)² + (dy/ry)² <= 1
           const cx = zx + zw / 2;
           const cy = zy + zh / 2;
           const rx = zw / 2;
