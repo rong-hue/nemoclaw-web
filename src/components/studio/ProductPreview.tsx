@@ -376,13 +376,14 @@ export default function ProductPreview({
             ctx.clip();
 
             // 保持比例居中
+            // cover 模式：放大填满椭圆，超出部分被 clip 裁掉
             const imgAspect = designImg.width / designImg.height;
             const zoneAspect = zw / zh;
             let drawW = zw, drawH = zh;
             if (imgAspect > zoneAspect) {
-              drawH = zw / imgAspect;
-            } else {
               drawW = zh * imgAspect;
+            } else {
+              drawH = zw / imgAspect;
             }
             const drawX = zx + (zw - drawW) / 2;
             const drawY = zy + (zh - drawH) / 2;
@@ -547,13 +548,14 @@ export default function ProductPreview({
               ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
               ctx.clip();
 
+              // cover 模式：放大填满椭圆，超出部分被 clip 裁掉
               const imgAspect = designImg.width / designImg.height;
               const zoneAspect = zw / zh;
               let drawW = zw, drawH = zh;
               if (imgAspect > zoneAspect) {
-                drawH = zw / imgAspect;
-              } else {
                 drawW = zh * imgAspect;
+              } else {
+                drawH = zw / imgAspect;
               }
               const drawX = zx + (zw - drawW) / 2;
               const drawY = zy + (zh - drawH) / 2;
