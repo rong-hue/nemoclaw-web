@@ -665,7 +665,12 @@
           "desc": "Owl & stars. Illuminate your path forward."
         }
       }
-    }
+    },
+    "layerImage": "Image {n}",
+    "layerText": "Text: {text}",
+    "layerRect": "Rect {n}",
+    "layerCircle": "Circle {n}",
+    "layerObject": "Object {n}"
   },
   "success": {
     "title": "Order Placed!",

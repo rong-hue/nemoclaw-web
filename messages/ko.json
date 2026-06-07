@@ -592,7 +592,12 @@
           "desc": "부엉이와 별. 앞으로 나아갈 길을 밝히다."
         }
       }
-    }
+    },
+    "layerImage": "이미지 {n}",
+    "layerText": "텍스트: {text}",
+    "layerRect": "사각형 {n}",
+    "layerCircle": "원 {n}",
+    "layerObject": "객체 {n}"
   },
   "success": {
     "title": "주문 완료!",

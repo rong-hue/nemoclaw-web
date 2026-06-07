@@ -592,7 +592,12 @@
           "desc": "フクロウと星。前進する道を照らす。"
         }
       }
-    }
+    },
+    "layerImage": "画像 {n}",
+    "layerText": "テキスト：{text}",
+    "layerRect": "矩形 {n}",
+    "layerCircle": "円 {n}",
+    "layerObject": "オブジェクト {n}"
   },
   "success": {
     "title": "注文完了！",

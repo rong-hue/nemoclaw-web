@@ -113,10 +113,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
   const syncLayers = (canvas: FabricCanvas) => {
     const layers: LayerItem[] = canvas.getObjects().map((obj: any, i) => {
-      const defaultLabel = obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
-        obj.type === 'rect' ? `矩形 ${i + 1}` :
-        obj.type === 'circle' ? `圆形 ${i + 1}` :
-        obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`;
+      const defaultLabel = obj.type === 'textbox' ? t('layerText', { text: (obj as any).text?.slice(0, 8) ?? '' }) :
+        obj.type === 'rect' ? t('layerRect', { n: i + 1 }) :
+        obj.type === 'circle' ? t('layerCircle', { n: i + 1 }) :
+        obj.type === 'image' ? t('layerImage', { n: i + 1 }) : t('layerObject', { n: i + 1 });
       return {
         id: obj.__id || String(i),
         type: obj.type || 'object',
@@ -580,10 +580,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     getLayers: () => {
       const canvas = fabricRef.current; if (!canvas) return [];
       return canvas.getObjects().map((obj: any, i) => {
-        const defaultLabel = obj.type === 'textbox' ? `文字：${(obj as any).text?.slice(0, 8)}` :
-          obj.type === 'rect' ? `矩形 ${i + 1}` :
-          obj.type === 'circle' ? `圆形 ${i + 1}` :
-          obj.type === 'image' ? `图片 ${i + 1}` : `对象 ${i + 1}`;
+        const defaultLabel = obj.type === 'textbox' ? t('layerText', { text: (obj as any).text?.slice(0, 8) ?? '' }) :
+          obj.type === 'rect' ? t('layerRect', { n: i + 1 }) :
+          obj.type === 'circle' ? t('layerCircle', { n: i + 1 }) :
+          obj.type === 'image' ? t('layerImage', { n: i + 1 }) : t('layerObject', { n: i + 1 });
         return {
           id: obj.__id || String(i),
           type: obj.type || 'object',

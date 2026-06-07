@@ -612,7 +612,12 @@
           "desc": "猫头鹰与星辰。照亮前行的道路。"
         }
       }
-    }
+    },
+    "layerImage": "图片 {n}",
+    "layerText": "文字：{text}",
+    "layerRect": "矩形 {n}",
+    "layerCircle": "圆形 {n}",
+    "layerObject": "对象 {n}"
   },
   "success": {
     "title": "订单已提交！",
