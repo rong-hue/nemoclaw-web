@@ -217,6 +217,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         shape: 'perspective-quad',
         contain: true,
         quad: {
+          tl: [0.200, 0.80],
           tr: [0.7725, 0.80],
           bl: [0.232, 0.86],
           br: [0.735, 0.86],
