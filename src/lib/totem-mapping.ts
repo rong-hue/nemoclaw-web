@@ -258,10 +258,20 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     // 贴纸不需要前景遮罩
     zones: [
       {
-        id: 'circle',
-        label: { zh: '圆形区域', en: 'Circle' },
+        id: 'circle-left',
+        label: { zh: '左圆', en: 'Left Circle' },
         meaning: { zh: '圆满与循环，东方宇宙观的核心，图腾在圆中生生不息', en: 'Wholeness and cycle — the Eastern cosmos, endlessly renewed' },
-        x: 0.15, y: 0.15, width: 0.70, height: 0.70,
+        x: 0.165, y: 0.228, width: 0.330, height: 0.330,
+        shape: 'ellipse',
+        cornerRatio: 0.12,
+      },
+      {
+        id: 'circle-right',
+        label: { zh: '右圆', en: 'Right Circle' },
+        meaning: { zh: '阴阳相生，双圆共鸣，图腾在循环中延续永恒', en: 'Yin and yang — two circles in resonance, your totem enduring in cycle' },
+        x: 0.546, y: 0.435, width: 0.330, height: 0.330,
+        shape: 'ellipse',
+        cornerRatio: 0.12,
       },
     ],
   },
