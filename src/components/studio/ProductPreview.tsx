@@ -717,27 +717,30 @@ export default function ProductPreview({
     const x = (clientX - rect.left) * scaleX;
     const y = (clientY - rect.top) * scaleY;
 
-    // 反向遍历：后定义的 zone 优先级更高（类似 z-index），
-    // 避免椭圆 zone 被同位置的矩形/quad zone 遮挡
-    const zones = [...config.zones].reverse();
-    return (
-      zones.find((zone) => {
-        const zx = zone.x * canvasSize.width;
-        const zy = zone.y * canvasSize.height;
-        const zw = zone.width * canvasSize.width;
-        const zh = zone.height * canvasSize.height;
-        if (zone.shape === 'ellipse' || zone.shape === 'circle') {
-          // 椭圆精确碰撞检测：(dx/rx)² + (dy/ry)² <= 1
-          const cx = zx + zw / 2;
-          const cy = zy + zh / 2;
-          const rx = zw / 2;
-          const ry = zone.shape === 'circle' ? rx : zh / 2;
-          const dx = (x - cx) / rx;
-          const dy = (y - cy) / ry;
-          return dx * dx + dy * dy <= 1;
-        }
-        return x >= zx && x <= zx + zw && y >= zy && y <= zy + zh;
-      }) ?? null
+    // 收集所有命中的 zone，然后取面积最小的（最精确匹配）。
+    // 椭圆用精确碰撞检测，矩形/quad 用 bounding box 检测。
+    // 这样可以正确处理多个 zone 重叠的情况（如 mug 三个 zone）。
+    const hits = config.zones.filter((zone) => {
+      const zx = zone.x * canvasSize.width;
+      const zy = zone.y * canvasSize.height;
+      const zw = zone.width * canvasSize.width;
+      const zh = zone.height * canvasSize.height;
+      if (zone.shape === 'ellipse' || zone.shape === 'circle') {
+        // 椭圆精确碰撞检测：(dx/rx)² + (dy/ry)² <= 1
+        const cx = zx + zw / 2;
+        const cy = zy + zh / 2;
+        const rx = zw / 2;
+        const ry = zone.shape === 'circle' ? rx : zh / 2;
+        const dx = (x - cx) / rx;
+        const dy = (y - cy) / ry;
+        return dx * dx + dy * dy <= 1;
+      }
+      return x >= zx && x <= zx + zw && y >= zy && y <= zy + zh;
+    });
+    if (hits.length === 0) return null;
+    // 取面积最小的 zone（bounding box 面积），即最精确匹配的
+    return hits.reduce((best, zone) =>
+      zone.width * zone.height < best.width * best.height ? zone : best
     );
   }
 
