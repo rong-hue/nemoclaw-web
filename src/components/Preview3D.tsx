@@ -1,246 +1,174 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { X, RotateCcw, Package } from 'lucide-react';
+/**
+ * Preview3D — CSS 3D 旋转商品预览
+ *
+ * 核心思路：
+ * - 复用 ProductPreview 已有的精确贴图逻辑（perspective-quad / ellipse / rect）
+ * - 用 CSS perspective + rotateY 让商品图"转起来"，正/背两面
+ * - 去掉原有 Three.js LatheGeometry/BoxGeometry 等有问题的实现
+ * - 支持拖拽旋转（mouse + touch）、自动慢速旋转、重置
+ */
+
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { X, RotateCcw, Package, Play, Pause } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { PRODUCT_CONFIGS, ProductType } from '@/lib/totem-mapping';
+import ProductPreview from '@/components/studio/ProductPreview';
 
 interface Preview3DProps {
+  /** 从 Studio canvas 导出的设计图 data URL */
   canvasDataUrl: string;
   onClose: () => void;
+  /** 初始商品类型，默认 tshirt */
+  initialProduct?: ProductType;
+  locale?: 'zh' | 'en';
+  userId?: string;
+  userEmail?: string;
 }
 
-type ModelType = 'tshirt' | 'mug' | 'phone';
+const PRODUCTS: { key: ProductType; emoji: string; labelZh: string; labelEn: string }[] = [
+  { key: 'tshirt',    emoji: '👕', labelZh: 'T恤',   labelEn: 'T-Shirt' },
+  { key: 'mug',       emoji: '☕', labelZh: '马克杯', labelEn: 'Mug' },
+  { key: 'phonecase', emoji: '📱', labelZh: '手机壳', labelEn: 'Phone Case' },
+  { key: 'totebag',   emoji: '👜', labelZh: '帆布包', labelEn: 'Tote Bag' },
+  { key: 'sticker',   emoji: '⭐', labelZh: '贴纸',   labelEn: 'Sticker' },
+];
 
-export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
+export default function Preview3D({
+  canvasDataUrl,
+  onClose,
+  initialProduct = 'tshirt',
+  locale = 'en',
+  userId,
+  userEmail,
+}: Preview3DProps) {
   const t = useTranslations('studio');
-  const mountRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<any>(null);
-  const sceneRef = useRef<any>(null);
-  const cameraRef = useRef<any>(null);
-  const meshRef = useRef<any>(null);
-  const animFrameRef = useRef<number>(0);
+
+  const [product, setProduct] = useState<ProductType>(initialProduct);
+
+  // ── 旋转状态 ──────────────────────────────────────────────────────────────
+  const rotY = useRef(0);          // 当前 Y 轴旋转角度（度）
+  const rotX = useRef(-8);         // 轻微 X 轴仰视
+  const [rotYState, setRotYState] = useState(0);  // 触发 re-render
+  const [isAutoRotate, setIsAutoRotate] = useState(true);
+  const autoRotateRef = useRef(true);
+  const rafRef = useRef<number>(0);
+
+  // 拖拽
   const isDragging = useRef(false);
-  const lastMouse = useRef({ x: 0, y: 0 });
-  const rotation = useRef({ x: 0.3, y: 0.5 });
+  const lastPos = useRef({ x: 0, y: 0 });
 
-  const [model, setModel] = useState<ModelType>('tshirt');
-  const [loading, setLoading] = useState(true);
+  // ── CSS 3D 容器 ref ───────────────────────────────────────────────────────
+  const sceneRef = useRef<HTMLDivElement>(null);
 
+  // ── 自动旋转动画 ──────────────────────────────────────────────────────────
   useEffect(() => {
-    initScene();
-    return () => {
-      cancelAnimationFrame(animFrameRef.current);
-      rendererRef.current?.dispose();
+    let last = performance.now();
+    const tick = (now: number) => {
+      if (autoRotateRef.current && !isDragging.current) {
+        const dt = now - last;
+        rotY.current = (rotY.current + dt * 0.03) % 360;
+        setRotYState(rotY.current);
+      }
+      last = now;
+      rafRef.current = requestAnimationFrame(tick);
     };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  // 同步 autoRotate ref
   useEffect(() => {
-    if (sceneRef.current) {
-      rebuildModel(model);
-    }
-  }, [model, canvasDataUrl]);
+    autoRotateRef.current = isAutoRotate;
+  }, [isAutoRotate]);
 
-  async function initScene() {
-    const THREE = await import('three');
-    const el = mountRef.current!;
-    const w = el.clientWidth;
-    const h = el.clientHeight;
-
-    // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
-    sceneRef.current = scene;
-
-    // Subtle grid
-    const gridHelper = new THREE.GridHelper(10, 20, 0x1e293b, 0x1e293b);
-    (gridHelper as any).position.y = -1.8;
-    scene.add(gridHelper);
-
-    // Ambient + directional lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambient);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(3, 5, 3);
-    scene.add(dirLight);
-    const dirLight2 = new THREE.DirectionalLight(0xffa500, 0.4);
-    dirLight2.position.set(-3, 2, -3);
-    scene.add(dirLight2);
-
-    // Camera
-    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
-    camera.position.set(0, 0, 4);
-    cameraRef.current = camera;
-
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    el.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    // Build initial model
-    await rebuildModel('tshirt');
-    setLoading(false);
-
-    // Animate
-    function animate() {
-      animFrameRef.current = requestAnimationFrame(animate);
-      if (meshRef.current && !isDragging.current) {
-        meshRef.current.rotation.y += 0.003;
-      }
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // Resize
-    const onResize = () => {
-      const w2 = el.clientWidth;
-      const h2 = el.clientHeight;
-      camera.aspect = w2 / h2;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w2, h2);
-    };
-    window.addEventListener('resize', onResize);
-  }
-
-  async function rebuildModel(type: ModelType) {
-    const THREE = await import('three');
-    const scene = sceneRef.current;
-    if (!scene) return;
-
-    // Remove old mesh
-    if (meshRef.current) {
-      scene.remove(meshRef.current);
-      meshRef.current.geometry?.dispose();
-      meshRef.current.material?.dispose();
-      meshRef.current = null;
-    }
-
-    // Create texture from canvas
-    const texture = new THREE.TextureLoader().load(canvasDataUrl);
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    let geometry: any;
-    let material: any;
-
-    if (type === 'tshirt') {
-      geometry = buildTshirtGeometry(THREE);
-      material = new THREE.MeshStandardMaterial({
-        map: texture,
-        roughness: 0.8,
-        metalness: 0.0,
-        side: THREE.DoubleSide,
-      });
-    } else if (type === 'mug') {
-      geometry = new THREE.CylinderGeometry(0.7, 0.65, 1.6, 64, 1, false);
-      material = new THREE.MeshStandardMaterial({
-        map: texture,
-        roughness: 0.4,
-        metalness: 0.1,
-      });
-    } else {
-      // phone - box with rounded feel
-      geometry = new THREE.BoxGeometry(1.1, 2.2, 0.12, 2, 4, 1);
-      material = new THREE.MeshStandardMaterial({
-        map: texture,
-        roughness: 0.3,
-        metalness: 0.2,
-      });
-    }
-
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.x = rotation.current.x;
-    mesh.rotation.y = rotation.current.y;
-    scene.add(mesh);
-    meshRef.current = mesh;
-  }
-
-  function buildTshirtGeometry(THREE: any) {
-    // Custom T-shirt shape using BufferGeometry
-    // We'll use a CylinderGeometry as the body with custom UV
-    // For a more shirt-like shape, we use a LatheGeometry
-    const points = [];
-    // Bottom hem
-    points.push(new THREE.Vector2(1.0, -1.5));
-    // Waist
-    points.push(new THREE.Vector2(0.95, -0.5));
-    // Chest
-    points.push(new THREE.Vector2(1.0, 0.3));
-    // Shoulder
-    points.push(new THREE.Vector2(0.9, 0.8));
-    // Neck
-    points.push(new THREE.Vector2(0.5, 1.1));
-    // Top
-    points.push(new THREE.Vector2(0.3, 1.4));
-
-    const geometry = new THREE.LatheGeometry(points, 48);
-    return geometry;
-  }
-
-  // Mouse drag to rotate
+  // ── 鼠标拖拽旋转 ─────────────────────────────────────────────────────────
   function onMouseDown(e: React.MouseEvent) {
     isDragging.current = true;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
+    lastPos.current = { x: e.clientX, y: e.clientY };
   }
   function onMouseMove(e: React.MouseEvent) {
-    if (!isDragging.current || !meshRef.current) return;
-    const dx = e.clientX - lastMouse.current.x;
-    const dy = e.clientY - lastMouse.current.y;
-    meshRef.current.rotation.y += dx * 0.01;
-    meshRef.current.rotation.x += dy * 0.01;
-    rotation.current.x = meshRef.current.rotation.x;
-    rotation.current.y = meshRef.current.rotation.y;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
+    if (!isDragging.current) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    rotY.current = (rotY.current + dx * 0.4) % 360;
+    rotX.current = Math.max(-30, Math.min(30, rotX.current + dy * 0.3));
+    setRotYState(rotY.current);
+    lastPos.current = { x: e.clientX, y: e.clientY };
   }
-  function onMouseUp() {
-    isDragging.current = false;
-  }
+  function onMouseUp() { isDragging.current = false; }
 
-  // Touch support
+  // ── 触摸拖拽旋转 ─────────────────────────────────────────────────────────
   function onTouchStart(e: React.TouchEvent) {
     isDragging.current = true;
-    lastMouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    lastPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
   function onTouchMove(e: React.TouchEvent) {
-    if (!isDragging.current || !meshRef.current) return;
-    const dx = e.touches[0].clientX - lastMouse.current.x;
-    const dy = e.touches[0].clientY - lastMouse.current.y;
-    meshRef.current.rotation.y += dx * 0.01;
-    meshRef.current.rotation.x += dy * 0.01;
-    rotation.current.x = meshRef.current.rotation.x;
-    rotation.current.y = meshRef.current.rotation.y;
-    lastMouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (!isDragging.current) return;
+    const dx = e.touches[0].clientX - lastPos.current.x;
+    const dy = e.touches[0].clientY - lastPos.current.y;
+    rotY.current = (rotY.current + dx * 0.4) % 360;
+    rotX.current = Math.max(-30, Math.min(30, rotX.current + dy * 0.3));
+    setRotYState(rotY.current);
+    lastPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
+  function onTouchEnd() { isDragging.current = false; }
 
   function handleReset() {
-    if (!meshRef.current) return;
-    meshRef.current.rotation.x = 0.3;
-    meshRef.current.rotation.y = 0.5;
-    rotation.current = { x: 0.3, y: 0.5 };
+    rotY.current = 0;
+    rotX.current = -8;
+    setRotYState(0);
   }
 
-  const models: { key: ModelType; label: string; emoji: string }[] = [
-    { key: 'tshirt', label: t('modelTshirt'), emoji: '👕' },
-    { key: 'mug', label: t('modelMug'), emoji: '☕' },
-    { key: 'phone', label: t('modelPhone'), emoji: '📱' },
-  ];
+  // ── 判断正面/背面（用于半透明提示） ────────────────────────────────────
+  // rotY 在 [90, 270] 区间时为背面
+  const absRotY = ((rotY.current % 360) + 360) % 360;
+  const isBackFace = absRotY > 90 && absRotY < 270;
+
+  // ── 两面卡片：正面 = ProductPreview canvas，背面 = 纯底图 ────────────────
+  const config = PRODUCT_CONFIGS[product];
+  const label = locale === 'zh' ? config.label.zh : config.label.en;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-950">
-      {/* Header */}
-      <div className="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-6 shrink-0">
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-3">
           <Package size={18} className="text-orange-500" />
-          <span className="font-bold text-slate-100">{t('preview3DTitle')}</span>
-          <span className="text-xs text-slate-500">{t('dragToRotate')}</span>
+          <span className="font-bold text-slate-100 text-sm md:text-base">
+            {locale === 'zh' ? `${label} · 3D 预览` : `${label} · 3D Preview`}
+          </span>
+          <span className="text-xs text-slate-500 hidden md:inline">
+            {locale === 'zh' ? '拖拽旋转' : 'Drag to rotate'}
+          </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* 自动旋转开关 */}
+          <button
+            onClick={() => setIsAutoRotate(v => !v)}
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            title={isAutoRotate
+              ? (locale === 'zh' ? '暂停自动旋转' : 'Pause auto-rotate')
+              : (locale === 'zh' ? '开启自动旋转' : 'Start auto-rotate')}
+          >
+            {isAutoRotate
+              ? <Pause size={14} />
+              : <Play size={14} />}
+            <span className="hidden md:inline">
+              {isAutoRotate
+                ? (locale === 'zh' ? '暂停' : 'Pause')
+                : (locale === 'zh' ? '自动' : 'Auto')}
+            </span>
+          </button>
           <button
             onClick={handleReset}
             className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
           >
             <RotateCcw size={14} />
-            {t('resetView')}
+            <span className="hidden md:inline">
+              {locale === 'zh' ? '重置视角' : 'Reset'}
+            </span>
           </button>
           <button
             onClick={onClose}
@@ -251,48 +179,174 @@ export default function Preview3D({ canvasDataUrl, onClose }: Preview3DProps) {
         </div>
       </div>
 
-      {/* Model switcher */}
-      <div className="flex items-center justify-center gap-3 py-3 bg-slate-900/50 shrink-0">
-        {models.map((m) => (
+      {/* ── 商品切换 Tab ─────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-center gap-2 py-3 bg-slate-900/50 shrink-0 flex-wrap px-4">
+        {PRODUCTS.map(p => (
           <button
-            key={m.key}
-            onClick={() => setModel(m.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-              model === m.key
+            key={p.key}
+            onClick={() => setProduct(p.key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold transition-all ${
+              product === p.key
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
             }`}
           >
-            <span>{m.emoji}</span>
-            {m.label}
+            <span>{p.emoji}</span>
+            <span className="hidden sm:inline">
+              {locale === 'zh' ? p.labelZh : p.labelEn}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* 3D Canvas */}
-      <div className="flex-1 relative overflow-hidden">
-        {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-slate-950">
-            <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mb-4" />
-            <p className="text-slate-400 text-sm">{t('loadingEngine')}</p>
+      {/* ── 3D 场景 ──────────────────────────────────────────────────────── */}
+      <div
+        className="flex-1 flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-950 to-slate-900 select-none"
+        style={{ perspective: '1200px' }}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        ref={sceneRef}
+      >
+        {/* 地面网格装饰 */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to top, rgba(251,146,60,0.04), transparent)',
+          }}
+        />
+
+        {/* 3D 旋转容器 */}
+        <div
+          className="relative cursor-grab active:cursor-grabbing"
+          style={{
+            width: 340,
+            height: 380,
+            transformStyle: 'preserve-3d',
+            transform: `rotateX(${rotX.current}deg) rotateY(${rotYState}deg)`,
+            transition: isDragging.current ? 'none' : undefined,
+          }}
+        >
+          {/* ── 正面：完整 ProductPreview（含精确贴图） ── */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+            }}
+          >
+            <FrontFace
+              productType={product}
+              designImageUrl={canvasDataUrl || null}
+              locale={locale}
+              userId={userId}
+              userEmail={userEmail}
+            />
+          </div>
+
+          {/* ── 背面：商品底图（轻微模糊，营造景深感） ── */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+            }}
+          >
+            <BackFace
+              mockupSrc={config.mockupBase}
+            />
+          </div>
+        </div>
+
+        {/* 背面提示 */}
+        {isBackFace && (
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
+            <span className="text-xs text-slate-500 bg-slate-900/80 px-3 py-1 rounded-full">
+              {locale === 'zh' ? '背面' : 'Back side'}
+            </span>
           </div>
         )}
-        <div
-          ref={mountRef}
-          className="w-full h-full cursor-grab active:cursor-grabbing"
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onMouseUp}
-        />
       </div>
 
-      {/* Footer hint */}
+      {/* ── 底部提示 ─────────────────────────────────────────────────────── */}
       <div className="h-10 bg-slate-900/50 border-t border-slate-800 flex items-center justify-center shrink-0">
-        <p className="text-xs text-slate-600">{t('dragHint')}</p>
+        <p className="text-xs text-slate-600">
+          {locale === 'zh'
+            ? '拖拽旋转 · 点击"图腾映射"选择印刷区域'
+            : 'Drag to rotate · Use "Totem Map" to place your design'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 正面：用 ProductPreview 渲染精确贴图结果 ──────────────────────────────
+function FrontFace({
+  productType,
+  designImageUrl,
+  locale,
+  userId,
+  userEmail,
+}: {
+  productType: ProductType;
+  designImageUrl: string | null;
+  locale: 'zh' | 'en';
+  userId?: string;
+  userEmail?: string;
+}) {
+  return (
+    <div
+      className="w-full h-full flex items-center justify-center"
+      // 阻止 3D 场景的鼠标事件传到 ProductPreview 内部（防止误触 zone 点击）
+      onMouseDown={e => e.stopPropagation()}
+      onMouseMove={e => e.stopPropagation()}
+      onMouseUp={e => e.stopPropagation()}
+      onTouchStart={e => e.stopPropagation()}
+      onTouchMove={e => e.stopPropagation()}
+      onTouchEnd={e => e.stopPropagation()}
+    >
+      {/* 缩放容器：把 ProductPreview 限制在 320×320 内 */}
+      <div style={{ width: 320, height: 320, transform: 'scale(0.9)', transformOrigin: 'center center' }}>
+        <ProductPreview
+          productType={productType}
+          designImageUrl={designImageUrl}
+          locale={locale}
+          userId={userId}
+          userEmail={userEmail}
+          // 3D 预览模式下禁用 zone 交互（只展示效果）
+          onZoneSelect={() => {}}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── 背面：纯底图 + 轻微暗化 ───────────────────────────────────────────────
+function BackFace({ mockupSrc }: { mockupSrc: string }) {
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="relative w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={mockupSrc}
+          alt="product back"
+          className="w-full h-full object-contain"
+          crossOrigin="anonymous"
+        />
+        {/* 暗化遮罩，营造背面感 */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-white/20 text-5xl rotate-180 select-none">↩</span>
+        </div>
       </div>
     </div>
   );

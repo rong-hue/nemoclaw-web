@@ -650,6 +650,10 @@ function StudioContent() {
         <Preview3D
           canvasDataUrl={previewDataUrl}
           onClose={() => setShow3D(false)}
+          initialProduct={productPreviewType}
+          locale={locale as 'zh' | 'en'}
+          userId={currentUser?.id}
+          userEmail={currentUser?.email || ''}
         />
       )}
 
