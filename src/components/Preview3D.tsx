@@ -25,6 +25,8 @@ interface Preview3DProps {
   locale?: 'zh' | 'en';
   userId?: string;
   userEmail?: string;
+  /** 内嵌模式：嵌入弹窗内时设为 true，去掉 fixed inset-0，改为 relative 填满父容器 */
+  inline?: boolean;
 }
 
 const PRODUCTS: { key: ProductType; emoji: string; labelZh: string; labelEn: string }[] = [
@@ -42,6 +44,7 @@ export default function Preview3D({
   locale = 'en',
   userId,
   userEmail,
+  inline = false,
 }: Preview3DProps) {
   const t = useTranslations('studio');
 
@@ -131,7 +134,7 @@ export default function Preview3D({
   const label = locale === 'zh' ? config.label.zh : config.label.en;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950">
+    <div className={inline ? 'relative w-full h-full flex flex-col bg-slate-900 rounded-xl overflow-hidden' : 'fixed inset-0 z-50 flex flex-col bg-slate-950'}>
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-3">

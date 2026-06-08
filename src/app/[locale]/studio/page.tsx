@@ -51,7 +51,7 @@ function StudioContent() {
   const [activeTool, setActiveTool] = useState('select');
   const [selected, setSelected] = useState<any>(null);
   const [layers, setLayers] = useState<LayerItem[]>([]);
-  const [show3D, setShow3D] = useState(false);
+  const [show3DInTotem, setShow3DInTotem] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState('');
   const [designId, setDesignId] = useState<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
@@ -308,12 +308,6 @@ function StudioContent() {
   handleSaveRef.current = handleSave;
   autoSaveRef.current = () => handleSave(true);
 
-  const handleOpen3D = () => {
-    const dataUrl = canvasRef.current?.exportImageDataUrl?.();
-    setPreviewDataUrl(dataUrl || '');
-    setShow3D(true);
-  };
-
   const handleOpenTotemMap = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
     setPreviewDataUrl(dataUrl || '');
@@ -385,13 +379,7 @@ function StudioContent() {
             <Box size={16} />
             {locale === 'zh' ? '图腾映射' : 'Totem Map'}
           </button>
-          <button
-            onClick={handleOpen3D}
-            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-          >
-            <Box size={16} />
-            {t('preview3D')}
-          </button>
+
           <Link
             href={`/${locale}/dashboard`}
             className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
@@ -646,18 +634,7 @@ function StudioContent() {
         className="hidden"
       />
 
-      {show3D && (
-        <Preview3D
-          canvasDataUrl={previewDataUrl}
-          onClose={() => setShow3D(false)}
-          initialProduct={productPreviewType}
-          locale={locale as 'zh' | 'en'}
-          userId={currentUser?.id}
-          userEmail={currentUser?.email || ''}
-        />
-      )}
-
-      {showProductPreview && (
+{showProductPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-y-auto shadow-2xl" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
@@ -669,7 +646,22 @@ function StudioContent() {
                   {locale === 'zh' ? '选择商品，点击区域放置你的图腾' : 'Choose a product and click a zone to place your totem'}
                 </p>
               </div>
-              <button onClick={() => setShowProductPreview(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              <div className="flex items-center gap-2">
+                {/* 3D 旋转开关 */}
+                <button
+                  onClick={() => setShow3DInTotem(v => !v)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
+                    show3DInTotem
+                      ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/30'
+                      : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-orange-500 hover:text-orange-400'
+                  }`}
+                  title={locale === 'zh' ? '切换 3D 旋转预览' : 'Toggle 3D rotation preview'}
+                >
+                  <Box size={14} />
+                  {locale === 'zh' ? '3D 旋转' : '3D View'}
+                </button>
+                <button onClick={() => { setShowProductPreview(false); setShow3DInTotem(false); }} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
             </div>
             <div className="flex border-b border-slate-700 px-6 pt-4 gap-2 flex-wrap">
               {(['tshirt','mug','phonecase','totebag','sticker'] as ProductType[]).map(type => (
@@ -685,15 +677,31 @@ function StudioContent() {
                 </button>
               ))}
             </div>
-            <div className="p-6">
-              <ProductPreview
-                productType={productPreviewType}
-                designImageUrl={previewDataUrl}
-                locale={locale as 'zh' | 'en'}
-                userId={currentUser?.id}
-                userEmail={currentUser?.email || ''}
-              />
-            </div>
+            {show3DInTotem ? (
+              /* ── 3D 旋转视图 ── */
+              <div className="relative" style={{ height: '520px' }}>
+                <Preview3D
+                  canvasDataUrl={previewDataUrl}
+                  onClose={() => setShow3DInTotem(false)}
+                  initialProduct={productPreviewType}
+                  locale={locale as 'zh' | 'en'}
+                  userId={currentUser?.id}
+                  userEmail={currentUser?.email || ''}
+                  inline={true}
+                />
+              </div>
+            ) : (
+              /* ── 2D 图腾映射视图 ── */
+              <div className="p-6">
+                <ProductPreview
+                  productType={productPreviewType}
+                  designImageUrl={previewDataUrl}
+                  locale={locale as 'zh' | 'en'}
+                  userId={currentUser?.id}
+                  userEmail={currentUser?.email || ''}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
