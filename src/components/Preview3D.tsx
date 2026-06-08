@@ -10,11 +10,10 @@
  * - 支持拖拽旋转（mouse + touch）、自动慢速旋转、重置
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, RotateCcw, Package, Play, Pause } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PRODUCT_CONFIGS, ProductType } from '@/lib/totem-mapping';
-import ProductPreview from '@/components/studio/ProductPreview';
 
 interface Preview3DProps {
   /** 从 Studio canvas 导出的设计图 data URL */
@@ -234,7 +233,7 @@ export default function Preview3D({
             transition: isDragging.current ? 'none' : undefined,
           }}
         >
-          {/* ── 正面：完整 ProductPreview（含精确贴图） ── */}
+          {/* ── 正面：合成图（已贴好图腾的商品预览） ── */}
           <div
             style={{
               position: 'absolute',
@@ -245,11 +244,8 @@ export default function Preview3D({
             }}
           >
             <FrontFace
-              productType={product}
-              designImageUrl={canvasDataUrl || null}
-              locale={locale}
-              userId={userId}
-              userEmail={userEmail}
+              compositeUrl={canvasDataUrl}
+              fallbackUrl={config.mockupBase}
             />
           </div>
 
@@ -292,42 +288,31 @@ export default function Preview3D({
   );
 }
 
-// ─── 正面：用 ProductPreview 渲染精确贴图结果 ──────────────────────────────
+// ─── 正面：直接展示从 ProductPreview canvas 导出的合成图 ────────────────────
 function FrontFace({
-  productType,
-  designImageUrl,
-  locale,
-  userId,
-  userEmail,
+  compositeUrl,
+  fallbackUrl,
 }: {
-  productType: ProductType;
-  designImageUrl: string | null;
-  locale: 'zh' | 'en';
-  userId?: string;
-  userEmail?: string;
+  compositeUrl: string;
+  fallbackUrl: string;
 }) {
+  const src = compositeUrl || fallbackUrl;
   return (
-    <div
-      className="w-full h-full flex items-center justify-center"
-      // 阻止 3D 场景的鼠标事件传到 ProductPreview 内部（防止误触 zone 点击）
-      onMouseDown={e => e.stopPropagation()}
-      onMouseMove={e => e.stopPropagation()}
-      onMouseUp={e => e.stopPropagation()}
-      onTouchStart={e => e.stopPropagation()}
-      onTouchMove={e => e.stopPropagation()}
-      onTouchEnd={e => e.stopPropagation()}
-    >
-      {/* 缩放容器：把 ProductPreview 限制在 320×320 内 */}
-      <div style={{ width: 320, height: 320, transform: 'scale(0.9)', transformOrigin: 'center center' }}>
-        <ProductPreview
-          productType={productType}
-          designImageUrl={designImageUrl}
-          locale={locale}
-          userId={userId}
-          userEmail={userEmail}
-          // 3D 预览模式下禁用 zone 交互（只展示效果）
-          onZoneSelect={() => {}}
-        />
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10 bg-black/20">
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src}
+            alt="product front"
+            className="w-full h-full object-contain"
+            crossOrigin="anonymous"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-slate-600 text-sm">No preview</span>
+          </div>
+        )}
       </div>
     </div>
   );

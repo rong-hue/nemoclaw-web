@@ -14,7 +14,7 @@ import Preview3D from '@/components/Preview3D';
 import AiGeneratePanel from '@/components/AiGeneratePanel';
 import StampPanel from '@/components/StampPanel';
 import TalismanPanel from '@/components/TalismanPanel';
-import ProductPreview from '@/components/studio/ProductPreview';
+import ProductPreview, { type ProductPreviewHandle } from '@/components/studio/ProductPreview';
 import type { ProductType } from '@/lib/totem-mapping';
 import StampCursor from '@/components/StampCursor';
 import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
@@ -53,6 +53,8 @@ function StudioContent() {
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [show3DInTotem, setShow3DInTotem] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState('');
+  const [totemCompositeUrl, setTotemCompositeUrl] = useState(''); // ProductPreview 合成图
+  const productPreviewRef = useRef<ProductPreviewHandle>(null);
   const [designId, setDesignId] = useState<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -649,7 +651,14 @@ function StudioContent() {
               <div className="flex items-center gap-2">
                 {/* 3D 旋转开关 */}
                 <button
-                  onClick={() => setShow3DInTotem(v => !v)}
+                  onClick={() => {
+                    if (!show3DInTotem) {
+                      // 切到 3D 前先从 ProductPreview canvas 导出合成图
+                      const composite = productPreviewRef.current?.exportDataUrl();
+                      if (composite) setTotemCompositeUrl(composite);
+                    }
+                    setShow3DInTotem(v => !v);
+                  }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
                     show3DInTotem
                       ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/30'
@@ -681,7 +690,7 @@ function StudioContent() {
               /* ── 3D 旋转视图 ── */
               <div className="relative" style={{ height: '520px' }}>
                 <Preview3D
-                  canvasDataUrl={previewDataUrl}
+                  canvasDataUrl={totemCompositeUrl || previewDataUrl}
                   onClose={() => setShow3DInTotem(false)}
                   initialProduct={productPreviewType}
                   locale={locale as 'zh' | 'en'}
@@ -694,6 +703,7 @@ function StudioContent() {
               /* ── 2D 图腾映射视图 ── */
               <div className="p-6">
                 <ProductPreview
+                  ref={productPreviewRef}
                   productType={productPreviewType}
                   designImageUrl={previewDataUrl}
                   locale={locale as 'zh' | 'en'}

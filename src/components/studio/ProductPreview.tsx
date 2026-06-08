@@ -1,9 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Download, BookmarkPlus, Check, Loader2 } from 'lucide-react';
 import { PRODUCT_CONFIGS, ProductType, PlacementZone } from '@/lib/totem-mapping';
 import { designsService } from '@/lib/supabase';
+
+export interface ProductPreviewHandle {
+  /** 导出当前合成图（含底图+设计图+zone叠加层）为 data URL */
+  exportDataUrl: () => string | null;
+}
 
 interface ProductPreviewProps {
   productType: ProductType;
@@ -28,15 +33,20 @@ interface CustomZone {
   label: string;  // 用户自定义描述，默认空字符串
 }
 
-export default function ProductPreview({
+const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(function ProductPreview({
   productType,
   designImageUrl,
   locale = 'en',
   userId,
   userEmail,
   onZoneSelect,
-}: ProductPreviewProps) {
+}, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 暴露 exportDataUrl 给父组件
+  useImperativeHandle(ref, () => ({
+    exportDataUrl: () => canvasRef.current?.toDataURL('image/png') ?? null,
+  }));
   const [selectedZone, setSelectedZone] = useState<PlacementZone | null>(null);
   const [hoveredZone, setHoveredZone] = useState<PlacementZone | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 480, height: 480 });
@@ -993,4 +1003,6 @@ export default function ProductPreview({
       )}
     </div>
   );
-}
+});
+
+export default ProductPreview;
