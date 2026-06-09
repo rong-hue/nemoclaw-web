@@ -842,7 +842,7 @@ function StudioContent() {
               /* ── 3D 旋转视图 ── */
               <div className="relative" style={{ height: '520px' }}>
                 <Preview3D
-                  canvasDataUrl={selectedZoneFace === 'back' ? (previewDataUrl) : (totemCompositeUrl || previewDataUrl)}
+                  canvasDataUrl={selectedZoneFace === 'back' ? '' : (totemCompositeUrl || previewDataUrl)}
                   backCompositeUrl={selectedZoneFace === 'back' ? (backCompositeUrl || totemCompositeUrl) : ''}
                   onClose={() => setShow3DInTotem(false)}
                   initialProduct={productPreviewType}

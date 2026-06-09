@@ -292,7 +292,7 @@ export default function Preview3D({
   );
 }
 
-// ─── 正面：直接展示从 ProductPreview canvas 导出的合成图 ────────────────────
+// ─── 正面：合成图（有图腾）或正面底图 ────────────────────────────────────────
 function FrontFace({
   compositeUrl,
   fallbackUrl,
@@ -303,7 +303,7 @@ function FrontFace({
   const src = compositeUrl || fallbackUrl;
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10 bg-black/20">
+      <div className="w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -322,36 +322,19 @@ function FrontFace({
   );
 }
 
-// ─── 背面：背面 mockup + 可选背面合成图 ──────────────────────────────────
+// ─── 背面：背面合成图（有图腾）或背面底图 ───────────────────────────────────
 function BackFace({ mockupSrc, compositeUrl }: { mockupSrc: string; compositeUrl?: string }) {
+  const src = compositeUrl || mockupSrc;
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="relative w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10">
-        {compositeUrl ? (
-          // 有背面合成图：直接展示（已包含背面图腾）
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={compositeUrl}
-            alt="product back"
-            className="w-full h-full object-contain"
-            crossOrigin="anonymous"
-          />
-        ) : (
-          // 无合成图：展示背面底图 + 轻微暗化
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={mockupSrc}
-              alt="product back"
-              className="w-full h-full object-contain"
-              crossOrigin="anonymous"
-            />
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white/20 text-5xl rotate-180 select-none">↩</span>
-            </div>
-          </>
-        )}
+      <div className="w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt="product back"
+          className="w-full h-full object-contain"
+          crossOrigin="anonymous"
+        />
       </div>
     </div>
   );
