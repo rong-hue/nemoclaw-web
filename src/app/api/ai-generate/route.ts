@@ -25,8 +25,12 @@ const STYLE_PROMPTS: Record<string, string> = {
   popArt: 'pop art style, bold outlines, bright saturated colors, halftone dots, Andy Warhol inspired, comic book aesthetic',
 };
 
-// 东方美学风格集合（用于判断是否追加文创品质量后缀）
+// 东方美学风格集合（用于判断是否追加文创品质量后缀 + 使用 Z-Image 模型）
 const EASTERN_STYLES = new Set(['shuimo', 'gongbi', 'ukiyo', 'cyberpunk', 'liubai']);
+
+// 模型路由：东方风格用 Z-Image（水墨/国风效果更好），其他风格用 Kolors
+const MODEL_EASTERN = 'Tongyi-MAI/Z-Image';
+const MODEL_DEFAULT = 'Kwai-Kolors/Kolors';
 
 const NEGATIVE_PROMPT = 'blurry, low quality, text, watermark, signature, cropped, oversaturated, ugly, deformed, extra limbs, bad anatomy, duplicate, western style, photorealistic';
 
@@ -84,7 +88,7 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'Kwai-Kolors/Kolors',
+        model: isEastern ? MODEL_EASTERN : MODEL_DEFAULT,
         prompt: fullPrompt,
         negative_prompt: NEGATIVE_PROMPT,
         image_size: `${width}x${height}`,
