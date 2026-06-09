@@ -3,7 +3,7 @@ export const runtime = 'edge';
 
 import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Box, Check, Loader2, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Save, Box, Check, Loader2, LayoutGrid, Wand2, Download, Sparkles } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabaseAuth, type User } from '@/lib/supabase-auth';
@@ -52,6 +52,20 @@ function StudioContent() {
   const [selected, setSelected] = useState<any>(null);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [show3DInTotem, setShow3DInTotem] = useState(false);
+  // 风格转换 Modal
+  const [showStyleModal, setShowStyleModal] = useState(false);
+  const [styleFile, setStyleFile] = useState<File | null>(null);
+  const [stylePreview, setStylePreview] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState<'shuimo'|'gongbi'|'ukiyo'|'cyberpunk'|'liubai'>('shuimo');
+  const [styleLoading, setStyleLoading] = useState(false);
+  const [styleError, setStyleError] = useState('');
+  const styleFileRef = useRef<HTMLInputElement>(null);
+  // AI 融合 Modal
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [mergeError, setMergeError] = useState('');
+  const [mergeResultUrl, setMergeResultUrl] = useState('');
+  const [showMergeResult, setShowMergeResult] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState('');
   const [totemCompositeUrl, setTotemCompositeUrl] = useState(''); // ProductPreview 合成图
   const productPreviewRef = useRef<ProductPreviewHandle>(null);
@@ -310,10 +324,107 @@ function StudioContent() {
   handleSaveRef.current = handleSave;
   autoSaveRef.current = () => handleSave(true);
 
+  // 上传图片到 /api/upload-image，返回公开 URL
+  const uploadImageFile = async (file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload failed');
+    }
+    const data = await res.json();
+    return data.url as string;
+  };
+
+  // 上传 data URL（canvas 导出）到 /api/upload-image，返回公开 URL
+  const uploadDataUrl = async (dataUrl: string, filename = 'canvas.png'): Promise<string> => {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], filename, { type: blob.type || 'image/png' });
+    return uploadImageFile(file);
+  };
+
+  // 风格转换：执行
+  const handleStyleTransfer = async () => {
+    if (!styleFile) return;
+    setStyleLoading(true);
+    setStyleError('');
+    try {
+      const imageUrl = await uploadImageFile(styleFile);
+      const res = await fetch('/api/ai-style-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl, style: selectedStyle }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === 'quota_exceeded') throw new Error('本月配额已用完，请升级 Pro');
+        throw new Error(data.error || 'Style transfer failed');
+      }
+      canvasRef.current?.addImageFromUrl(data.url);
+      setShowStyleModal(false);
+      setStyleFile(null);
+      setStylePreview('');
+    } catch (err: unknown) {
+      setStyleError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setStyleLoading(false);
+    }
+  };
+
+  // AI 融合：执行
+  const handleAiMerge = async () => {
+    setMergeLoading(true);
+    setMergeError('');
+    setMergeResultUrl('');
+    try {
+      // 导出商品预览图（ProductPreview canvas）
+      const productDataUrl = productPreviewRef.current?.exportDataUrl?.() || previewDataUrl;
+      if (!productDataUrl) throw new Error('请先在图腾映射中预览商品');
+      const productImageUrl = await uploadDataUrl(productDataUrl, 'product.png');
+
+      // 上传设计图（previewDataUrl 是 canvas 导出的 data URL）
+      let designImageUrl: string;
+      if (previewDataUrl && previewDataUrl.startsWith('data:')) {
+        designImageUrl = await uploadDataUrl(previewDataUrl, 'design.png');
+      } else if (previewDataUrl) {
+        designImageUrl = previewDataUrl;
+      } else {
+        throw new Error('没有设计图，请先在画布上创作');
+      }
+
+      const res = await fetch('/api/ai-totem-merge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productImageUrl, designImageUrl, productType: productPreviewType }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === 'quota_exceeded') throw new Error('本月配额已用完，请升级 Pro');
+        throw new Error(data.error || 'AI merge failed');
+      }
+      setMergeResultUrl(data.url);
+      setShowMergeResult(true);
+    } catch (err: unknown) {
+      setMergeError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setMergeLoading(false);
+    }
+  };
+
   const handleOpenTotemMap = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
     setPreviewDataUrl(dataUrl || '');
     setShowProductPreview(true);
+  };
+
+  const STYLE_LABELS: Record<string, string> = {
+    shuimo: '水墨',
+    gongbi: '工笔',
+    ukiyo: '浮世绘',
+    cyberpunk: '赛博国风',
+    liubai: '留白',
   };
 
   const handleToolChange = (tool: string) => {
@@ -374,6 +485,23 @@ function StudioContent() {
               <span className="text-xs text-slate-400 hidden md:block">{currentUser.name || currentUser.email}</span>
             </div>
           )}
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                const callbackPath = encodeURIComponent(`/${locale}/studio${window.location.search}`);
+                window.location.href = `/${locale}/auth?callbackUrl=${callbackPath}`;
+                return;
+              }
+              setStyleFile(null);
+              setStylePreview('');
+              setStyleError('');
+              setShowStyleModal(true);
+            }}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          >
+            <Wand2 size={16} />
+            {locale === 'zh' ? '风格转换' : 'Style AI'}
+          </button>
           <button
             onClick={handleOpenTotemMap}
             className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
@@ -652,6 +780,20 @@ function StudioContent() {
                 {/* 3D 旋转开关 */}
                 <button
                   onClick={() => {
+                    setMergeError('');
+                    setMergeResultUrl('');
+                    setShowMergeResult(false);
+                    handleAiMerge();
+                  }}
+                  disabled={mergeLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border bg-slate-800 border-slate-600 text-slate-300 hover:border-purple-500 hover:text-purple-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={locale === 'zh' ? 'AI 融合生成效果图' : 'AI Merge'}
+                >
+                  {mergeLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {locale === 'zh' ? 'AI 融合' : 'AI Merge'}
+                </button>
+                <button
+                  onClick={() => {
                     if (!show3DInTotem) {
                       // 切到 3D 前先从 ProductPreview canvas 导出合成图
                       const composite = productPreviewRef.current?.exportDataUrl();
@@ -711,6 +853,154 @@ function StudioContent() {
                   userEmail={currentUser?.email || ''}
                 />
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 风格转换 Modal */}
+      {showStyleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+              <h2 className="text-white font-semibold text-lg flex items-center gap-2">
+                <Wand2 size={18} className="text-purple-400" />
+                {locale === 'zh' ? '风格转换' : 'Style Transfer'}
+              </h2>
+              <button onClick={() => setShowStyleModal(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <div className="p-6 space-y-5">
+              {/* 上传图片 */}
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">{locale === 'zh' ? '上传图片' : 'Upload Image'}</label>
+                <div
+                  className="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500 transition-colors"
+                  onClick={() => styleFileRef.current?.click()}
+                >
+                  {stylePreview ? (
+                    <img src={stylePreview} alt="preview" className="max-h-40 mx-auto rounded-lg object-contain" />
+                  ) : (
+                    <div className="text-slate-500 py-4">
+                      <Wand2 size={24} className="mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">{locale === 'zh' ? '点击上传图片' : 'Click to upload image'}</p>
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={styleFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setStyleFile(f);
+                      setStylePreview(URL.createObjectURL(f));
+                    }
+                  }}
+                />
+              </div>
+              {/* 选择风格 */}
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">{locale === 'zh' ? '选择风格' : 'Choose Style'}</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {(Object.keys(STYLE_LABELS) as Array<keyof typeof STYLE_LABELS>).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedStyle(s as typeof selectedStyle)}
+                      className={`py-2 text-xs rounded-lg border transition-all ${
+                        selectedStyle === s
+                          ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                          : 'border-slate-600 text-slate-400 hover:border-slate-400'
+                      }`}
+                    >
+                      {STYLE_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* 错误提示 */}
+              {styleError && (
+                <p className="text-red-400 text-sm">{styleError}</p>
+              )}
+              {/* 生成按钮 */}
+              <button
+                onClick={handleStyleTransfer}
+                disabled={!styleFile || styleLoading}
+                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                {styleLoading ? <Loader2 size={18} className="animate-spin" /> : <Wand2 size={18} />}
+                {styleLoading
+                  ? (locale === 'zh' ? '生成中...' : 'Generating...')
+                  : (locale === 'zh' ? '生成' : 'Generate')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI 融合结果 Modal */}
+      {showMergeResult && mergeResultUrl && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+              <h2 className="text-white font-semibold text-lg flex items-center gap-2">
+                <Sparkles size={18} className="text-amber-400" />
+                {locale === 'zh' ? 'AI 融合结果' : 'AI Merge Result'}
+              </h2>
+              <button onClick={() => { setShowMergeResult(false); }} className="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <div className="p-6">
+              <img
+                src={`/api/proxy-image?url=${encodeURIComponent(mergeResultUrl)}`}
+                alt="AI merge result"
+                className="w-full rounded-xl object-contain max-h-96"
+              />
+              <div className="mt-4 flex gap-3 justify-center">
+                <a
+                  href={`/api/proxy-image?url=${encodeURIComponent(mergeResultUrl)}`}
+                  download={`ai-merge-${Date.now()}.jpg`}
+                  className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-5 py-2.5 rounded-xl font-semibold transition-all text-sm"
+                >
+                  <Download size={16} />
+                  {locale === 'zh' ? '下载' : 'Download'}
+                </a>
+                <button
+                  onClick={() => {
+                    canvasRef.current?.addImageFromUrl(mergeResultUrl);
+                    setShowMergeResult(false);
+                    setShowProductPreview(false);
+                  }}
+                  className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-semibold transition-all text-sm"
+                >
+                  {locale === 'zh' ? '加入画布' : 'Add to Canvas'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI 融合进行中 / 错误提示 */}
+      {(mergeLoading || mergeError) && !showMergeResult && showProductPreview && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl">
+            {mergeLoading ? (
+              <>
+                <Loader2 size={40} className="animate-spin text-purple-400 mx-auto mb-4" />
+                <p className="text-white font-semibold">{locale === 'zh' ? 'AI 融合中...' : 'AI merging...'}</p>
+                <p className="text-slate-400 text-sm mt-1">{locale === 'zh' ? '大约需要 30-60 秒' : 'Takes ~30-60s'}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-red-400 font-semibold mb-4">{mergeError}</p>
+                <button
+                  onClick={() => setMergeError('')}
+                  className="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2 rounded-xl text-sm"
+                >
+                  {locale === 'zh' ? '关闭' : 'Close'}
+                </button>
+              </>
             )}
           </div>
         </div>
