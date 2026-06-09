@@ -62,12 +62,15 @@ export interface PlacementZone {
    * 未设置时默认为 x + width。
    */
   clipX2?: number;
+  /** 该 zone 属于哪个面，用于 3D 背面视图判断 */
+  face?: 'front' | 'back' | 'side';
 }
 
 export interface ProductConfig {
   type: ProductType;
   label: { zh: string; en: string };
-  mockupBase: string;   // 底图（完整商品图）
+  mockupBase: string;   // 正面底图
+  mockupBack?: string;  // 背面底图（有则启用前后两面 3D 翻转）
   zones: PlacementZone[];
 }
 
@@ -81,12 +84,14 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'tshirt',
     label: { zh: 'T恤', en: 'T-Shirt' },
     mockupBase: '/mockups/tshirt.png',
+    mockupBack: '/mockups/tshirt-back.png',
     zones: [
       {
         id: 'chest',
         label: { zh: '心脏位', en: 'Heart' },
         meaning: { zh: '情感与勇气的所在，最贴近内心的位置，图腾守护你最柔软的地方', en: 'Closest to the heart — where courage and emotion live' },
         x: 0.38, y: 0.28, width: 0.24, height: 0.24,
+        face: 'front',
       },
       {
         id: 'shoulder',
@@ -95,12 +100,14 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         x: 0.57, y: 0.19, width: 0.20, height: 0.14,
         shape: 'ellipse',
         contain: true,
+        face: 'front',
       },
       {
         id: 'back',
         label: { zh: '背部中央', en: 'Back Center' },
         meaning: { zh: '守护与庇佑，护身符最有力的位置，无形中护你周全', en: 'The most powerful placement — unseen protection at your back' },
         x: 0.30, y: 0.25, width: 0.40, height: 0.40,
+        face: 'back',
       },
     ],
   },
@@ -108,6 +115,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'mug',
     label: { zh: '马克杯', en: 'Mug' },
     mockupBase: '/mockups/mug.png',
+    mockupBack: '/mockups/mug-back.png',
     zones: [
       {
         // 外壁正面：perspective-quad，上下边贴合杯身横纹弧度
@@ -126,6 +134,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
           br: [0.620, 0.822],
         },
         clipX2: 0.670,
+        face: 'front',
       },
       {
         // 外壁环绕：perspective-quad，四边贝塞尔弧线贴合杯身曲面
@@ -147,6 +156,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
           br: [0.700, 0.826],
         },
         clipX2: 0.714,
+        face: 'side',
       },
       {
         // 圆形印章：杯身正面圆形图腾，与外壁正面位置重叠，用户可选矩形或圆形
@@ -158,6 +168,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         shape: 'ellipse',
         shapeParams: { fillRatio: 0.90 },
         clipX2: 0.670,
+        face: 'front',
       },
     ],
   },
@@ -214,6 +225,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'totebag',
     label: { zh: '帆布包', en: 'Tote Bag' },
     mockupBase: '/mockups/totebag.png',
+    mockupBack: '/mockups/totebag-back.png',
     zones: [
       {
         id: 'front-main',
@@ -223,6 +235,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         width: 0.37, height: 0.30,
         cornerRatio: 0.12,
         shape: 'rect',
+        face: 'front',
       },
       {
         id: 'side-small',
@@ -232,6 +245,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         width: 0.16, height: 0.20,
         cornerRatio: 0.14,
         shape: 'rect',
+        face: 'side',
       },
       {
         id: 'bottom-trapezoid',
@@ -242,6 +256,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
         cornerRatio: 0.12,
         shape: 'perspective-quad',
         contain: true,
+        face: 'front',
         quad: {
           tl: [0.200, 0.80],
           tr: [0.7725, 0.80],

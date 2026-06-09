@@ -16,8 +16,10 @@ import { useTranslations } from 'next-intl';
 import { PRODUCT_CONFIGS, ProductType } from '@/lib/totem-mapping';
 
 interface Preview3DProps {
-  /** 从 Studio canvas 导出的设计图 data URL */
+  /** 从 Studio canvas 导出的正面合成图 data URL */
   canvasDataUrl: string;
+  /** 背面合成图 data URL（选中 back face zone 时传入） */
+  backCompositeUrl?: string;
   onClose: () => void;
   /** 初始商品类型，默认 tshirt */
   initialProduct?: ProductType;
@@ -37,7 +39,8 @@ const PRODUCTS: { key: ProductType; emoji: string; labelZh: string; labelEn: str
 ];
 
 export default function Preview3D({
-  canvasDataUrl,
+    canvasDataUrl,
+  backCompositeUrl = '',
   onClose,
   initialProduct = 'tshirt',
   locale = 'en',
@@ -261,7 +264,8 @@ export default function Preview3D({
             }}
           >
             <BackFace
-              mockupSrc={config.mockupBase}
+              mockupSrc={config.mockupBack || config.mockupBase}
+              compositeUrl={backCompositeUrl}
             />
           </div>
         </div>
@@ -318,23 +322,36 @@ function FrontFace({
   );
 }
 
-// ─── 背面：纯底图 + 轻微暗化 ───────────────────────────────────────────────
-function BackFace({ mockupSrc }: { mockupSrc: string }) {
+// ─── 背面：背面 mockup + 可选背面合成图 ──────────────────────────────────
+function BackFace({ mockupSrc, compositeUrl }: { mockupSrc: string; compositeUrl?: string }) {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={mockupSrc}
-          alt="product back"
-          className="w-full h-full object-contain"
-          crossOrigin="anonymous"
-        />
-        {/* 暗化遮罩，营造背面感 */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-white/20 text-5xl rotate-180 select-none">↩</span>
-        </div>
+        {compositeUrl ? (
+          // 有背面合成图：直接展示（已包含背面图腾）
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={compositeUrl}
+            alt="product back"
+            className="w-full h-full object-contain"
+            crossOrigin="anonymous"
+          />
+        ) : (
+          // 无合成图：展示背面底图 + 轻微暗化
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={mockupSrc}
+              alt="product back"
+              className="w-full h-full object-contain"
+              crossOrigin="anonymous"
+            />
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white/20 text-5xl rotate-180 select-none">↩</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

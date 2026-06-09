@@ -67,7 +67,9 @@ function StudioContent() {
   const [mergeResultUrl, setMergeResultUrl] = useState('');
   const [showMergeResult, setShowMergeResult] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState('');
-  const [totemCompositeUrl, setTotemCompositeUrl] = useState(''); // ProductPreview 合成图
+  const [totemCompositeUrl, setTotemCompositeUrl] = useState(''); // 正面合成图
+  const [backCompositeUrl, setBackCompositeUrl] = useState('');   // 背面合成图
+  const [selectedZoneFace, setSelectedZoneFace] = useState<'front' | 'back' | 'side'>('front');
   const productPreviewRef = useRef<ProductPreviewHandle>(null);
   const [designId, setDesignId] = useState<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
@@ -795,9 +797,17 @@ function StudioContent() {
                 <button
                   onClick={() => {
                     if (!show3DInTotem) {
-                      // 切到 3D 前先从 ProductPreview canvas 导出合成图
+                      // 切到 3D 前导出合成图，根据 zone 所在面分配到正面/背面
                       const composite = productPreviewRef.current?.exportDataUrl();
-                      if (composite) setTotemCompositeUrl(composite);
+                      if (composite) {
+                        if (selectedZoneFace === 'back') {
+                          setBackCompositeUrl(composite);
+                          setTotemCompositeUrl('');
+                        } else {
+                          setTotemCompositeUrl(composite);
+                          setBackCompositeUrl('');
+                        }
+                      }
                     }
                     setShow3DInTotem(v => !v);
                   }}
@@ -832,7 +842,8 @@ function StudioContent() {
               /* ── 3D 旋转视图 ── */
               <div className="relative" style={{ height: '520px' }}>
                 <Preview3D
-                  canvasDataUrl={totemCompositeUrl || previewDataUrl}
+                  canvasDataUrl={selectedZoneFace === 'back' ? (previewDataUrl) : (totemCompositeUrl || previewDataUrl)}
+                  backCompositeUrl={selectedZoneFace === 'back' ? (backCompositeUrl || totemCompositeUrl) : ''}
                   onClose={() => setShow3DInTotem(false)}
                   initialProduct={productPreviewType}
                   locale={locale as 'zh' | 'en'}
@@ -851,6 +862,10 @@ function StudioContent() {
                   locale={locale as 'zh' | 'en'}
                   userId={currentUser?.id}
                   userEmail={currentUser?.email || ''}
+                  onZoneSelect={(zone) => {
+                    // 同步当前选中 zone 所在的面，供 3D 切换时判断
+                    setSelectedZoneFace((zone as any)?.face ?? 'front');
+                  }}
                 />
               </div>
             )}
