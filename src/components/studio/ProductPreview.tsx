@@ -288,9 +288,13 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
     canvas.height = height;
     ctx.clearRect(0, 0, width, height);
 
+    // 背面 zone 时用背面底图
+    const mockupSrc = (selectedZone?.face === 'back' && config.mockupBack)
+      ? config.mockupBack
+      : config.mockupBase;
     const productImg = new Image();
     productImg.crossOrigin = 'anonymous';
-    productImg.src = config.mockupBase;
+    productImg.src = mockupSrc;
     productImg.onload = () => {
       // Layer 1: 底图
       ctx.drawImage(productImg, 0, 0, width, height);
@@ -524,8 +528,11 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
         offscreen.height = height;
         const ctx = offscreen.getContext('2d')!;
 
-        // 1. 底图
-        const baseImg = await loadImage(config.mockupBase);
+        // 1. 底图（背面 zone 时用背面底图）
+        const exportMockupSrc = (selectedZone?.face === 'back' && config.mockupBack)
+          ? config.mockupBack
+          : config.mockupBase;
+        const baseImg = await loadImage(exportMockupSrc);
         ctx.drawImage(baseImg, 0, 0, width, height);
 
         // 2. 设计图（clip 到 zone 内，保持比例居中）
