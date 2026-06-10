@@ -70,6 +70,7 @@ function StudioContent() {
   const [totemCompositeUrl, setTotemCompositeUrl] = useState(''); // 正面合成图
   const [backCompositeUrl, setBackCompositeUrl] = useState('');   // 背面合成图
   const [selectedZoneFace, setSelectedZoneFace] = useState<'front' | 'back' | 'side'>('front');
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('');
   const productPreviewRef = useRef<ProductPreviewHandle>(null);
   const [designId, setDesignId] = useState<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
@@ -850,6 +851,8 @@ function StudioContent() {
                   userId={currentUser?.id}
                   userEmail={currentUser?.email || ''}
                   inline={true}
+                  selectedZoneId={selectedZoneId}
+                  designImageUrl={previewDataUrl}
                 />
               </div>
             ) : (
@@ -865,6 +868,7 @@ function StudioContent() {
                   onZoneSelect={(zone) => {
                     // 同步当前选中 zone 所在的面，供 3D 切换时判断
                     setSelectedZoneFace((zone as any)?.face ?? 'front');
+                    setSelectedZoneId((zone as any)?.id ?? '');
                   }}
                 />
               </div>
