@@ -156,7 +156,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
           br: [0.700, 0.826],
         },
         clipX2: 0.714,
-        face: 'side',
+        face: 'back',
       },
       {
         // 圆形印章：杯身正面圆形图腾，与外壁正面位置重叠，用户可选矩形或圆形
