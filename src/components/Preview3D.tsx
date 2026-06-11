@@ -61,6 +61,11 @@ export default function Preview3D({
 
   const [product, setProduct] = useState<ProductType>(initialProduct);
 
+  // 跟随外部 initialProduct 变化（用户在 2D 视图切换商品后再切 3D，要同步）
+  useEffect(() => {
+    setProduct(initialProduct);
+  }, [initialProduct]);
+
   const rotY = useRef(0);
   const rotX = useRef(-8);
   const [rotYState, setRotYState] = useState(0);
