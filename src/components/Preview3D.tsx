@@ -40,7 +40,9 @@ const PRODUCTS: { key: ProductType; emoji: string; labelZh: string; labelEn: str
 ];
 
 function isWrapMode(product: ProductType, zoneId?: string): boolean {
-  return product === 'mug' && zoneId === 'outer-wrap';
+  // 马克杯始终用合成图法（不依赖用户是否点击过 outer-wrap zone）
+  // outer-wrap 是马克杯最主要的 zone，3D 预览默认展示环绕效果
+  return product === 'mug';
 }
 
 export default function Preview3D({
