@@ -670,7 +670,9 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
 
   // ─── mug 背面合成图（mug-back.png + 图腾贴到背面对称 quad）─────────────────
   const exportMugBackImage = useCallback((): Promise<string | null> => {
-    // 只对 mug 商品有效，且需要有背面底图和设计图
+    // 只有 outer-wrap zone 才需要背面图腾（360°环绕）
+    // outer-front 和 outer-circle 背面不应有图腾
+    if (selectedZone?.id !== 'outer-wrap') return Promise.resolve(null);
     if (config.type !== 'mug' || !config.mockupBack || !designImageUrl) return Promise.resolve(null);
 
     // 用正面 outer-front 相同的 quad 参数贴到背面底图（背面底图本身已是背视角）
