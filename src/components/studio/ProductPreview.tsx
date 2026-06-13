@@ -6,8 +6,10 @@ import { PRODUCT_CONFIGS, ProductType, PlacementZone } from '@/lib/totem-mapping
 import { designsService } from '@/lib/supabase';
 
 export interface ProductPreviewHandle {
-  /** 导出当前合成图（含底图+设计图+zone叠加层）为 data URL */
+  /** 导出当前合成图（含底图+设计图+zone叠加层）为 data URL（同步，可能因跨域 canvas 污染返回 null）*/
   exportDataUrl: () => string | null;
+  /** 异步导出高质量合成图（offscreen canvas，绕过跨域污染问题）*/
+  exportCompositeAsync: () => Promise<string>;
 }
 
 interface ProductPreviewProps {
@@ -43,9 +45,12 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
 }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 暴露 exportDataUrl 给父组件
+  // 暴露 exportDataUrl / exportCompositeAsync 给父组件
+  // exportCompositeImage 在下方定义，用 ref 间接引用避免 hoisting 问题
+  const exportCompositeImageRef = useRef<() => Promise<string>>(() => Promise.reject('not ready'));
   useImperativeHandle(ref, () => ({
     exportDataUrl: () => canvasRef.current?.toDataURL('image/png') ?? null,
+    exportCompositeAsync: () => exportCompositeImageRef.current(),
   }));
   const [selectedZone, setSelectedZone] = useState<PlacementZone | null>(null);
   const [hoveredZone, setHoveredZone] = useState<PlacementZone | null>(null);
@@ -652,6 +657,9 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
       }
     });
   }, [config, designImageUrl, selectedZone, customZone, canvasSize]);
+
+  // exportCompositeImage 定义后同步到 ref，供 useImperativeHandle 调用
+  exportCompositeImageRef.current = exportCompositeImage;
 
   // ─── 下载合成图 ─────────────────────────────────────────────────────────────
   const handleDownload = async () => {

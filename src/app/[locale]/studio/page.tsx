@@ -796,10 +796,11 @@ function StudioContent() {
                   {locale === 'zh' ? 'AI 融合' : 'AI Merge'}
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!show3DInTotem) {
-                      // 切到 3D 前导出合成图，根据 zone 所在面分配到正面/背面
-                      const composite = productPreviewRef.current?.exportDataUrl();
+                      // 切到 3D 前用异步 exportCompositeAsync 导出合成图
+                      // 避免 canvas 跨域污染导致 toDataURL 返回 null
+                      const composite = await productPreviewRef.current?.exportCompositeAsync?.();
                       if (composite) {
                         if (selectedZoneFace === 'back') {
                           setBackCompositeUrl(composite);
