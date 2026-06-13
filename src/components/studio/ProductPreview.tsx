@@ -10,6 +10,8 @@ export interface ProductPreviewHandle {
   exportDataUrl: () => string | null;
   /** 异步导出高质量合成图（offscreen canvas，绕过跨域污染问题）*/
   exportCompositeAsync: () => Promise<string>;
+  /** 异步导出 mug 背面合成图（mug-back.png + 相同图腾贴到对称 quad）*/
+  exportMugBackAsync: () => Promise<string | null>;
 }
 
 interface ProductPreviewProps {
@@ -45,13 +47,16 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
 }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 暴露 exportDataUrl / exportCompositeAsync 给父组件
+  // 暴露 exportDataUrl / exportCompositeAsync / exportMugBackAsync 给父组件
   // exportCompositeImage 在下方定义，用 ref 间接引用避免 hoisting 问题
   const exportCompositeImageRef = useRef<() => Promise<string>>(() => Promise.reject('not ready'));
   useImperativeHandle(ref, () => ({
     exportDataUrl: () => canvasRef.current?.toDataURL('image/png') ?? null,
     exportCompositeAsync: () => exportCompositeImageRef.current(),
+    exportMugBackAsync: () => exportMugBackImageRef.current(),
   }));
+  // mug 背面合成图 ref（在 exportMugBackImage 定义后赋值）
+  const exportMugBackImageRef = useRef<() => Promise<string | null>>(() => Promise.resolve(null));
   const [selectedZone, setSelectedZone] = useState<PlacementZone | null>(null);
   const [hoveredZone, setHoveredZone] = useState<PlacementZone | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 480, height: 480 });
@@ -662,6 +667,71 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
 
   // exportCompositeImage 定义后同步到 ref，供 useImperativeHandle 调用
   exportCompositeImageRef.current = exportCompositeImage;
+
+  // ─── mug 背面合成图（mug-back.png + 图腾贴到背面对称 quad）─────────────────
+  const exportMugBackImage = useCallback((): Promise<string | null> => {
+    // 只对 mug 商品有效，且需要有背面底图和设计图
+    if (config.type !== 'mug' || !config.mockupBack || !designImageUrl) return Promise.resolve(null);
+
+    // 用正面 outer-front 相同的 quad 参数贴到背面底图（背面底图本身已是背视角）
+    const backZone = config.zones.find(z => z.id === 'outer-front');
+    if (!backZone) return Promise.resolve(null);
+
+    return new Promise(async (resolve) => {
+      try {
+        const { width, height } = canvasSize;
+        const offscreen = document.createElement('canvas');
+        offscreen.width = width;
+        offscreen.height = height;
+        const ctx = offscreen.getContext('2d')!;
+
+        // 1. 背面底图
+        const backImg = await loadImage(config.mockupBack!);
+        ctx.drawImage(backImg, 0, 0, width, height);
+
+        // 2. 图腾贴到背面 quad（与正面 outer-front quad 相同坐标）
+        const designImg = await loadImage(designImageUrl);
+        if (backZone.shape === 'perspective-quad' && backZone.quad) {
+          const q = backZone.quad;
+          drawPerspectiveQuad(
+            ctx,
+            designImg,
+            [q.tl[0] * width, q.tl[1] * height],
+            [q.tr[0] * width, q.tr[1] * height],
+            [q.bl[0] * width, q.bl[1] * height],
+            [q.br[0] * width, q.br[1] * height],
+            0.92,
+            backZone.contain ?? false,
+            backZone.topSag ?? 0,
+            backZone.bottomSag ?? 0,
+            backZone.leftSag ?? 0,
+            backZone.rightSag ?? 0,
+          );
+        } else {
+          // fallback: 居中贴图
+          const zx = backZone.x * width;
+          const zy = backZone.y * height;
+          const zw = backZone.width * width;
+          const zh = backZone.height * height;
+          const imgAspect = designImg.width / designImg.height;
+          const zoneAspect = zw / zh;
+          let drawW = zw, drawH = zh;
+          if (imgAspect > zoneAspect) { drawH = zw / imgAspect; } else { drawW = zh * imgAspect; }
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(designImg, zx + (zw - drawW) / 2, zy + (zh - drawH) / 2, drawW, drawH);
+          ctx.globalAlpha = 1;
+        }
+
+        resolve(offscreen.toDataURL('image/png'));
+      } catch (e) {
+        console.error('[exportMugBack] failed:', e);
+        resolve(null);
+      }
+    });
+  }, [config, designImageUrl, canvasSize]);
+
+  // exportMugBackImage 定义后同步到 ref
+  exportMugBackImageRef.current = exportMugBackImage;
 
   // ─── 下载合成图 ─────────────────────────────────────────────────────────────
   const handleDownload = async () => {

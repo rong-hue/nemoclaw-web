@@ -802,20 +802,18 @@ function StudioContent() {
                 <button
                   onClick={async () => {
                     if (!show3DInTotem) {
-                      const composite = await productPreviewRef.current?.exportCompositeAsync?.();
-                      console.log('[3DSwitch] composite len:', composite?.length, 'face:', selectedZoneFace);
+                      // 同时导出正面合成图和 mug 背面合成图
+                      const [composite, mugBack] = await Promise.all([
+                        productPreviewRef.current?.exportCompositeAsync?.(),
+                        productPreviewRef.current?.exportMugBackAsync?.(),
+                      ]);
                       if (composite) {
-                        if (selectedZoneFace === 'back') {
-                          backCompositeRef.current = composite;
-                          totemCompositeRef.current = '';
-                          setBackCompositeUrl(composite);
-                          setTotemCompositeUrl('');
-                        } else {
-                          totemCompositeRef.current = composite;
-                          backCompositeRef.current = '';
-                          setTotemCompositeUrl(composite);
-                          setBackCompositeUrl('');
-                        }
+                        totemCompositeRef.current = composite;
+                        setTotemCompositeUrl(composite);
+                      }
+                      if (mugBack) {
+                        backCompositeRef.current = mugBack;
+                        setBackCompositeUrl(mugBack);
                       }
                     }
                     setShow3DInTotem(v => !v);
@@ -851,8 +849,8 @@ function StudioContent() {
               /* ── 3D 旋转视图 ── */
               <div className="relative" style={{ height: '520px' }}>
                 <Preview3D
-                  canvasDataUrl={selectedZoneFace === 'back' ? '' : (totemCompositeRef.current || previewDataUrl)}
-                  backCompositeUrl={selectedZoneFace === 'back' ? (backCompositeRef.current || totemCompositeRef.current) : ''}
+                  canvasDataUrl={totemCompositeRef.current || previewDataUrl}
+                  backCompositeUrl={backCompositeRef.current}
                   onClose={() => setShow3DInTotem(false)}
                   initialProduct={productPreviewType}
                   locale={locale as 'zh' | 'en'}
