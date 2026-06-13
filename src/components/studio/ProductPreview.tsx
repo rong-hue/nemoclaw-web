@@ -730,7 +730,7 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
         resolve(null);
       }
     });
-  }, [config, designImageUrl, canvasSize]);
+  }, [config, designImageUrl, canvasSize, selectedZone]);
 
   // exportMugBackImage 定义后同步到 ref
   exportMugBackImageRef.current = exportMugBackImage;
