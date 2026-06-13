@@ -144,9 +144,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:cleared', () => onSelectionChange(null));
-    canvas.on('object:added', () => { syncLayers(canvas); pushHistory(canvas); });
-    canvas.on('object:removed', () => { syncLayers(canvas); pushHistory(canvas); });
-    canvas.on('object:modified', () => { syncLayers(canvas); pushHistory(canvas); });
+    // isRestoring=true 时跳过 syncLayers，避免 loadFromJSON 加载过程中触发 onLayersChange → triggerAutoSave
+    canvas.on('object:added', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });
+    canvas.on('object:removed', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });
+    canvas.on('object:modified', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });
 
     // 残缺美笔刷：path 绘制完成后，对路径做随机断点 + 晕染处理
     // 注意：WabiSabiBrush 自定义笔刷已在实时绘制时处理效果，

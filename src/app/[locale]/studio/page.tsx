@@ -76,6 +76,10 @@ function StudioContent() {
   const [selectedZoneId, setSelectedZoneId] = useState<string>('');
   const productPreviewRef = useRef<ProductPreviewHandle>(null);
   const [designId, setDesignId] = useState<string | undefined>(undefined);
+  // ref 版本：handleSave 是 async 函数，存在并发竞态——第一次保存还在 await 时
+  // 第二次保存也开始执行，两次都读到 designId=undefined，导致重复 insert
+  // 用 ref 同步更新，让 async 函数内立刻能读到最新值
+  const designIdRef = useRef<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showAiPanel, setShowAiPanel] = useState(false);
@@ -159,6 +163,7 @@ function StudioContent() {
         if (design.canvas_json) {
           // 先设置标题和 ID
           setDesignTitle(design.title || '');
+          designIdRef.current = design.id; // 同步更新 ref，避免 async 竞态
           setDesignId(design.id);
           // 轮询等待画布 ref 就绪，最多等 3 秒
           const jsonData = typeof design.canvas_json === 'string'
@@ -306,8 +311,11 @@ function StudioContent() {
         canvasData = {};
       }
       
+      // 用 ref 读取最新 designId，避免并发竞态（多个 async handleSave 同时执行时
+      // 第一次保存还在 await，第二次也开始了，两次都读到 undefined → 重复 insert）
+      const currentDesignId = designIdRef.current;
       const saved = await designsService.save({
-        id: designId,
+        id: currentDesignId,
         user_id: liveUser.id,
         user_email: liveUser.email || '',
         title,
@@ -315,7 +323,8 @@ function StudioContent() {
         preview_url: previewUrl,
       });
       // 只在新建作品时设置 ID，避免触发重新加载
-      if (!designId) {
+      if (!currentDesignId) {
+        designIdRef.current = saved.id; // 立刻同步更新 ref，阻断后续并发 insert
         setDesignId(saved.id);
       }
       setSaveStatus('saved');
