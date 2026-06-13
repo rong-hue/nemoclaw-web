@@ -675,8 +675,9 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
     if (selectedZone?.id !== 'outer-wrap') return Promise.resolve(null);
     if (config.type !== 'mug' || !config.mockupBack || !designImageUrl) return Promise.resolve(null);
 
-    // 用正面 outer-front 相同的 quad 参数贴到背面底图（背面底图本身已是背视角）
-    const backZone = config.zones.find(z => z.id === 'outer-front');
+    // outer-wrap 背面：用 outer-wrap 自己的 quad（更宽范围，贴合环绕效果）
+    // 背面底图本身已是杯背视角，用相同 quad 坐标贴图腾即可
+    const backZone = config.zones.find(z => z.id === 'outer-wrap');
     if (!backZone) return Promise.resolve(null);
 
     return new Promise(async (resolve) => {

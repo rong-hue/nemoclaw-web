@@ -807,14 +807,12 @@ function StudioContent() {
                         productPreviewRef.current?.exportCompositeAsync?.(),
                         productPreviewRef.current?.exportMugBackAsync?.(),
                       ]);
-                      if (composite) {
-                        totemCompositeRef.current = composite;
-                        setTotemCompositeUrl(composite);
-                      }
-                      if (mugBack) {
-                        backCompositeRef.current = mugBack;
-                        setBackCompositeUrl(mugBack);
-                      }
+                      // 正面合成图
+                      totemCompositeRef.current = composite || '';
+                      setTotemCompositeUrl(composite || '');
+                      // 背面合成图（null 时必须清空，避免上次 outer-wrap 结果残留）
+                      backCompositeRef.current = mugBack || '';
+                      setBackCompositeUrl(mugBack || '');
                     }
                     setShow3DInTotem(v => !v);
                   }}
