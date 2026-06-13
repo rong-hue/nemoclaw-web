@@ -176,6 +176,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     type: 'phonecase',
     label: { zh: '手机壳', en: 'Phone Case' },
     mockupBase: '/mockups/phonecase.png',
+    mockupBack: '/mockups/phonecase-back.png',
     zones: [
 
       {
