@@ -452,7 +452,7 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
         afterDesign();
       }
     };
-  }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config, customZone, drawStart, drawCurrent, drawMode, shapeType]);
+  }, [productType, designImageUrl, selectedZone, hoveredZone, canvasSize, config, customZone, drawStart, drawCurrent, drawMode, shapeType, locale]);
 
 
   useEffect(() => {
