@@ -4,19 +4,18 @@
  * Preview3D — CSS 3D 旋转商品预览
  *
  * 核心思路：
- * - 普通商品（T恤/手机壳等）：CSS perspective + rotateY 正/背两面翻转
- * - 马克杯 outer-wrap zone：预渲染正面+背面两张合成图（底图+图腾），
- *   用 CSS rotateY 让整张合成图一起翻转 → 杯子和图腾同步旋转
+ * - 正面 = canvasDataUrl（由父组件通过 exportCompositeAsync 导出的合成图，含底图+图腾）
+ * - 背面 = backCompositeUrl（有则用）或 config.mockupBack 或 config.mockupBase
+ * - CSS perspective + rotateY 翻转，无需在此组件内重渲染
+ *
+ * mug 不再单独走 wrapMode/mug-wrap-renderer，统一走上面逻辑。
+ * 父组件 exportCompositeAsync() 已经按 selectedZone 渲染了正确效果。
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { X, RotateCcw, Package, Play, Pause, Loader2 } from 'lucide-react';
+import { X, RotateCcw, Package, Play, Pause } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PRODUCT_CONFIGS, ProductType } from '@/lib/totem-mapping';
-import {
-  renderMugWrapComposites,
-  MugWrapComposites,
-} from '@/lib/mug-wrap-renderer';
 
 interface Preview3DProps {
   canvasDataUrl: string;
@@ -39,12 +38,6 @@ const PRODUCTS: { key: ProductType; emoji: string; labelZh: string; labelEn: str
   { key: 'sticker',   emoji: '⭐', labelZh: '贴纸',   labelEn: 'Sticker' },
 ];
 
-function isWrapMode(product: ProductType, zoneId?: string): boolean {
-  // 马克杯始终用合成图法（不依赖用户是否点击过 outer-wrap zone）
-  // outer-wrap 是马克杯最主要的 zone，3D 预览默认展示环绕效果
-  return product === 'mug';
-}
-
 export default function Preview3D({
   canvasDataUrl,
   backCompositeUrl = '',
@@ -57,13 +50,12 @@ export default function Preview3D({
   selectedZoneId,
   designImageUrl,
 }: Preview3DProps) {
-  void userId; void userEmail;
+  void userId; void userEmail; void selectedZoneId; void designImageUrl;
   const t = useTranslations('studio');
   void t;
 
   const [product, setProduct] = useState<ProductType>(initialProduct);
 
-  // 跟随外部 initialProduct 变化（用户在 2D 视图切换商品后再切 3D，要同步）
   useEffect(() => {
     setProduct(initialProduct);
   }, [initialProduct]);
@@ -78,35 +70,6 @@ export default function Preview3D({
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const sceneRef = useRef<HTMLDivElement>(null);
-
-  const [wrapComposites, setWrapComposites] = useState<MugWrapComposites | null>(null);
-  const [wrapLoading, setWrapLoading] = useState(false);
-  const wrapMode = isWrapMode(product, selectedZoneId);
-
-  // 预渲染正/背两张合成图（底图 + 图腾），CSS rotateY 旋转时杯子和图腾同步
-  useEffect(() => {
-    if (!wrapMode) {
-      setWrapComposites(null);
-      return;
-    }
-    if (!designImageUrl) return;
-
-    const config = PRODUCT_CONFIGS['mug'];
-    const backSrc = config.mockupBack || config.mockupBase;
-
-    setWrapLoading(true);
-    setWrapComposites(null);
-
-    renderMugWrapComposites(config.mockupBase, backSrc, designImageUrl, 480)
-      .then((composites) => {
-        setWrapComposites(composites);
-        setWrapLoading(false);
-      })
-      .catch((err) => {
-        console.error('[Preview3D] wrap composite error', err);
-        setWrapLoading(false);
-      });
-  }, [wrapMode, designImageUrl]);
 
   // 自动旋转
   useEffect(() => {
@@ -167,13 +130,10 @@ export default function Preview3D({
   const absRotY = ((rotY.current % 360) + 360) % 360;
   const isBackFace = absRotY > 90 && absRotY < 270;
 
-  // wrap 模式：用预渲染合成图（杯子底图+图腾），CSS旋转时两者同步
-  const frontSrc = wrapMode && wrapComposites
-    ? wrapComposites.frontDataUrl
-    : canvasDataUrl;
-  const backFaceSrc = wrapMode && wrapComposites
-    ? wrapComposites.backDataUrl
-    : (backCompositeUrl || config.mockupBack || config.mockupBase);
+  // 正面：父组件传来的合成图（已含底图+图腾，对应当前选中 zone 的效果）
+  // 背面：backCompositeUrl（有则是背面合成图）或 mockupBack（空白背面底图）
+  const frontSrc = canvasDataUrl;
+  const backFaceSrc = backCompositeUrl || config.mockupBack || config.mockupBase;
 
   return (
     <div className={inline
@@ -187,11 +147,6 @@ export default function Preview3D({
           <span className="font-bold text-slate-100 text-sm md:text-base">
             {locale === 'zh' ? `${label} · 3D 预览` : `${label} · 3D Preview`}
           </span>
-          {wrapMode && (
-            <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full border border-orange-500/30">
-              {locale === 'zh' ? '360° 环绕' : '360° Wrap'}
-            </span>
-          )}
           <span className="text-xs text-slate-500 hidden md:inline">
             {locale === 'zh' ? '拖拽旋转' : 'Drag to rotate'}
           </span>
@@ -255,16 +210,6 @@ export default function Preview3D({
           style={{ background: 'linear-gradient(to top, rgba(251,146,60,0.04), transparent)' }}
         />
 
-        {/* 加载遮罩 */}
-        {wrapMode && wrapLoading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-slate-950/80">
-            <Loader2 size={32} className="text-orange-500 animate-spin" />
-            <p className="text-slate-400 text-sm">
-              {locale === 'zh' ? '渲染正/背面合成图…' : 'Rendering composites…'}
-            </p>
-          </div>
-        )}
-
         {/* CSS 3D 翻转容器 */}
         <div
           className="relative cursor-grab active:cursor-grabbing"
@@ -274,7 +219,6 @@ export default function Preview3D({
             transformStyle: 'preserve-3d',
             transform: `rotateX(${rotX.current}deg) rotateY(${rotYState}deg)`,
             transition: isDragging.current ? 'none' : undefined,
-            opacity: wrapMode && wrapLoading ? 0 : 1,
           }}
         >
           {/* 正面 */}
@@ -295,7 +239,7 @@ export default function Preview3D({
           </div>
         </div>
 
-        {isBackFace && !(wrapMode && wrapLoading) && (
+        {isBackFace && (
           <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
             <span className="text-xs text-slate-500 bg-slate-900/80 px-3 py-1 rounded-full">
               {locale === 'zh' ? '背面' : 'Back side'}
@@ -307,9 +251,7 @@ export default function Preview3D({
       {/* 底部提示 */}
       <div className="h-10 bg-slate-900/50 border-t border-slate-800 flex items-center justify-center shrink-0">
         <p className="text-xs text-slate-600">
-          {wrapMode
-            ? (locale === 'zh' ? '拖拽旋转 · 正面和背面都有图腾' : 'Drag to rotate · totem on both front & back')
-            : (locale === 'zh' ? '拖拽旋转 · 点击"图腾映射"选择印刷区域' : 'Drag to rotate · Use "Totem Map" to place your design')}
+          {locale === 'zh' ? '拖拽旋转 · 点击"图腾映射"选择印刷区域' : 'Drag to rotate · Use "Totem Map" to place your design'}
         </p>
       </div>
     </div>

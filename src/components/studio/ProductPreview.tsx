@@ -537,12 +537,14 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
         const exportMockupSrc = (selectedZone?.face === 'back' && config.mockupBack)
           ? config.mockupBack
           : config.mockupBase;
+        console.log('[exportComposite] selectedZone:', selectedZone?.id, 'mockup:', exportMockupSrc, 'designUrl len:', designImageUrl?.length);
         const baseImg = await loadImage(exportMockupSrc);
         ctx.drawImage(baseImg, 0, 0, width, height);
 
         // 2. 设计图（clip 到 zone 内，保持比例居中）
         // customZone 优先级高于 selectedZone
         const activeExportZone = customZone ?? selectedZone;
+        console.log('[exportComposite] activeExportZone:', (activeExportZone as any)?.id ?? (activeExportZone ? 'customZone' : 'null'));
         if (designImageUrl && activeExportZone) {
           try {
             const designImg = await loadImage(designImageUrl);

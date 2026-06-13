@@ -799,7 +799,6 @@ function StudioContent() {
                   onClick={async () => {
                     if (!show3DInTotem) {
                       // 切到 3D 前用异步 exportCompositeAsync 导出合成图
-                      // 避免 canvas 跨域污染导致 toDataURL 返回 null
                       const composite = await productPreviewRef.current?.exportCompositeAsync?.();
                       if (composite) {
                         if (selectedZoneFace === 'back') {
