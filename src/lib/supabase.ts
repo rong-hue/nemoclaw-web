@@ -33,6 +33,17 @@ export const designsService = {
     return data;
   },
 
+  // 查询用户当前设计数量
+  async getCount(userId: string): Promise<number> {
+    const supabase = getSupabaseClient();
+    const { count, error } = await supabase
+      .from('designs')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId);
+    if (error) throw error;
+    return count ?? 0;
+  },
+
   // 根据 ID 获取单个设计
   async getById(id: string) {
     const supabase = getSupabaseClient();
@@ -215,6 +226,10 @@ export const subscriptionsService = {
 
 export const FREE_MONTHLY_LIMIT = 3;
 export const PRO_MONTHLY_LIMIT = 50;
+
+// 设计作品保存数量上限
+export const FREE_DESIGNS_LIMIT = 10;
+export const PRO_DESIGNS_LIMIT = 200;
 
 export const aiUsageService = {
   /** 查询用户本月已用次数（在 API Route 服务端调用） */

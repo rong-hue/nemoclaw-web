@@ -19,7 +19,7 @@ import type { ProductType } from '@/lib/totem-mapping';
 import StampCursor from '@/components/StampCursor';
 import WabiSabiBrushPanel from '@/components/WabiSabiBrushPanel';
 import type { WabiSabiParams } from '@/components/WabiSabiBrushPanel';
-import { designsService, subscriptionsService } from '@/lib/supabase';
+import { designsService, subscriptionsService, FREE_DESIGNS_LIMIT, PRO_DESIGNS_LIMIT } from '@/lib/supabase';
 import { getTalismanById } from '@/lib/talismans';
 import type { Stamp } from '@/lib/stamps';
 
@@ -314,6 +314,27 @@ function StudioContent() {
       // 用 ref 读取最新 designId，避免并发竞态（多个 async handleSave 同时执行时
       // 第一次保存还在 await，第二次也开始了，两次都读到 undefined → 重复 insert）
       const currentDesignId = designIdRef.current;
+
+      // 新建作品时检查数量上限
+      if (!currentDesignId) {
+        const activeSub = await subscriptionsService.getActiveByUser(liveUser.id).catch(() => null);
+        const isPro = !!activeSub;
+        const designsLimit = isPro ? PRO_DESIGNS_LIMIT : FREE_DESIGNS_LIMIT;
+        const count = await designsService.getCount(liveUser.id);
+        if (count >= designsLimit) {
+          if (!silent) {
+            // 手动保存时提示用户
+            setSaveStatus('error');
+            setTimeout(() => setSaveStatus('idle'), 5000);
+            alert(isPro
+              ? `已达到 Pro 计划上限（${PRO_DESIGNS_LIMIT} 个设计），请删除一些旧作品后再保存。`
+              : `免费版最多保存 ${FREE_DESIGNS_LIMIT} 个设计，请升级 Pro 或删除旧作品。`);
+          }
+          // 自动保存时静默跳过，不打扰用户
+          return;
+        }
+      }
+
       const saved = await designsService.save({
         id: currentDesignId,
         user_id: liveUser.id,
