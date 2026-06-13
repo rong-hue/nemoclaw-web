@@ -418,6 +418,7 @@ function StudioContent() {
 
   const handleOpenTotemMap = () => {
     const dataUrl = canvasRef.current?.exportImageDataUrl?.();
+    console.log('[TotemMap] previewDataUrl length:', dataUrl?.length, 'starts:', dataUrl?.substring(0, 50));
     setPreviewDataUrl(dataUrl || '');
     setShowProductPreview(true);
   };

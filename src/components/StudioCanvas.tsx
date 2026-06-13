@@ -631,7 +631,19 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     exportImageDataUrl: () => {
       const canvas = fabricRef.current; if (!canvas) return '';
-      return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+      try {
+        return canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+      } catch (e) {
+        console.error('[exportImageDataUrl] toDataURL failed (canvas tainted?):', e);
+        // fallback: 尝试去掉 crossOrigin 的纯画布导出
+        try {
+          const html5Canvas = (canvas as any).lowerCanvasEl as HTMLCanvasElement;
+          return html5Canvas?.toDataURL('image/png') ?? '';
+        } catch (e2) {
+          console.error('[exportImageDataUrl] fallback also failed:', e2);
+          return '';
+        }
+      }
     },
     exportThumbnail: async () => {
       const canvas = fabricRef.current; if (!canvas) return '';
