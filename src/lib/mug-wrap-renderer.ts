@@ -3,12 +3,27 @@
  *
  * 马克杯外壁环绕(outer-wrap) zone 的正/背面合成图渲染器。
  *
- * 渲染两张合成图：
- *   frontDataUrl  → mug.png 底图 + 图腾贴到 outer-front 位置（杯身正面中央）
- *   backDataUrl   → mug-back.png 底图 + 图腾贴到背面对称位置
+ * 环绕原理：
+ *   设计图被分成左右两半（各占 50%）。
+ *   正面合成图 → mug.png 底图 + 设计图右半贴到 outer-front quad
+ *     （正面看到的是图腾右侧，因为用户面向杯子时右侧在正面）
+ *   背面合成图 → mug-back.png 底图 + 设计图左半贴到背面对称 quad
  *
- * 两张图都用 drawPerspectiveQuad + topSag/bottomSag 保持杯身弧度。
- * CSS rotateY 旋转时整张合成图一起翻 → 杯子和图腾同步旋转。
+ * CSS rotateY 旋转时整张合成图一起翻 → 杯子和图腾同步旋转，视觉上图腾绕杯一圈。
+ *
+ * 图腾在设计图中的映射（从杯子正面顺时针看）：
+ *   0%   ──────── 50%  ──────── 100%
+ *   左边缘          中心          右边缘
+ *   正面右侧 ← 正面中心 → 正面左侧（即视觉上左右互换？不，保持自然）
+ *
+ * 实际做法：
+ *   正面：取设计图 srcX=0, srcW=fullWidth（完整图），裁剪 contain 让它填满正面 quad
+ *   背面：同样取完整图贴到背面 quad（背面底图已经是杯背视角）
+ *   → 正面看到完整图腾，背面看到完整图腾（背面底图自然反向）
+ *
+ * 真正的「分段环绕」（左半/右半）需要设计图横向比例 ≥ 2:1，
+ * 且需要知道印刷展开图尺寸，超出当前方案复杂度。
+ * 当前方案：正面/背面各贴完整图腾，旋转后两者无缝衔接，视觉上是正面+背面都有图腾。
  */
 
 export interface MugWrapComposites {
@@ -17,6 +32,7 @@ export interface MugWrapComposites {
 }
 
 // ── outer-front zone 参数（与 totem-mapping.ts 的 outer-front zone 一致）────
+// 正面 quad：杯身正面中央印刷区
 const FRONT_QUAD = {
   tl: [0.390, 0.552] as [number, number],
   tr: [0.620, 0.550] as [number, number],
@@ -26,7 +42,8 @@ const FRONT_QUAD = {
 const FRONT_TOP_SAG = 8;
 const FRONT_BOTTOM_SAG = 8;
 
-// ── 背面 zone 参数（mug-back.png 上对称位置，与正面 quad 近似）─────────────
+// ── 背面 quad（mug-back.png 上的对称印刷区，与正面 quad 位置一致）───────────
+// mug-back.png 本身已经是杯背视角，所以用相同的归一化坐标即可
 const BACK_QUAD = {
   tl: [0.390, 0.552] as [number, number],
   tr: [0.620, 0.550] as [number, number],
@@ -96,25 +113,26 @@ function drawPerspectiveQuad(
     const t0 = i / STEPS;
     const t1 = (i + 1) / STEPS;
 
-    // 顶边弧度（贝塞尔）
-    const sagTop0 = topSag * 4 * t0 * (1 - t0);
-    const sagTop1 = topSag * 4 * t1 * (1 - t1);
-    // 底边弧度
-    const sagBot0 = bottomSag * 4 * t0 * (1 - t0);
-    const sagBot1 = bottomSag * 4 * t1 * (1 - t1);
+    // 每行上/下边界的弧度偏移：在 topSag 和 bottomSag 之间按 t 线性插值
+    // 这样扫描线弧度从顶边平滑过渡到底边，避免只用 topSag 或 bottomSag 的跳变
+    const sag0 = topSag * (1 - t0) + bottomSag * t0;  // 当前行上边界弧度
+    const sag1 = topSag * (1 - t1) + bottomSag * t1;  // 当前行下边界弧度
 
-    void sagBot0;
-    void sagTop1;
+    // 贝塞尔弧（中间最高，两端为 0）— 水平方向偏移量由调用处的 t 决定
+    // 注：这里 t0/t1 是垂直进度，水平弧度用固定的 4*0.5*(1-0.5)=1.0 近似峰值
+    // 实际水平位置弧度由 scanline 左右端点的 sagOffset 决定
+    const sagOffset0 = sag0 * 4 * t0 * (1 - t0);
+    const sagOffset1 = sag1 * 4 * t1 * (1 - t1);
 
     const lx0 = tl[0] + (bl[0] - tl[0]) * t0;
-    const ly0 = tl[1] + (bl[1] - tl[1]) * t0 + sagTop0;
+    const ly0 = tl[1] + (bl[1] - tl[1]) * t0 + sagOffset0;
     const rx0 = tr[0] + (br[0] - tr[0]) * t0;
-    const ry0 = tr[1] + (br[1] - tr[1]) * t0 + sagTop0;
+    const ry0 = tr[1] + (br[1] - tr[1]) * t0 + sagOffset0;
 
     const lx1 = tl[0] + (bl[0] - tl[0]) * t1;
-    const ly1 = tl[1] + (bl[1] - tl[1]) * t1 + sagBot1;
+    const ly1 = tl[1] + (bl[1] - tl[1]) * t1 + sagOffset1;
     const rx1 = tr[0] + (br[0] - tr[0]) * t1;
-    const ry1 = tr[1] + (br[1] - tr[1]) * t1 + sagBot1;
+    const ry1 = tr[1] + (br[1] - tr[1]) * t1 + sagOffset1;
 
     const sy = srcY + t0 * drawSrcH;
     const sh = drawSrcH / STEPS;

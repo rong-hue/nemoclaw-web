@@ -852,7 +852,7 @@ function StudioContent() {
                   userEmail={currentUser?.email || ''}
                   inline={true}
                   selectedZoneId={selectedZoneId}
-                  designImageUrl={backCompositeUrl || totemCompositeUrl || previewDataUrl}
+                  designImageUrl={previewDataUrl}
                 />
               </div>
             ) : (
