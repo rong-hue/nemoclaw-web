@@ -160,33 +160,38 @@ function StudioContent() {
     if (!currentUser) return;
     // 避免重复加载：URL 参数的 designId 和当前 designId 相同时不加载
     if (designId === designIdFromUrl) return;
+    console.log('[Studio] Loading design from URL:', designIdFromUrl, '| authLoading:', authLoading, '| currentUser:', currentUser?.id, '| designId:', designId);
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
+        console.log('[Studio] Design fetched:', design?.id, '| has canvas_json:', !!design?.canvas_json);
         if (design.canvas_json) {
           // 先设置标题和 ID
           setDesignTitle(design.title || '');
           designIdRef.current = design.id; // 同步更新 ref，避免 async 竞态
           setDesignId(design.id);
-          // 轮询等待画布 ref 就绪，最多等 3 秒
+          // 轮询等待画布 ref 就绪，最多等 5 秒
           const jsonData = typeof design.canvas_json === 'string'
             ? design.canvas_json
             : JSON.stringify(design.canvas_json);
           let waited = 0;
           const tryLoad = async () => {
+            console.log('[Studio] tryLoad canvasRef:', !!canvasRef.current, '| waited:', waited);
             if (canvasRef.current) {
+              console.log('[Studio] loadFromJSON start');
               await canvasRef.current.loadFromJSON(jsonData);
-            } else if (waited < 3000) {
+              console.log('[Studio] loadFromJSON done');
+            } else if (waited < 5000) {
               waited += 100;
               setTimeout(tryLoad, 100);
             } else {
-              console.error('Canvas ref not ready after 3s');
+              console.error('[Studio] Canvas ref not ready after 5s');
             }
           };
-          setTimeout(tryLoad, 50);
+          setTimeout(tryLoad, 100);
         }
       } catch (err) {
-        console.error('Failed to load design:', err);
+        console.error('[Studio] Failed to load design:', err);
       }
     })();
   }, [searchParams, authLoading, currentUser?.id]); // authLoading 确保 auth 初始化完成后再加载；用 id 避免 token 刷新时对象引用变化触发重复加载
