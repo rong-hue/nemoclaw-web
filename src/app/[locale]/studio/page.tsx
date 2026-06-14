@@ -154,19 +154,19 @@ function StudioContent() {
   // 从 URL 加载设计（?design=<id>）
   useEffect(() => {
     const designIdFromUrl = searchParams?.get('design');
+    console.log('[Studio] load-effect | designIdFromUrl:', designIdFromUrl, '| authLoading:', authLoading, '| user:', currentUser?.id, '| designId:', designId);
     if (!designIdFromUrl) return;
-    if (authLoading) return;
-    if (!currentUser) return;
+    if (authLoading) { console.log('[Studio] blocked: authLoading'); return; }
+    if (!currentUser) { console.log('[Studio] blocked: no user'); return; }
     // 检查画布是否真的有内容，避免 SPA 路由复用时 designId 相同但画布为空的情况
-    // 场景：用户在 Studio 里，designId 已是 X；切到 Dashboard 再点同一个设计的编辑
-    // 组件没有 unmount，designId 还是 X，但画布可能被清空了
     const currentJson = canvasRef.current?.exportJSON();
     let canvasHasContent = false;
     try {
       const parsed = currentJson ? JSON.parse(currentJson) : null;
       canvasHasContent = !!(parsed?.objects && parsed.objects.length > 0);
     } catch { canvasHasContent = false; }
-    if (designId === designIdFromUrl && canvasHasContent) return;
+    console.log('[Studio] designId match:', designId === designIdFromUrl, '| canvasHasContent:', canvasHasContent);
+    if (designId === designIdFromUrl && canvasHasContent) { console.log('[Studio] blocked: already loaded'); return; }
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
@@ -185,15 +185,24 @@ function StudioContent() {
           let waited = 0;
           const tryLoad = async () => {
             if (canvasRef.current) {
-              await canvasRef.current.loadFromJSON(jsonData);
+              console.log('[Studio] loadFromJSON start, jsonData length:', jsonData.length);
+              try {
+                await canvasRef.current.loadFromJSON(jsonData);
+                console.log('[Studio] loadFromJSON done');
+              } catch(e) {
+                console.error('[Studio] loadFromJSON error:', e);
+              }
             } else if (waited < 5000) {
               waited += 100;
+              console.log('[Studio] waiting for canvasRef, waited:', waited);
               setTimeout(tryLoad, 100);
             } else {
-              console.error('Canvas ref not ready after 5s');
+              console.error('[Studio] Canvas ref not ready after 5s');
             }
           };
           setTimeout(tryLoad, 100);
+        } else {
+          console.warn('[Studio] canvas_json has no objects, skipping load. hasObjects:', hasObjects, 'cjObj keys:', Object.keys(cjObj || {}));
         }
       } catch (err) {
         console.error('Failed to load design:', err);
