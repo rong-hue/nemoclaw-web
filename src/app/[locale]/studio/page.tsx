@@ -154,13 +154,12 @@ function StudioContent() {
   // 从 URL 加载设计（?design=<id>）
   useEffect(() => {
     const designIdFromUrl = searchParams?.get('design');
+    console.log('[Studio] useEffect triggered | designIdFromUrl:', designIdFromUrl, '| authLoading:', authLoading, '| currentUser:', currentUser?.id, '| designId:', designId);
     if (!designIdFromUrl) return;
-    // 等待 auth 初始化完成，避免 onAuthStateChange 提前触发时 canvas 还没 mount
-    if (authLoading) return;
-    if (!currentUser) return;
-    // 避免重复加载：URL 参数的 designId 和当前 designId 相同时不加载
-    if (designId === designIdFromUrl) return;
-    console.log('[Studio] Loading design from URL:', designIdFromUrl, '| authLoading:', authLoading, '| currentUser:', currentUser?.id, '| designId:', designId);
+    if (authLoading) { console.log('[Studio] blocked: authLoading'); return; }
+    if (!currentUser) { console.log('[Studio] blocked: no currentUser'); return; }
+    if (designId === designIdFromUrl) { console.log('[Studio] blocked: designId already matches', designId); return; }
+    console.log('[Studio] Loading design from URL:', designIdFromUrl);
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
