@@ -241,7 +241,7 @@ export default function DashboardPage() {
                     <img
                       src={design.preview_url}
                       alt={design.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl">🎨</div>
