@@ -154,46 +154,47 @@ function StudioContent() {
   // 从 URL 加载设计（?design=<id>）
   useEffect(() => {
     const designIdFromUrl = searchParams?.get('design');
-    console.log('[Studio] useEffect triggered | designIdFromUrl:', designIdFromUrl, '| authLoading:', authLoading, '| currentUser:', currentUser?.id, '| designId:', designId);
     if (!designIdFromUrl) return;
-    if (authLoading) { console.log('[Studio] blocked: authLoading'); return; }
-    if (!currentUser) { console.log('[Studio] blocked: no currentUser'); return; }
-    if (designId === designIdFromUrl) { console.log('[Studio] blocked: designId already matches', designId); return; }
-    console.log('[Studio] Loading design from URL:', designIdFromUrl);
+    if (authLoading) return;
+    if (!currentUser) return;
+    // 检查画布是否真的有内容，避免 SPA 路由复用时 designId 相同但画布为空的情况
+    // 场景：用户在 Studio 里，designId 已是 X；切到 Dashboard 再点同一个设计的编辑
+    // 组件没有 unmount，designId 还是 X，但画布可能被清空了
+    const currentJson = canvasRef.current?.exportJSON();
+    let canvasHasContent = false;
+    try {
+      const parsed = currentJson ? JSON.parse(currentJson) : null;
+      canvasHasContent = !!(parsed?.objects && parsed.objects.length > 0);
+    } catch { canvasHasContent = false; }
+    if (designId === designIdFromUrl && canvasHasContent) return;
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
-        console.log('[Studio] Design fetched:', design?.id, '| has canvas_json:', !!design?.canvas_json);
         if (design.canvas_json) {
-          // 先设置标题和 ID
           setDesignTitle(design.title || '');
-          designIdRef.current = design.id; // 同步更新 ref，避免 async 竞态
+          designIdRef.current = design.id;
           setDesignId(design.id);
-          // 轮询等待画布 ref 就绪，最多等 5 秒
           const jsonData = typeof design.canvas_json === 'string'
             ? design.canvas_json
             : JSON.stringify(design.canvas_json);
           let waited = 0;
           const tryLoad = async () => {
-            console.log('[Studio] tryLoad canvasRef:', !!canvasRef.current, '| waited:', waited);
             if (canvasRef.current) {
-              console.log('[Studio] loadFromJSON start');
               await canvasRef.current.loadFromJSON(jsonData);
-              console.log('[Studio] loadFromJSON done');
             } else if (waited < 5000) {
               waited += 100;
               setTimeout(tryLoad, 100);
             } else {
-              console.error('[Studio] Canvas ref not ready after 5s');
+              console.error('Canvas ref not ready after 5s');
             }
           };
           setTimeout(tryLoad, 100);
         }
       } catch (err) {
-        console.error('[Studio] Failed to load design:', err);
+        console.error('Failed to load design:', err);
       }
     })();
-  }, [searchParams, authLoading, currentUser?.id]); // authLoading 确保 auth 初始化完成后再加载；用 id 避免 token 刷新时对象引用变化触发重复加载
+  }, [searchParams, authLoading, currentUser?.id]); // authLoading 确保 auth 初始化完成后再加载；用 id 避免 token 刷新时重复触发
 
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
