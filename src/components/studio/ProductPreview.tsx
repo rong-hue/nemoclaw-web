@@ -757,20 +757,27 @@ const ProductPreview = forwardRef<ProductPreviewHandle, ProductPreviewProps>(fun
         : '';
       const title = `${productLabel}${zoneLabel ? ` · ${zoneLabel}` : ''} — Totem`;
 
+      // 用实际 canvas 尺寸，缩放铺满 Studio 默认 800x800 画布
+      // 不能硬编码 800x800 — ProductPreview canvas 默认 480x480
+      // 改用 Fabric.js 7.x 格式（type 大写 'Image'）
+      const studioSize = 800;
+      const { width: cw, height: ch } = canvasSize;
+      const scaleX = studioSize / cw;
+      const scaleY = studioSize / ch;
       const canvasJson = {
-        version: '5.3.0',
+        version: '6.0.0',
         objects: [
           {
-            type: 'image',
-            version: '5.3.0',
+            type: 'Image',
+            version: '6.0.0',
             originX: 'left',
             originY: 'top',
             left: 0,
             top: 0,
-            width: 800,
-            height: 800,
-            scaleX: 1,
-            scaleY: 1,
+            width: cw,
+            height: ch,
+            scaleX,
+            scaleY,
             src: dataUrl,
             crossOrigin: 'anonymous',
             selectable: false,
