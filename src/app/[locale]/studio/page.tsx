@@ -154,7 +154,10 @@ function StudioContent() {
   // 从 URL 加载设计（?design=<id>）
   useEffect(() => {
     const designIdFromUrl = searchParams?.get('design');
-    if (!designIdFromUrl || !currentUser) return;
+    if (!designIdFromUrl) return;
+    // 等待 auth 初始化完成，避免 onAuthStateChange 提前触发时 canvas 还没 mount
+    if (authLoading) return;
+    if (!currentUser) return;
     // 避免重复加载：URL 参数的 designId 和当前 designId 相同时不加载
     if (designId === designIdFromUrl) return;
     (async () => {
@@ -186,7 +189,7 @@ function StudioContent() {
         console.error('Failed to load design:', err);
       }
     })();
-  }, [searchParams, currentUser]); // 移除 designId 依赖，避免保存后触发重新加载
+  }, [searchParams, authLoading, currentUser?.id]); // authLoading 确保 auth 初始化完成后再加载；用 id 避免 token 刷新时对象引用变化触发重复加载
 
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
