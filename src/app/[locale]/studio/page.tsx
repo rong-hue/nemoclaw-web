@@ -170,7 +170,12 @@ function StudioContent() {
     (async () => {
       try {
         const design = await designsService.getById(designIdFromUrl);
-        if (design.canvas_json) {
+        // 检查 canvas_json 是否有实际内容（空对象 {} 是无效数据，不加载）
+        const cjObj = typeof design.canvas_json === 'string'
+          ? JSON.parse(design.canvas_json)
+          : design.canvas_json;
+        const hasObjects = Array.isArray(cjObj?.objects) && cjObj.objects.length > 0;
+        if (design.canvas_json && hasObjects) {
           setDesignTitle(design.title || '');
           designIdRef.current = design.id;
           setDesignId(design.id);
