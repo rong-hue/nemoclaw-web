@@ -1,6 +1,6 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
-import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
+import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 
 // SiliconFlow FLUX AI 生图 API — 带配额控制
 // POST /api/ai-generate
@@ -48,14 +48,14 @@ export async function POST(req: Request) {
     let activeSub: unknown;
     try {
       [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getMonthlyCount(userId),
+        aiUsageService.getDailyCount(userId),
         subscriptionsService.getActiveByUser(userId).catch(() => null),
       ]);
     } catch (e) {
       console.error('[AI Generate] quota check failed:', e);
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
+    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
     if (usedCount >= limit) {
       return Response.json(
         { error: 'quota_exceeded', used: usedCount, limit, isPro: !!activeSub },

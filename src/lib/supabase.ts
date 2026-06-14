@@ -224,19 +224,19 @@ export const subscriptionsService = {
 //   create policy "insert" on ai_usage for insert with check (true);
 //   create policy "select" on ai_usage for select using (true);
 
-export const FREE_MONTHLY_LIMIT = 3;
-export const PRO_MONTHLY_LIMIT = 50;
+export const FREE_DAILY_LIMIT = 1;
+export const PRO_DAILY_LIMIT = 6;
 
 // 设计作品保存数量上限
 export const FREE_DESIGNS_LIMIT = 10;
 export const PRO_DESIGNS_LIMIT = 200;
 
 export const aiUsageService = {
-  /** 查询用户本月已用次数（在 API Route 服务端调用） */
-  async getMonthlyCount(userId: string): Promise<number> {
+  /** 查询用户今日已用次数（在 API Route 服务端调用） */
+  async getDailyCount(userId: string): Promise<number> {
     const supabase = getServiceClient();
     const start = new Date();
-    start.setDate(1); start.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
     const { count, error } = await supabase
       .from('ai_usage')
       .select('id', { count: 'exact', head: true })
@@ -244,6 +244,11 @@ export const aiUsageService = {
       .gte('created_at', start.toISOString());
     if (error) throw error;
     return count ?? 0;
+  },
+
+  /** @deprecated 用 getDailyCount 替代 */
+  async getMonthlyCount(userId: string): Promise<number> {
+    return this.getDailyCount(userId);
   },
 
   /** 记录一次使用（在 API Route 服务端调用） */

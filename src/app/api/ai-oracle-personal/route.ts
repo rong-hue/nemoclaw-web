@@ -1,6 +1,6 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
-import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
+import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 
 // 场景3：个性化 AI Oracle 图 — 用户照片 → 个性化神谕图
 // POST /api/ai-oracle-personal
@@ -39,13 +39,13 @@ export async function POST(req: Request) {
     let activeSub: unknown;
     try {
       [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getMonthlyCount(user.id),
+        aiUsageService.getDailyCount(user.id),
         subscriptionsService.getActiveByUser(user.id).catch(() => null),
       ]);
     } catch {
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
+    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
     // 个性化神谕消耗 2 次配额（Pro 功能增强）
     const COST = activeSub ? 1 : 2;
     if (usedCount + COST > limit) {

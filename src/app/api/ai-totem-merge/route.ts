@@ -1,6 +1,6 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
-import { aiUsageService, subscriptionsService, FREE_MONTHLY_LIMIT, PRO_MONTHLY_LIMIT } from '@/lib/supabase';
+import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 
 // 场景1：图腾融合 API — 把设计图贴合到商品表面，生成真实印刷效果
 // POST /api/ai-totem-merge
@@ -32,13 +32,13 @@ export async function POST(req: Request) {
     let activeSub: unknown;
     try {
       [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getMonthlyCount(user.id),
+        aiUsageService.getDailyCount(user.id),
         subscriptionsService.getActiveByUser(user.id).catch(() => null),
       ]);
     } catch {
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
+    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
     if (usedCount >= limit) {
       return Response.json({ error: 'quota_exceeded', used: usedCount, limit, isPro: !!activeSub }, { status: 429 });
     }
