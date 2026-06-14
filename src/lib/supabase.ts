@@ -261,7 +261,7 @@ export const aiUsageService = {
 
 // ── Oracle 神谕相关操作 ──────────────────────────────────────────────────────
 export const FREE_DAILY_ORACLE_LIMIT = 1;
-export const PRO_DAILY_ORACLE_LIMIT = 3;
+export const PRO_DAILY_ORACLE_LIMIT = 6;
 
 export const oracleService = {
   /** 获取用户今日神谕（如果存在） */
