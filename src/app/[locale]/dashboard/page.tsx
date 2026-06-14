@@ -46,9 +46,11 @@ export default function DashboardPage() {
       router.push(`/${locale}/auth`);
       return;
     }
+    // 用 userId 做判断，避免 onAuthStateChange 刷新 token 时
+    // currentUser 对象引用变化导致重复加载
     loadDesigns(currentUser.id);
     loadSubscription();
-  }, [authLoading, currentUser]);
+  }, [authLoading, currentUser?.id]); // 只依赖 userId，不依赖整个 user 对象
 
   const loadDesigns = async (userId: string) => {
     setLoading(true);
