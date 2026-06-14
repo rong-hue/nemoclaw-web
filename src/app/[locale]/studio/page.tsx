@@ -456,12 +456,18 @@ function StudioContent() {
     setShowProductPreview(true);
   };
 
-  const STYLE_LABELS: Record<string, string> = {
+  const STYLE_LABELS: Record<string, string> = locale === 'zh' ? {
     shuimo: '水墨',
     gongbi: '工笔',
     ukiyo: '浮世绘',
     cyberpunk: '赛博国风',
     liubai: '留白',
+  } : {
+    shuimo: 'Ink Wash',
+    gongbi: 'Gongbi',
+    ukiyo: 'Ukiyo-e',
+    cyberpunk: 'Cyber Guofeng',
+    liubai: 'Negative Space',
   };
 
   const handleToolChange = (tool: string) => {
