@@ -1,6 +1,7 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
+import { validateImageUrl } from '@/lib/input-validation';
 
 // 场景1：图腾融合 API — 把设计图贴合到商品表面，生成真实印刷效果
 // POST /api/ai-totem-merge
@@ -52,6 +53,10 @@ export async function POST(req: Request) {
     if (!productImageUrl || !designImageUrl) {
       return Response.json({ error: 'productImageUrl and designImageUrl are required' }, { status: 400 });
     }
+    const urlErr1 = validateImageUrl(productImageUrl);
+    if (urlErr1) return Response.json({ error: `productImageUrl: ${urlErr1}` }, { status: 400 });
+    const urlErr2 = validateImageUrl(designImageUrl);
+    if (urlErr2) return Response.json({ error: `designImageUrl: ${urlErr2}` }, { status: 400 });
 
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {

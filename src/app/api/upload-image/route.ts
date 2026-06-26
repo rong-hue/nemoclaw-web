@@ -1,5 +1,6 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
+import { validateMagicBytes } from '@/lib/input-validation';
 
 // POST /api/upload-image
 // Accepts multipart/form-data with a "file" field (image/*)
@@ -27,6 +28,13 @@ export async function POST(req: Request) {
     }
     if (file.size > 10 * 1024 * 1024) {
       return Response.json({ error: 'File too large (max 10MB)' }, { status: 400 });
+    }
+
+    // 3b. 文件头 magic bytes 验证（防止伪造 MIME type）
+    const headerBytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const magicErr = validateMagicBytes(headerBytes);
+    if (magicErr) {
+      return Response.json({ error: magicErr }, { status: 400 });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

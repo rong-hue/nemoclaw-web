@@ -1,6 +1,7 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
+import { validatePrompt, validateImageUrl } from '@/lib/input-validation';
 
 // 场景2：图腾风格迁移 API — 用户上传图片，转换为东方美学风格
 // POST /api/ai-style-transfer
@@ -49,6 +50,10 @@ export async function POST(req: Request) {
 
     if (!imageUrl) {
       return Response.json({ error: 'imageUrl is required' }, { status: 400 });
+    }
+    const urlErr = validateImageUrl(imageUrl);
+    if (urlErr) {
+      return Response.json({ error: urlErr }, { status: 400 });
     }
     if (!STYLE_TRANSFER_PROMPTS[style]) {
       return Response.json({ error: `Unknown style: ${style}. Valid: shuimo, gongbi, ukiyo, cyberpunk, liubai` }, { status: 400 });

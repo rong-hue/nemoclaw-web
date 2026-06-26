@@ -1,6 +1,7 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
+import { validatePrompt, validateImageUrl } from '@/lib/input-validation';
 
 // SiliconFlow FLUX AI 生图 API — 带配额控制
 // POST /api/ai-generate
@@ -65,8 +66,9 @@ export async function POST(req: Request) {
     const { prompt, style, width = 512, height = 512 } = await req.json() as {
       prompt: string; style?: string; width?: number; height?: number;
     };
-    if (!prompt?.trim()) {
-      return Response.json({ error: 'prompt is required' }, { status: 400 });
+    const promptValidation = validatePrompt(prompt);
+    if (!promptValidation.ok) {
+      return Response.json({ error: promptValidation.error }, { status: 400 });
     }
 
     const apiKey = process.env.SILICONFLOW_API_KEY;

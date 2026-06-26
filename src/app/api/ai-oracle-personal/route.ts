@@ -1,6 +1,7 @@
 export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
+import { validateImageUrl } from '@/lib/input-validation';
 
 // 场景3：个性化 AI Oracle 图 — 用户照片 → 个性化神谕图
 // POST /api/ai-oracle-personal
@@ -60,6 +61,10 @@ export async function POST(req: Request) {
 
     if (!photoUrl) {
       return Response.json({ error: 'photoUrl is required' }, { status: 400 });
+    }
+    const urlErr = validateImageUrl(photoUrl);
+    if (urlErr) {
+      return Response.json({ error: urlErr }, { status: 400 });
     }
 
     const apiKey = process.env.SILICONFLOW_API_KEY;
