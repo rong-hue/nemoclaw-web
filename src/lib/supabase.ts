@@ -6,9 +6,11 @@ import { getSupabaseBrowserClient } from '@/lib/supabase-auth';
  * 只在 API Route / Server Component 中调用，不要在客户端使用
  */
 function getServiceClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  // 优先用 service_role key（服务端），没有则降级到 anon key（开发环境）
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured. Check environment variables.');
+  }
   return createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false },
   });
