@@ -35,21 +35,19 @@ export async function POST(req: Request) {
     }
 
     // 2. 配额检查（个性化神谕消耗 2 次配额，因为效果更精细）
-    let usedCount: number;
+    let quotaResult: { allowed: boolean; used: number; limit: number };
     let activeSub: unknown;
+    let COST: number;
     try {
-      [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getDailyCount(user.id),
-        subscriptionsService.getActiveByUser(user.id).catch(() => null),
-      ]);
+      activeSub = await subscriptionsService.getActiveByUser(user.id).catch(() => null);
+      COST = activeSub ? 1 : 2;
+      const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+      quotaResult = await aiUsageService.incrementQuotaSafe(user.id, limit, 'oracle-personal', COST);
     } catch {
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
-    // 个性化神谕消耗 2 次配额（Pro 功能增强）
-    const COST = activeSub ? 1 : 2;
-    if (usedCount + COST > limit) {
-      return Response.json({ error: 'quota_exceeded', used: usedCount, limit, cost: COST, isPro: !!activeSub }, { status: 429 });
+    if (!quotaResult.allowed) {
+      return Response.json({ error: 'quota_exceeded', used: quotaResult.used, limit: quotaResult.limit, cost: COST, isPro: !!activeSub }, { status: 429 });
     }
 
     // 3. 解析请求
@@ -106,18 +104,14 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 6. 记录使用（消耗 COST 次）
-    const recordPromises = Array.from({ length: COST }, () =>
-      aiUsageService.record(user.id).catch((e) => console.error('[AI Usage] record failed:', e))
-    );
-    await Promise.all(recordPromises);
+    // 6. 记录使用（已在配额检查时原子写入 COST 次，无需再次记录）
 
     return Response.json({
       url: resultUrl,
       mood,
       element: element ?? null,
-      used: usedCount + COST,
-      limit,
+      used: quotaResult.used,
+      limit: quotaResult.limit,
       cost: COST,
       isPro: !!activeSub,
     });

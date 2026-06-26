@@ -27,20 +27,18 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. 配额检查（与 ai-generate 共享配额）
-    let usedCount: number;
+    // 2. 配额检查（与 ai-generate 共享配额，原子操作）
+    let quotaResult: { allowed: boolean; used: number; limit: number };
     let activeSub: unknown;
     try {
-      [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getDailyCount(user.id),
-        subscriptionsService.getActiveByUser(user.id).catch(() => null),
-      ]);
+      activeSub = await subscriptionsService.getActiveByUser(user.id).catch(() => null);
+      const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+      quotaResult = await aiUsageService.incrementQuotaSafe(user.id, limit);
     } catch {
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
-    if (usedCount >= limit) {
-      return Response.json({ error: 'quota_exceeded', used: usedCount, limit, isPro: !!activeSub }, { status: 429 });
+    if (!quotaResult.allowed) {
+      return Response.json({ error: 'quota_exceeded', used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub }, { status: 429 });
     }
 
     // 3. 解析请求
@@ -94,10 +92,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 6. 记录使用
-    await aiUsageService.record(user.id).catch((e) => console.error('[AI Usage] record failed:', e));
+    // 6. 记录使用（已在配额检查时原子写入，无需再次记录）
 
-    return Response.json({ url: imageUrl, used: usedCount + 1, limit, isPro: !!activeSub });
+    return Response.json({ url: imageUrl, used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[AI Totem Merge] Error:', msg);

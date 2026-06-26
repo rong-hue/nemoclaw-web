@@ -257,6 +257,70 @@ export const aiUsageService = {
     const { error } = await supabase.from('ai_usage').insert({ user_id: userId, type });
     if (error) throw error;
   },
+
+  /**
+   * 原子配额检查 + 写入（方案1：Supabase RPC 存储过程）
+   *
+   * 返回 { allowed: boolean; used: number; limit: number }
+   * - allowed=true：配额充足，已原子写入一条记录
+   * - allowed=false：配额已满，未写入
+   *
+   * 需要先在 Supabase SQL Editor 执行一次建表脚本（见下方注释）
+   *
+   * -- =====================================================
+   * -- 在 Supabase SQL Editor 执行（仅需执行一次）：
+   * -- =====================================================
+   * -- create or replace function increment_quota_safe(
+   * --   p_user_id  text,
+   * --   p_limit    int,
+   * --   p_type     text default 'generate',
+   * --   p_cost     int  default 1
+   * -- )
+   * -- returns jsonb
+   * -- language plpgsql
+   * -- security definer
+   * -- as $$
+   * -- declare
+   * --   v_today_start  timestamptz := date_trunc('day', now() at time zone 'UTC');
+   * --   v_used         int;
+   * -- begin
+   * --   -- 行级锁：锁定该用户今日的所有记录，防止并发写入竞争
+   * --   select count(*) into v_used
+   * --   from ai_usage
+   * --   where user_id = p_user_id
+   * --     and created_at >= v_today_start
+   * --   for update;
+   * --
+   * --   if v_used + p_cost > p_limit then
+   * --     return jsonb_build_object('allowed', false, 'used', v_used, 'limit', p_limit);
+   * --   end if;
+   * --
+   * --   -- 原子插入 p_cost 条记录
+   * --   insert into ai_usage (user_id, type)
+   * --   select p_user_id, p_type
+   * --   from generate_series(1, p_cost);
+   * --
+   * --   return jsonb_build_object('allowed', true, 'used', v_used + p_cost, 'limit', p_limit);
+   * -- end;
+   * -- $$;
+   * -- =====================================================
+   */
+  async incrementQuotaSafe(
+    userId: string,
+    limit: number,
+    type = 'generate',
+    cost = 1
+  ): Promise<{ allowed: boolean; used: number; limit: number }> {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase.rpc('increment_quota_safe', {
+      p_user_id: userId,
+      p_limit: limit,
+      p_type: type,
+      p_cost: cost,
+    });
+    if (error) throw error;
+    return data as { allowed: boolean; used: number; limit: number };
+  },
 };
 
 // ── Oracle 神谕相关操作 ──────────────────────────────────────────────────────

@@ -43,22 +43,20 @@ export async function POST(req: Request) {
     }
     const userId = user.id;
 
-    // 2. 配额检查
-    let usedCount: number;
+    // 2. 配额检查（原子操作）
+    let quotaResult: { allowed: boolean; used: number; limit: number };
     let activeSub: unknown;
     try {
-      [usedCount, activeSub] = await Promise.all([
-        aiUsageService.getDailyCount(userId),
-        subscriptionsService.getActiveByUser(userId).catch(() => null),
-      ]);
+      activeSub = await subscriptionsService.getActiveByUser(userId).catch(() => null);
+      const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+      quotaResult = await aiUsageService.incrementQuotaSafe(userId, limit);
     } catch (e) {
       console.error('[AI Generate] quota check failed:', e);
       return Response.json({ error: 'quota_check_failed' }, { status: 503 });
     }
-    const limit = activeSub ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
-    if (usedCount >= limit) {
+    if (!quotaResult.allowed) {
       return Response.json(
-        { error: 'quota_exceeded', used: usedCount, limit, isPro: !!activeSub },
+        { error: 'quota_exceeded', used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub },
         { status: 429 }
       );
     }
@@ -109,10 +107,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 5. 记录使用（生图成功后才计数）
-    await aiUsageService.record(userId).catch((e) => console.error('[AI Usage] record failed:', e));
+    // 5. 记录使用（已在配额检查时原子写入，无需再次记录）
 
-    return Response.json({ url: imageUrl, used: usedCount + 1, limit, isPro: !!activeSub });
+    return Response.json({ url: imageUrl, used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[AI Generate] Error:', msg);
