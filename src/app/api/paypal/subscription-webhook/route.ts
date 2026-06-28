@@ -141,8 +141,7 @@ export async function POST(req: Request) {
 
     return Response.json({ received: true });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[PayPal Webhook] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[PayPal Webhook] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

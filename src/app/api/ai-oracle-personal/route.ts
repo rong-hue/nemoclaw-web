@@ -121,8 +121,7 @@ export async function POST(req: Request) {
       isPro: !!activeSub,
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[AI Oracle Personal] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[AI Oracle Personal] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

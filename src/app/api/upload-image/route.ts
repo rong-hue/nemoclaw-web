@@ -72,8 +72,7 @@ export async function POST(req: Request) {
     const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
     return Response.json({ url: publicUrl });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[upload-image] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[upload-image] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

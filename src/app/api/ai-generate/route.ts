@@ -113,8 +113,7 @@ export async function POST(req: Request) {
 
     return Response.json({ url: imageUrl, used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[AI Generate] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[AI Generate] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
