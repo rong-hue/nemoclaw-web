@@ -47,6 +47,13 @@ export default function PaymentPage() {
         setLoading(false);
         return;
       }
+      // G-L2: 验证 approveUrl 必须是 PayPal 官方域名
+      const PAYPAL_ORIGINS = ['https://www.paypal.com', 'https://www.sandbox.paypal.com'];
+      if (!PAYPAL_ORIGINS.some(o => data.approveUrl!.startsWith(o))) {
+        setErrorMsg('Invalid payment URL. Please try again.');
+        setLoading(false);
+        return;
+      }
       // 跳转到 PayPal 付款页
       window.location.href = data.approveUrl;
     } catch (e: unknown) {

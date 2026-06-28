@@ -1,5 +1,15 @@
 export const runtime = 'edge';
 
+// G-L3: HTML 转义，防止用户输入内容在邮件里成为 HTML
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 export async function POST(req: Request) {
   try {
     const { name, email, subject, message } = await req.json() as {
@@ -16,6 +26,11 @@ export async function POST(req: Request) {
       return Response.json({ success: true });
     }
 
+    const safeName    = escapeHtml(name);
+    const safeEmail   = escapeHtml(email);
+    const safeSubject = escapeHtml(subject || '');
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -25,15 +40,15 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from: 'NemoClaw Culture <hello@nemoclaw-web.com>',
         to: ['hello@nemoclaw-web.com'],
-        reply_to: email,
-        subject: `[Contact] ${subject || 'New message'} — from ${name}`,
+        reply_to: safeEmail,
+        subject: `[Contact] ${safeSubject || 'New message'} — from ${safeName}`,
         html: `
           <h2>New contact form submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Name:</strong> ${safeName}</p>
+          <p><strong>Email:</strong> ${safeEmail}</p>
+          <p><strong>Subject:</strong> ${safeSubject}</p>
           <hr/>
-          <p>${message.replace(/\n/g, '<br/>')}</p>
+          <p>${safeMessage}</p>
         `,
       }),
     });

@@ -125,7 +125,9 @@ export default function Pricing() {
         }),
       });
       const data = await res.json() as { approveUrl?: string; error?: string };
-      if (data.approveUrl) {
+      // G-L2: 验证 approveUrl 必须是 PayPal 官方域名
+      const PAYPAL_ORIGINS = ['https://www.paypal.com', 'https://www.sandbox.paypal.com'];
+      if (data.approveUrl && PAYPAL_ORIGINS.some(o => data.approveUrl!.startsWith(o))) {
         window.location.href = data.approveUrl;
       } else {
         alert(data.error ?? 'Something went wrong');
