@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     if (!res.ok) {
       const err = await res.text();
       console.error('[AI Oracle Personal] SiliconFlow error:', err);
-      return Response.json({ error: 'Oracle generation failed', detail: err }, { status: 502 });
+      return Response.json({ error: 'Oracle generation failed' }, { status: 502 });
     }
 
     const data = await res.json() as { images: Array<{ url: string }> };

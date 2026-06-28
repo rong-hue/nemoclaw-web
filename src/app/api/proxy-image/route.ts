@@ -1,6 +1,8 @@
 export const runtime = 'edge';
 
 const ALLOWED_HOSTS = ['cdn.siliconflow.cn', 'siliconflow.cn', 'sf-maas-uat-prod.oss-cn-shanghai.aliyuncs.com'];
+// T-L5: 只允许透传实际图片类型
+const ALLOWED_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
 
 export async function GET(req: Request) {
   const url = new URL(req.url).searchParams.get('url');
@@ -19,13 +21,29 @@ export async function GET(req: Request) {
   }
 
   try {
-    const res = await fetch(url);
+    // T-L5: 15秒超时（图片代理不需要 30s）
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+    let res: Response;
+    try {
+      res = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
     if (!res.ok) return new Response('Fetch failed', { status: 502 });
+
+    // T-L5: 验证响应 Content-Type 必须是图片类型
+    const ct = res.headers.get('content-type') || '';
+    const mime = ct.split(';')[0].trim();
+    if (!ALLOWED_CONTENT_TYPES.includes(mime)) {
+      return new Response('Forbidden content type', { status: 403 });
+    }
+
     const buf = await res.arrayBuffer();
-    const ct = res.headers.get('content-type') || 'image/jpeg';
     return new Response(buf, {
       headers: {
-        'Content-Type': ct,
+        'Content-Type': mime,
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=86400',
       },

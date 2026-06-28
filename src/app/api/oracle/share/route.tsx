@@ -139,8 +139,7 @@ export async function GET(req: Request) {
       }
     );
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[Oracle Share]', msg);
-    return new Response(msg, { status: 500 });
+    console.error('[Oracle Share]', err instanceof Error ? err.message : String(err));
+    return new Response('Internal server error', { status: 500 });
   }
 }

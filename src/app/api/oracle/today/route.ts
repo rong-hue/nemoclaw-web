@@ -88,9 +88,8 @@ export async function GET(req: Request) {
       canRegenerate: 0 < (await isPro(userId) ? PRO_DAILY_ORACLE_LIMIT : FREE_DAILY_ORACLE_LIMIT),
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[Oracle Today] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[Oracle Today] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -177,9 +176,8 @@ export async function POST(req: Request) {
       canRegenerate: oracle.regenerate_count < limit,
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[Oracle Regenerate] Error:', msg);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[Oracle Regenerate] Error:', err instanceof Error ? err.message : String(err));
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

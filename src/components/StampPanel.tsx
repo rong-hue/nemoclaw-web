@@ -72,9 +72,13 @@ export default function StampPanel({ onStampSelect, onClose, activeStampId, onPa
               alt={stamp.nameZh}
               className="w-full h-full object-contain bg-white p-1"
               onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-                (e.target as HTMLImageElement).parentElement!.innerHTML =
-                  `<div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-xs">${stamp.nameZh}</div>`;
+                const img = e.target as HTMLImageElement;
+                img.style.display = 'none';
+                // T-L4: 用 DOM API 替代 innerHTML 拼接
+                const fallback = document.createElement('div');
+                fallback.className = 'w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-xs';
+                fallback.textContent = stamp.nameZh;
+                img.parentElement?.appendChild(fallback);
               }}
             />
           </button>

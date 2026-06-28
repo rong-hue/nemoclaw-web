@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     if (!uploadRes.ok) {
       const errText = await uploadRes.text();
       console.error('[upload-image] Supabase upload error:', errText);
-      return Response.json({ error: 'Upload failed', detail: errText }, { status: 502 });
+      return Response.json({ error: 'Upload failed' }, { status: 502 });
     }
 
     // 6. 构造公开访问 URL
