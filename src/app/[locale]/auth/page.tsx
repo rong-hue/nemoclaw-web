@@ -13,7 +13,9 @@ function AuthContent() {
   const t = useTranslations('auth');
   const searchParams = useSearchParams();
   // After login, redirect back to the page that sent the user here (e.g. Studio)
-  const callbackUrl = searchParams.get('callbackUrl') || `/${locale}/dashboard`;
+  // F-L1: 防止开放重定向 — callbackUrl 必须是相对路径
+  const rawCallback = searchParams.get('callbackUrl') || `/${locale}/dashboard`;
+  const callbackUrl = rawCallback.startsWith('/') && !rawCallback.startsWith('//') ? rawCallback : `/${locale}/dashboard`;
 
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
