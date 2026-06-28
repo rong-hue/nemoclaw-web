@@ -32,9 +32,9 @@ export async function POST(req: Request) {
 
     // 3b. 文件头 magic bytes 验证（防止伪造 MIME type）
     const headerBytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-    const magicErr = validateMagicBytes(headerBytes);
-    if (magicErr) {
-      return Response.json({ error: magicErr }, { status: 400 });
+    const detectedMime = validateMagicBytes(headerBytes);
+    if (!detectedMime) {
+      return Response.json({ error: 'Invalid image file (unsupported format)' }, { status: 400 });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
