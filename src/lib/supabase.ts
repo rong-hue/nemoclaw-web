@@ -146,9 +146,9 @@ export const ordersService = {
 
 // 订阅相关操作（服务端用 service_role key，客户端用 anon key 只读）
 export const subscriptionsService = {
-  // 根据 PayPal subscription_id 查找记录
+  // 根据 PayPal subscription_id 查找记录（服务端专用，走 service_role 绕过 RLS）
   async getByPaypalId(paypalSubscriptionId: string) {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('subscriptions')
       .select('*')
@@ -194,13 +194,13 @@ export const subscriptionsService = {
     return data;
   },
 
-  // 更新订阅状态（webhook 调用）
+  // 更新订阅状态（webhook 专用，走 service_role 确保有写权限）
   async updateStatus(
     paypalSubscriptionId: string,
     status: 'active' | 'cancelled' | 'expired',
     currentPeriodEnd?: string | null
   ) {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const { error } = await supabase
       .from('subscriptions')
       .update({
@@ -223,8 +223,8 @@ export const subscriptionsService = {
 //   );
 //   create index if not exists ai_usage_user_created on ai_usage (user_id, created_at);
 //   alter table ai_usage enable row level security;
-//   create policy "insert" on ai_usage for insert with check (true);
-//   create policy "select" on ai_usage for select using (true);
+//   create policy "insert" on ai_usage for insert with check (auth.uid()::text = user_id);
+//   create policy "select" on ai_usage for select using (auth.uid()::text = user_id);
 
 export const FREE_DAILY_LIMIT = 1;
 export const PRO_DAILY_LIMIT = 6;
