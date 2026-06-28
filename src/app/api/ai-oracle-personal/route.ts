@@ -82,20 +82,29 @@ export async function POST(req: Request) {
     const fullPrompt = `${moodPrompt}${elementHint}${oracleHint} Preserve the subject's essence and identity. Chinese cultural aesthetic, ink wash and gold leaf textures. Masterpiece quality oracle card art. No text overlay, no watermarks.`;
 
     // 5. 调用 Qwen-Image-Edit 生成个性化神谕图
-    const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'Qwen/Qwen-Image-Edit',
-        prompt: fullPrompt,
-        image: photoUrl,
-        image_size: '512x512',
-        num_inference_steps: 30,  // 更多步数，质量更高
-        num_images: 1,
-        guidance_scale: 8.5,
-        negative_prompt: 'ugly, deformed, photorealistic, western style, low quality, blurry, watermark, text, signature, modern, contemporary',
-      }),
-    });
+    // L3: 30秒超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    let res: Response;
+    try {
+      res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: 'Qwen/Qwen-Image-Edit',
+          prompt: fullPrompt,
+          image: photoUrl,
+          image_size: '512x512',
+          num_inference_steps: 30,  // 更多步数，质量更高
+          num_images: 1,
+          guidance_scale: 8.5,
+          negative_prompt: 'ugly, deformed, photorealistic, western style, low quality, blurry, watermark, text, signature, modern, contemporary',
+        }),
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!res.ok) {
       const err = await res.text();

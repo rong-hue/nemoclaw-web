@@ -70,20 +70,29 @@ export async function POST(req: Request) {
 
     // 5. 调用 Qwen-Image-Edit（多图输入：商品图 + 设计图）
     // 硅基流动 Qwen-Image-Edit 支持传入多张图，用 images 数组
-    const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'Qwen/Qwen-Image-Edit',
-        prompt: fullPrompt,
-        image: productImageUrl,      // 主图：商品底图
-        image_list: [designImageUrl], // 参考图：图腾设计图
-        image_size: '512x512',
-        num_inference_steps: 25,
-        num_images: 1,
-        guidance_scale: 7.5,
-      }),
-    });
+    // L3: 30秒超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    let res: Response;
+    try {
+      res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: 'Qwen/Qwen-Image-Edit',
+          prompt: fullPrompt,
+          image: productImageUrl,      // 主图：商品底图
+          image_list: [designImageUrl], // 参考图：图腾设计图
+          image_size: '512x512',
+          num_inference_steps: 25,
+          num_images: 1,
+          guidance_scale: 7.5,
+        }),
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!res.ok) {
       const err = await res.text();

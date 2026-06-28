@@ -84,18 +84,27 @@ export async function POST(req: Request) {
       : ', high quality, detailed, suitable for t-shirt print design, transparent background preferred';
     const fullPrompt = `${stylePrefix}${prompt}${qualitySuffix}`;
 
-    const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: isEastern ? MODEL_EASTERN : MODEL_DEFAULT,
-        prompt: fullPrompt,
-        negative_prompt: NEGATIVE_PROMPT,
-        image_size: `${width}x${height}`,
-        num_inference_steps: 20,
-        num_images: 1,
-      }),
-    });
+    // L3: 30秒超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    let res: Response;
+    try {
+      res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: isEastern ? MODEL_EASTERN : MODEL_DEFAULT,
+          prompt: fullPrompt,
+          negative_prompt: NEGATIVE_PROMPT,
+          image_size: `${width}x${height}`,
+          num_inference_steps: 20,
+          num_images: 1,
+        }),
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!res.ok) {
       const err = await res.text();

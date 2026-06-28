@@ -40,9 +40,15 @@ export async function GET(req: Request) {
     const prompt = `${oracleText.en}, mystical oracle card, Chinese ink wash painting style, ethereal atmosphere, spiritual symbolism, minimalist composition, soft gradients, ancient wisdom aesthetic`;
     const negativePrompt = 'text, watermark, signature, blurry, low quality, photorealistic, western style';
 
-    const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+    // L3: 30秒超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    let res: Response;
+    try {
+    res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: 'Kwai-Kolors/Kolors',
         prompt,
@@ -53,6 +59,7 @@ export async function GET(req: Request) {
         seed: hashSeed(seed), // 确保同一天同一用户得到相同的图
       }),
     });
+    } finally { clearTimeout(timeoutId); }
 
     if (!res.ok) {
       const err = await res.text();
@@ -123,9 +130,15 @@ export async function POST(req: Request) {
     const prompt = `${oracleText.en}, mystical oracle card, Chinese ink wash painting style, ethereal atmosphere, spiritual symbolism, minimalist composition, soft gradients, ancient wisdom aesthetic`;
     const negativePrompt = 'text, watermark, signature, blurry, low quality, photorealistic, western style';
 
-    const res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+    // L3: 30秒超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    let res: Response;
+    try {
+    res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: 'Kwai-Kolors/Kolors',
         prompt,
@@ -136,6 +149,7 @@ export async function POST(req: Request) {
         seed: hashSeed(newSeed),
       }),
     });
+    } finally { clearTimeout(timeoutId); }
 
     if (!res.ok) {
       const err = await res.text();

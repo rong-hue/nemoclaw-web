@@ -13,7 +13,6 @@ export async function POST(req: Request) {
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     if (!RESEND_API_KEY) {
       // 没有配置 Resend，静默成功（开发环境）
-      console.log('Contact form (no Resend key):', { name, email, subject, message });
       return Response.json({ success: true });
     }
 
