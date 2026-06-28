@@ -11,10 +11,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    // N-L1: 服务端写入用 service_role key，不用 anon key
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) {
+      console.error('[waitlist] SUPABASE_SERVICE_ROLE_KEY is not configured');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+    const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
     // 写入 waitlist 表（重复邮箱忽略）
     const { error: dbError } = await supabase

@@ -1,5 +1,7 @@
 export const runtime = 'edge';
 
+import { getServerUser } from '@/lib/supabase-auth';
+
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
@@ -24,6 +26,10 @@ async function getAccessToken(): Promise<string> {
 }
 
 export async function POST(req: Request) {
+  // N-M1: 鉴权，必须登录
+  const user = await getServerUser(req);
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { paypalOrderId } = await req.json() as { paypalOrderId: string };
     if (!paypalOrderId) {
@@ -44,8 +50,8 @@ export async function POST(req: Request) {
     );
 
     if (!captureRes.ok) {
-      const err = await captureRes.text();
-      return Response.json({ error: `PayPal capture failed: ${err}` }, { status: 500 });
+      console.error('[capture-order] PayPal error:', await captureRes.text());
+      return Response.json({ error: 'Payment capture failed' }, { status: 502 });
     }
 
     const result = await captureRes.json() as {
@@ -74,8 +80,7 @@ export async function POST(req: Request) {
       currency: capture?.amount?.currency_code,
       orderId: ourOrderId,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

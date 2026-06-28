@@ -1,6 +1,7 @@
 export const runtime = 'edge';
 
 import { subscriptionsService } from '@/lib/supabase';
+import { getServerUser } from '@/lib/supabase-auth';
 
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
@@ -31,16 +32,22 @@ async function getAccessToken(): Promise<string> {
 }
 
 export async function POST(req: Request) {
+  // N-M1: 鉴权，必须登录
+  const user = await getServerUser(req);
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
-    const { plan = 'early_bird', userId, userEmail } = await req.json() as {
+    const { plan = 'early_bird' } = await req.json() as {
       plan?: 'monthly' | 'yearly' | 'early_bird';
-      userId: string;
-      userEmail: string;
     };
+
+    // 使用 JWT 里的 userId/email，不信任客户端传入
+    const userId = user.id;
+    const userEmail = user.email;
 
     const planId = PLAN_IDS[plan];
     if (!planId) {
-      return Response.json({ error: `Unknown plan: ${plan}` }, { status: 400 });
+      return Response.json({ error: 'Unknown plan' }, { status: 400 });
     }
 
     const accessToken = await getAccessToken();
@@ -71,8 +78,8 @@ export async function POST(req: Request) {
     });
 
     if (!subRes.ok) {
-      const err = await subRes.text();
-      return Response.json({ error: `PayPal subscription failed: ${err}` }, { status: 500 });
+      console.error('[create-subscription] PayPal error:', await subRes.text());
+      return Response.json({ error: 'Subscription creation failed' }, { status: 502 });
     }
 
     const sub = await subRes.json() as {
@@ -99,8 +106,7 @@ export async function POST(req: Request) {
       subscriptionId: sub.id,
       approveUrl: approveLink,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

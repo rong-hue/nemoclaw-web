@@ -19,8 +19,7 @@ export async function GET(req: Request) {
       current_period_end: sub.current_period_end,
       is_early_bird: sub.is_early_bird,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

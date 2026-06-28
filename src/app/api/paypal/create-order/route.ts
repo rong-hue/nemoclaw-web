@@ -1,5 +1,7 @@
 export const runtime = 'edge';
 
+import { getServerUser } from '@/lib/supabase-auth';
+
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
@@ -28,12 +30,24 @@ async function getAccessToken(): Promise<string> {
 }
 
 export async function POST(req: Request) {
+  // N-M1: 鉴权，必须登录
+  const user = await getServerUser(req);
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { amount, currency = 'USD', orderId } = await req.json() as {
       amount: number;
       currency?: string;
       orderId: string;
     };
+
+    // 参数校验：amount 必须是正数
+    if (!amount || typeof amount !== 'number' || amount <= 0) {
+      return Response.json({ error: 'Invalid amount' }, { status: 400 });
+    }
+    if (!orderId || typeof orderId !== 'string') {
+      return Response.json({ error: 'Invalid orderId' }, { status: 400 });
+    }
 
     const accessToken = await getAccessToken();
 
@@ -70,8 +84,8 @@ export async function POST(req: Request) {
     });
 
     if (!orderRes.ok) {
-      const err = await orderRes.text();
-      return Response.json({ error: `PayPal order creation failed: ${err}` }, { status: 500 });
+      console.error('[create-order] PayPal error:', await orderRes.text());
+      return Response.json({ error: 'Order creation failed' }, { status: 502 });
     }
 
     const order = await orderRes.json() as {
@@ -86,8 +100,7 @@ export async function POST(req: Request) {
       paypalOrderId: order.id,
       approveUrl: approveLink,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

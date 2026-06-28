@@ -1,5 +1,8 @@
 export const runtime = 'edge';
 
+import { getServerUser } from '@/lib/supabase-auth';
+import { subscriptionsService } from '@/lib/supabase';
+
 const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
@@ -22,12 +25,17 @@ async function getAccessToken(): Promise<string> {
 }
 
 export async function POST(req: Request) {
-  try {
-    const { subscriptionId } = await req.json() as { subscriptionId: string };
+  // N-M1: 鉴权，必须登录
+  const user = await getServerUser(req);
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!subscriptionId) {
-      return Response.json({ error: 'subscriptionId is required' }, { status: 400 });
+  try {
+    // 从数据库获取该用户的订阅 ID，不信任客户端传入
+    const sub = await subscriptionsService.getActiveByUser(user.id);
+    if (!sub?.paypal_subscription_id) {
+      return Response.json({ error: 'No active subscription found' }, { status: 404 });
     }
+    const subscriptionId = sub.paypal_subscription_id;
 
     const accessToken = await getAccessToken();
 
@@ -48,10 +56,9 @@ export async function POST(req: Request) {
       return Response.json({ success: true });
     }
 
-    const err = await res.text();
-    return Response.json({ error: `Cancel failed: ${err}` }, { status: 500 });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
+    console.error('[cancel-subscription] PayPal error:', await res.text());
+    return Response.json({ error: 'Cancellation failed' }, { status: 502 });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
