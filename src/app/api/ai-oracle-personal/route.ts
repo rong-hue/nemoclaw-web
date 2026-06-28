@@ -63,8 +63,8 @@ export async function POST(req: Request) {
       return Response.json({ error: 'photoUrl is required' }, { status: 400 });
     }
     const urlErr = validateImageUrl(photoUrl);
-    if (urlErr) {
-      return Response.json({ error: urlErr }, { status: 400 });
+    if (!urlErr.ok) {
+      return Response.json({ error: urlErr.error }, { status: 400 });
     }
 
     const apiKey = process.env.SILICONFLOW_API_KEY;

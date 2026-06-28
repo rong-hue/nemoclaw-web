@@ -52,8 +52,8 @@ export async function POST(req: Request) {
       return Response.json({ error: 'imageUrl is required' }, { status: 400 });
     }
     const urlErr = validateImageUrl(imageUrl);
-    if (urlErr) {
-      return Response.json({ error: urlErr }, { status: 400 });
+    if (!urlErr.ok) {
+      return Response.json({ error: urlErr.error }, { status: 400 });
     }
     if (!STYLE_TRANSFER_PROMPTS[style]) {
       return Response.json({ error: `Unknown style: ${style}. Valid: shuimo, gongbi, ukiyo, cyberpunk, liubai` }, { status: 400 });

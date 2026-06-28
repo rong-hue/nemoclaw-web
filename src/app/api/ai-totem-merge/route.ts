@@ -54,9 +54,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'productImageUrl and designImageUrl are required' }, { status: 400 });
     }
     const urlErr1 = validateImageUrl(productImageUrl);
-    if (urlErr1) return Response.json({ error: `productImageUrl: ${urlErr1}` }, { status: 400 });
+    if (!urlErr1.ok) return Response.json({ error: `productImageUrl: ${urlErr1.error}` }, { status: 400 });
     const urlErr2 = validateImageUrl(designImageUrl);
-    if (urlErr2) return Response.json({ error: `designImageUrl: ${urlErr2}` }, { status: 400 });
+    if (!urlErr2.ok) return Response.json({ error: `designImageUrl: ${urlErr2.error}` }, { status: 400 });
 
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {
