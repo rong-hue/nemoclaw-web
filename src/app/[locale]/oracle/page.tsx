@@ -92,7 +92,7 @@ export default function OraclePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.error === 'quota_exceeded') throw new Error('今日配额已用完，请明天再试或升级 Pro');
+        if (data.error === 'quota_exceeded') throw new Error(locale === 'zh' ? '今日配额已用完，请明天再试或升级 Pro' : 'Daily quota reached. Try again tomorrow or upgrade to Pro');
         throw new Error(data.error || 'Generation failed');
       }
       setPersonalOracleUrl(data.url);

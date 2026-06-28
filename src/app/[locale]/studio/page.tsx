@@ -412,7 +412,7 @@ function StudioContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.error === 'quota_exceeded') throw new Error('今日配额已用完，请明天再试或升级 Pro');
+        if (data.error === 'quota_exceeded') throw new Error(locale === 'zh' ? '今日配额已用完，请明天再试或升级 Pro' : 'Daily quota reached. Try again tomorrow or upgrade to Pro');
         throw new Error(data.error || 'Style transfer failed');
       }
       canvasRef.current?.addImageFromUrl(data.url);
@@ -434,7 +434,7 @@ function StudioContent() {
     try {
       // 导出商品预览图（ProductPreview canvas）
       const productDataUrl = productPreviewRef.current?.exportDataUrl?.() || previewDataUrl;
-      if (!productDataUrl) throw new Error('请先在图腾映射中预览商品');
+      if (!productDataUrl) throw new Error(locale === 'zh' ? '请先在图腾映射中预览商品' : 'Please preview the product in Totem Mapping first');
       const productImageUrl = await uploadDataUrl(productDataUrl, 'product.png');
 
       // 上传设计图（previewDataUrl 是 canvas 导出的 data URL）
@@ -444,7 +444,7 @@ function StudioContent() {
       } else if (previewDataUrl) {
         designImageUrl = previewDataUrl;
       } else {
-        throw new Error('没有设计图，请先在画布上创作');
+        throw new Error(locale === 'zh' ? '没有设计图，请先在画布上创作' : 'No design found. Please create something on the canvas first');
       }
 
       const res = await fetch('/api/ai-totem-merge', {
@@ -454,7 +454,7 @@ function StudioContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.error === 'quota_exceeded') throw new Error('今日配额已用完，请明天再试或升级 Pro');
+        if (data.error === 'quota_exceeded') throw new Error(locale === 'zh' ? '今日配额已用完，请明天再试或升级 Pro' : 'Daily quota reached. Try again tomorrow or upgrade to Pro');
         throw new Error(data.error || 'AI merge failed');
       }
       setMergeResultUrl(data.url);
