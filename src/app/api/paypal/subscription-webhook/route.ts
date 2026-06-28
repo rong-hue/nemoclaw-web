@@ -1,6 +1,37 @@
 export const runtime = 'edge';
 
 import { subscriptionsService } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+/**
+ * 幂等检查：记录已处理的 transmission_id，防止重放攻击（M2）
+ * 表结构（在 Supabase SQL Editor 执行一次）：
+ *   create table if not exists webhook_events (
+ *     id uuid primary key default gen_random_uuid(),
+ *     transmission_id text not null unique,
+ *     event_type text not null,
+ *     processed_at timestamptz not null default now()
+ *   );
+ *   create index if not exists webhook_events_tid on webhook_events (transmission_id);
+ *   alter table webhook_events enable row level security;
+ *   -- 只允许服务端写入，不允许客户端读写
+ */
+async function isAlreadyProcessed(transmissionId: string, eventType: string): Promise<boolean> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+
+  // 尝试插入，unique 约束冲突说明已处理过
+  const { error } = await supabase
+    .from('webhook_events')
+    .insert({ transmission_id: transmissionId, event_type: eventType });
+
+  if (error) {
+    if (error.code === '23505') return true; // unique_violation = 已处理
+    throw error; // 其他错误向上抛
+  }
+  return false;
+}
 
 // PayPal Webhook 签名验证 + 事件处理
 // Webhook URL: https://nemoclaw-web.pages.dev/api/paypal/subscription-webhook
@@ -78,8 +109,18 @@ export async function POST(req: Request) {
     const { event_type, resource } = event;
     const subscriptionId = resource.id;
     const nextBillingTime = resource.billing_info?.next_billing_time ?? null;
+    const transmissionId = req.headers.get('paypal-transmission-id') ?? '';
 
-    console.log(`[PayPal Webhook] ${event_type} | sub=${subscriptionId}`);
+    console.log(`[PayPal Webhook] ${event_type} | sub=${subscriptionId} | tid=${transmissionId}`);
+
+    // 幂等检查：防止重放攻击（M2）
+    if (transmissionId) {
+      const duplicate = await isAlreadyProcessed(transmissionId, event_type);
+      if (duplicate) {
+        console.log(`[PayPal Webhook] Duplicate event ignored: ${transmissionId}`);
+        return Response.json({ received: true, duplicate: true });
+      }
+    }
 
     switch (event_type) {
       case 'BILLING.SUBSCRIPTION.ACTIVATED':
