@@ -68,7 +68,8 @@ export async function POST(req: Request) {
     const subjectHint = preserveSubject ? ' Faithfully preserve the subject identity, pose, and composition.' : '';
     const fullPrompt = `${STYLE_TRANSFER_PROMPTS[style]}${subjectHint} Masterpiece quality, suitable for cultural merchandise printing. No text or watermarks.`;
 
-    // 5. 调用 Qwen-Image-Edit 进行风格迁移
+    // 5. 调用 Qwen-Image-Edit-2509 进行风格迁移
+    // 注意：Qwen-Image-Edit-2509 不支持 image_size / batch_size / num_images 字段
     // L3: 30秒超时保护
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -79,13 +80,11 @@ export async function POST(req: Request) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: 'Qwen/Qwen-Image-Edit',
+          model: 'Qwen/Qwen-Image-Edit-2509',
           prompt: fullPrompt,
           image: imageUrl,
-          image_size: '512x512',
-          num_inference_steps: 25,
-          num_images: 1,
-          guidance_scale: 8.0,
+          num_inference_steps: 20,
+          guidance_scale: 4,
           negative_prompt: 'photorealistic, western style, low quality, blurry, watermark, text, signature, overexposed',
         }),
       });

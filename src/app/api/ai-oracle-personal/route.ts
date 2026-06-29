@@ -92,13 +92,11 @@ export async function POST(req: Request) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: 'Qwen/Qwen-Image-Edit',
+          model: 'Qwen/Qwen-Image-Edit-2509',
           prompt: fullPrompt,
           image: photoUrl,
-          image_size: '512x512',
-          num_inference_steps: 30,  // 更多步数，质量更高
-          num_images: 1,
-          guidance_scale: 8.5,
+          num_inference_steps: 20,
+          guidance_scale: 4,
           negative_prompt: 'ugly, deformed, photorealistic, western style, low quality, blurry, watermark, text, signature, modern, contemporary',
         }),
       });

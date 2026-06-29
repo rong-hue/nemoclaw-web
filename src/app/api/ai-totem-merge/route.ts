@@ -80,14 +80,12 @@ export async function POST(req: Request) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: 'Qwen/Qwen-Image-Edit',
+          model: 'Qwen/Qwen-Image-Edit-2509',
           prompt: fullPrompt,
           image: productImageUrl,      // 主图：商品底图
-          image_list: [designImageUrl], // 参考图：图腾设计图
-          image_size: '512x512',
-          num_inference_steps: 25,
-          num_images: 1,
-          guidance_scale: 7.5,
+          image2: designImageUrl,       // 参考图：图腾设计图
+          num_inference_steps: 20,
+          guidance_scale: 4,
         }),
       });
     } finally {
