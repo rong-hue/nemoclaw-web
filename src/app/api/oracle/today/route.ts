@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       // 已生成，直接返回
       return Response.json({
         oracle: existing,
-        canRegenerate: existing.regenerate_count < (await isPro(userId) ? PRO_DAILY_ORACLE_LIMIT : FREE_DAILY_ORACLE_LIMIT),
+        canRegenerate: (await isPro(userId)) && existing.regenerate_count < PRO_DAILY_ORACLE_LIMIT,
       });
     }
 
@@ -85,7 +85,8 @@ export async function GET(req: Request) {
 
     return Response.json({
       oracle,
-      canRegenerate: 0 < (await isPro(userId) ? PRO_DAILY_ORACLE_LIMIT : FREE_DAILY_ORACLE_LIMIT),
+      // Free 用户不能重生成（V4.1: 免费每日1次，Pro 才可重生成）
+      canRegenerate: await isPro(userId),
     });
   } catch (err: unknown) {
     console.error('[Oracle Today] Error:', err instanceof Error ? err.message : String(err));
