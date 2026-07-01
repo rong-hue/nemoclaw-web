@@ -688,7 +688,22 @@ function StudioContent() {
         {showTalismanPanel && (
           <TalismanPanel
             isPro={isPro}
-            onSelectTalisman={(talismanId, symbol, color) => {
+            onSelectTalisman={async (talismanId, symbol, color) => {
+              // 服务端权限验证（防止前端绕过）
+              try {
+                const res = await fetch('/api/talisman/apply', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ talismanId }),
+                });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  alert(data.error || t('talisman.upgradeRequired'));
+                  return;
+                }
+              } catch {
+                // 网络异常时不阻断操作（降级到纯前端校验）
+              }
               // 将护身符作为 emoji + 名称 + 祝福语组合添加到画布
               const talisman = getTalismanById(talismanId);
               const name = locale === 'zh' ? talisman?.meaning.zh : talisman?.meaning.en;

@@ -128,71 +128,20 @@ export default function OraclePage() {
     setSharing(true);
     setError('');
     try {
-      // 动态导入（避免 SSR 问题）
-      const html2canvas = (await import('html2canvas')).default;
-
-      // 创建分享图 DOM
-      const container = document.createElement('div');
-      container.style.cssText = [
-        'position:fixed', 'left:-9999px', 'top:0',
-        'width:600px', 'height:600px',
-        'background:#0a0a0a',
-        'display:flex', 'flex-direction:column',
-        'align-items:center', 'justify-content:center',
-        'padding:40px', 'box-sizing:border-box',
-        'font-family:serif',
-      ].join(';');
-
-      // 神谕图片
-      const img = document.createElement('img');
-      img.crossOrigin = 'anonymous';
-      img.src = `/api/proxy-image?url=${encodeURIComponent(oracle.image_url)}`;
-      img.style.cssText = 'width:360px;height:360px;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-bottom:20px;display:block';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        setTimeout(reject, 8000);
-      });
-
-      // 神谕文字
-      const textEl = document.createElement('p');
-      textEl.textContent = oracleText;
-      textEl.style.cssText = 'color:#f5f0e8;font-size:16px;text-align:center;line-height:1.6;margin:0 0 10px;max-width:480px';
-
-      // 日期
-      const dateEl = document.createElement('p');
-      dateEl.textContent = new Date(oracle.date).toLocaleDateString(
-        locale === 'zh' ? 'zh-CN' : 'en-US',
-        { year: 'numeric', month: 'long', day: 'numeric' }
-      );
-      dateEl.style.cssText = 'color:rgba(255,255,255,0.4);font-size:13px;margin:0';
-
-      // 水印
-      const watermark = document.createElement('div');
-      watermark.textContent = isPro ? '\u2726' : '\u2726 NemoClaw.com';
-      watermark.style.cssText = `position:absolute;bottom:20px;right:24px;color:rgba(255,255,255,${isPro ? '0.25' : '0.5'});font-size:${isPro ? '14px' : '13px'};font-family:sans-serif`;
-
-      container.appendChild(img);
-      container.appendChild(textEl);
-      container.appendChild(dateEl);
-      container.appendChild(watermark);
-      document.body.appendChild(container);
-
-      const canvas = await html2canvas(container, {
-        backgroundColor: '#0a0a0a',
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-      });
-
-      document.body.removeChild(container);
-
-      // 下载
+      // 调服务端 /api/oracle/share 生成带水印图片（服务端合成，无法被绕过）
+      const res = await fetch(`/api/oracle/share?locale=${locale}`);
+      if (!res.ok) {
+        const msg = await res.text().catch(() => 'Failed to generate share image');
+        throw new Error(msg);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `oracle-${oracle.date}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = url;
       link.click();
+      // 释放临时 URL
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (err: any) {
       setError(err.message || 'Failed to generate share image');
     } finally {
