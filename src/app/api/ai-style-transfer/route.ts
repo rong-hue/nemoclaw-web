@@ -69,13 +69,13 @@ export async function POST(req: Request) {
     const fullPrompt = `${STYLE_TRANSFER_PROMPTS[style]}${subjectHint} Masterpiece quality, suitable for cultural merchandise printing. No text or watermarks.`;
 
     // 5. 调用 Qwen-Image-Edit-2509 进行风格迁移
-    // 注意：Qwen-Image-Edit-2509 不支持 image_size / batch_size / num_images 字段
+    // 必须用 /v1/images/edit 接口（图像编辑），/v1/images/generations 是纯文生图，传 image 字段会被忽略
     // L3: 30秒超时保护
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
     let res: Response;
     try {
-      res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+      res = await fetch('https://api.siliconflow.cn/v1/images/edit', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,

@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
     let res: Response;
     try {
-      res = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+      res = await fetch('https://api.siliconflow.cn/v1/images/edit', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
