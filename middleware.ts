@@ -1,10 +1,3 @@
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './src/i18n/routing';
-
-export default createMiddleware(routing);
-
-export const config = {
-  matcher: [
-    '/((?!_next|_vercel|.*\\..*).*)',
-  ],
-};
+// Root middleware re-exports from src/middleware.ts
+// Auth guard + next-intl routing are both handled there
+export { default, config } from './src/middleware';

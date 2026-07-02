@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     }
     const userId = user.id;
 
-    // 2. 检查配额
+    // 2. 检查配额（原子操作，防并发双击绕过限制）
     const today = new Date().toISOString().split('T')[0];
     const existing = await oracleService.getTodayOracle(userId);
     if (!existing) {
@@ -114,12 +114,14 @@ export async function POST(req: Request) {
 
     const isPro = await isProUser(userId);
     const limit = isPro ? PRO_DAILY_ORACLE_LIMIT : FREE_DAILY_ORACLE_LIMIT;
-    if (existing.regenerate_count >= limit) {
+
+    const result = await oracleService.incrementRegenerateSafe(userId, limit);
+    if (!result.allowed) {
       return Response.json({ error: 'Regenerate limit reached', limit }, { status: 429 });
     }
 
     // 3. 生成新的神谕
-    const newSeed = `${userId}-${today}-${existing.regenerate_count + 1}`;
+    const newSeed = `${userId}-${today}-${result.regenerate_count}`;
     const oracleText = selectOracleText(newSeed);
 
     const apiKey = process.env.SILICONFLOW_API_KEY;
@@ -163,18 +165,18 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 4. 更新数据库
+    // 4. 更新数据库（regenerate_count 已由原子 RPC 递增，此处只更新图片和文本）
     const oracle = await oracleService.updateOracle(userId, today, {
       image_url: imageUrl,
       oracle_text: oracleText.zh,
       oracle_text_en: oracleText.en,
       seed: newSeed,
-      regenerate_count: existing.regenerate_count + 1,
+      regenerate_count: result.regenerate_count,
     });
 
     return Response.json({
       oracle,
-      canRegenerate: oracle.regenerate_count < limit,
+      canRegenerate: result.regenerate_count < limit,
     });
   } catch (err: unknown) {
     console.error('[Oracle Regenerate] Error:', err instanceof Error ? err.message : String(err));

@@ -228,6 +228,14 @@
       "dest": "/[locale]/gallery?nxtPlocale=$nxtPlocale"
     },
     {
+      "src": "^/(?<nxtPlocale>[^/]+?)/oracle(?:\\.rsc)(?:/)?$",
+      "dest": "/[locale]/oracle.rsc?nxtPlocale=$nxtPlocale"
+    },
+    {
+      "src": "^/(?<nxtPlocale>[^/]+?)/oracle(?:/)?$",
+      "dest": "/[locale]/oracle?nxtPlocale=$nxtPlocale"
+    },
+    {
       "src": "^/(?<nxtPlocale>[^/]+?)/payment(?:\\.rsc)(?:/)?$",
       "dest": "/[locale]/payment.rsc?nxtPlocale=$nxtPlocale"
     },
@@ -295,7 +303,7 @@
       "handle": "hit"
     },
     {
-      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|nX9g5_\\-2b8P7HsrLub2YM)/.+",
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|OT1Tg4hYWZnN0mepG4Guc)/.+",
       "headers": {
         "cache-control": "public,max-age=31536000,immutable"
       },

@@ -1,0 +1,18 @@
+{
+  "runtime": "edge",
+  "name": "[locale]/oracle",
+  "deploymentTarget": "v8-worker",
+  "entrypoint": "index.js",
+  "assets": [],
+  "framework": {
+    "slug": "nextjs",
+    "version": "15.2.9"
+  },
+  "environment": {
+    "__NEXT_BUILD_ID": "OT1Tg4hYWZnN0mepG4Guc",
+    "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "WbQaqkecs7SBqgidW0VGqu91jAyF9K/34urHFjwquQg=",
+    "__NEXT_PREVIEW_MODE_ID": "a624e7498611766f07491285190f8d58",
+    "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "677ffcae8db11838134f207daf9f145782e4ea2a6ab11fa48fb78c51f5ac6ae1",
+    "__NEXT_PREVIEW_MODE_SIGNING_KEY": "d8f9000fdc1447f5bd1dee267cbdc343e7fc5f88b62dea24a563e74a12db2d51"
+  }
+}

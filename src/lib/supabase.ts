@@ -326,6 +326,30 @@ export const aiUsageService = {
 };
 
 // ── Oracle 神谕相关操作 ──────────────────────────────────────────────────────
+// -- Run this in Supabase SQL Editor:
+// -- create or replace function increment_oracle_regenerate_safe(
+// --   p_user_id text,
+// --   p_limit   int
+// -- ) returns jsonb language plpgsql security definer as $$
+// -- declare
+// --   v_today text := to_char(now() at time zone 'UTC', 'YYYY-MM-DD');
+// --   v_count int;
+// -- begin
+// --   select regenerate_count into v_count
+// --   from oracle_logs
+// --   where user_id = p_user_id and date = v_today
+// --   for update;
+// --   if v_count is null then
+// --     return jsonb_build_object('allowed', false, 'regenerate_count', 0);
+// --   end if;
+// --   if v_count >= p_limit then
+// --     return jsonb_build_object('allowed', false, 'regenerate_count', v_count);
+// --   end if;
+// --   update oracle_logs
+// --   set regenerate_count = regenerate_count + 1
+// --   where user_id = p_user_id and date = v_today;
+// --   return jsonb_build_object('allowed', true, 'regenerate_count', v_count + 1);
+// -- end; $$;
 export const FREE_DAILY_ORACLE_LIMIT = 1;
 export const PRO_DAILY_ORACLE_LIMIT = 6;
 
@@ -373,6 +397,23 @@ export const oracleService = {
       .single();
     if (error && error.code !== 'PGRST116') throw error;
     return data;
+  },
+
+  /**
+   * 原子检查 regenerate_count 并递增（防并发双击绕过限制）
+   * 需先在 Supabase SQL Editor 执行上方注释中的建函数 SQL
+   */
+  async incrementRegenerateSafe(
+    userId: string,
+    limit: number
+  ): Promise<{ allowed: boolean; regenerate_count: number }> {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase.rpc('increment_oracle_regenerate_safe', {
+      p_user_id: userId,
+      p_limit: limit,
+    });
+    if (error) throw error;
+    return data as { allowed: boolean; regenerate_count: number };
   },
 
   /** 更新神谕（重新生成） */
