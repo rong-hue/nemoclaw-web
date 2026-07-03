@@ -30,6 +30,7 @@ function StudioContent() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
     supabaseAuth.getCurrentUser().then(user => {
@@ -157,6 +158,7 @@ function StudioContent() {
     if (!designIdFromUrl) return;
     if (authLoading) { return; }
     if (!currentUser) { return; }
+    if (!canvasReady) { return; }  // 等 canvas 初始化完成再加载
     // 检查画布是否真的有内容，避免 SPA 路由复用时 designId 相同但画布为空的情况
     const currentJson = canvasRef.current?.exportJSON();
     let canvasHasContent = false;
@@ -180,22 +182,12 @@ function StudioContent() {
           const jsonData = typeof design.canvas_json === 'string'
             ? design.canvas_json
             : JSON.stringify(design.canvas_json);
-          let waited = 0;
-          const tryLoad = async () => {
-            if (canvasRef.current) {
-              try {
-                await canvasRef.current.loadFromJSON(jsonData);
-              } catch(e) {
-                console.error('[Studio] loadFromJSON error:', e);
-              }
-            } else if (waited < 5000) {
-              waited += 100;
-              setTimeout(tryLoad, 100);
-            } else {
-              console.error('[Studio] Canvas ref not ready after 5s');
-            }
-          };
-          setTimeout(tryLoad, 100);
+          // canvasReady 已确保 canvasRef.current 存在，直接加载
+          try {
+            await canvasRef.current!.loadFromJSON(jsonData);
+          } catch(e) {
+            console.error('[Studio] loadFromJSON error:', e);
+          }
         } else {
           console.warn('[Studio] canvas_json has no objects, skipping load.');
         }
@@ -203,7 +195,7 @@ function StudioContent() {
         console.error('Failed to load design:', err);
       }
     })();
-  }, [searchParams, authLoading, currentUser?.id]); // authLoading 确保 auth 初始化完成后再加载；用 id 避免 token 刷新时重复触发
+  }, [searchParams, authLoading, currentUser?.id, canvasReady]); // canvasReady 确保 canvas 初始化后再加载
 
   // 从 Gallery 跳转过来时，自动加载 artwork 图片到画布
   useEffect(() => {
@@ -783,6 +775,7 @@ function StudioContent() {
             >
               <StudioCanvas
                 ref={canvasRef}
+                onReady={() => setCanvasReady(true)}
                 onSelectionChange={setSelected}
                 onLayersChange={(layers) => { setLayers(layers); refreshUndoRedo(); triggerAutoSave(); }}
                 initialWidth={canvasW}

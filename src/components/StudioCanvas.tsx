@@ -79,9 +79,10 @@ interface CanvasProps {
   initialWidth?: number;
   initialHeight?: number;
   onExitStampMode?: () => void;  // 盖章后退出印章模式的回调
+  onReady?: () => void;          // canvas 初始化完成后的回调
 }
 
-const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange, initialWidth = 600, initialHeight = 500, onExitStampMode }, ref) => {
+const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, onLayersChange, initialWidth = 600, initialHeight = 500, onExitStampMode, onReady }, ref) => {
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
@@ -140,6 +141,8 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     canvas.renderAll(); // 立即渲染白色背景，避免初始显示透明/深色
     // 推入初始空白帧
     pushHistory(canvas);
+    // 通知父组件 canvas 已就绪
+    onReady?.();
 
     canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
