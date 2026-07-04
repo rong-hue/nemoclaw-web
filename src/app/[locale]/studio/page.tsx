@@ -402,7 +402,20 @@ function StudioContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl, style: selectedStyle }),
       });
-      const data = await res.json();
+      // Safe JSON parse — Cloudflare edge errors return HTML, not JSON
+      const rawText = await res.text();
+      const contentType = res.headers.get('content-type') || '';
+      let data: Record<string, unknown>;
+      if (!contentType.includes('application/json') || rawText.trimStart().startsWith('<')) {
+        console.error('[style-transfer] Non-JSON response:', res.status, rawText.slice(0, 300));
+        throw new Error(`Server error (${res.status}): please try again`);
+      }
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        console.error('[style-transfer] JSON parse error:', rawText.slice(0, 300));
+        throw new Error(`Server error (${res.status}): unexpected response format`);
+      }
       if (!res.ok) {
         if (data.error === 'quota_exceeded') throw new Error(locale === 'zh' ? '今日配额已用完，请明天再试或升级 Pro' : 'Daily quota reached. Try again tomorrow or upgrade to Pro');
         throw new Error(data.error || 'Style transfer failed');

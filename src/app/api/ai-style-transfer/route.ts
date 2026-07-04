@@ -114,7 +114,12 @@ export async function POST(req: Request) {
       isPro: !!activeSub,
     });
   } catch (err: unknown) {
-    console.error('[AI Style Transfer] Error:', err instanceof Error ? err.message : String(err));
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[AI Style Transfer] Unhandled error:', msg);
+    // Return JSON explicitly — never let edge runtime bubble up HTML
+    return new Response(JSON.stringify({ error: 'Internal server error', detail: msg }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
