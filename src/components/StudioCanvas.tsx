@@ -554,7 +554,11 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       const obj = canvas.getActiveObject();
       if (obj) { 
-        obj.set('shadow', new Shadow({ blur, color, offsetX: 5, offsetY: 5 })); 
+        obj.set('shadow', new Shadow({ blur, color, offsetX: 5, offsetY: 5 }));
+        // shadow 不在 Fabric.js cacheProperties 里，set() 不会自动标记 dirty
+        // 需要手动触发缓存失效，否则 renderAll() 会使用旧的 object cache
+        (obj as any).dirty = true;
+        canvas.fire('object:modified', { target: obj });
         canvas.renderAll(); 
       }
     },
