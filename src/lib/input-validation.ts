@@ -78,14 +78,20 @@ export function validateMagicBytes(buffer: ArrayBuffer | Uint8Array): string | n
 
 /**
  * 校验图片 URL
- * - 必须是 http/https
- * - 必须是同域可信来源（Supabase Storage 或 SiliconFlow CDN）
+ * - 必须是 https
+ * - 必须来自可信域名（Supabase Storage 或 SiliconFlow CDN 系列）
  */
+
+// 允许的精确前缀（Supabase Storage）
 const ALLOWED_URL_PREFIXES = [
   'https://zudjabafibyvnpqiroof.supabase.co/storage/',
-  'https://sf-maas-uat-prod.oss-cn-shanghai.aliyuncs.com/',
-  'https://cdn.siliconflow.cn/',
-  'https://sf-cdn.siliconflow.cn/',
+];
+
+// 允许的域名后缀（SiliconFlow 全系列 CDN + 阿里云 OSS）
+// Kolors 等模型可能返回不同子域名，用后缀匹配更鲁棒
+const ALLOWED_URL_DOMAINS = [
+  '.siliconflow.cn',
+  '.aliyuncs.com',
 ];
 
 export interface ValidateImageUrlResult {
@@ -101,10 +107,18 @@ export function validateImageUrl(url: unknown): ValidateImageUrlResult {
   if (!url.startsWith('https://')) {
     return { ok: false, error: 'imageUrl must be an https URL' };
   }
-  // 必须来自可信域名
-  const trusted = ALLOWED_URL_PREFIXES.some((prefix) => url.startsWith(prefix));
-  if (!trusted) {
-    return { ok: false, error: 'imageUrl must be from an allowed domain' };
+  // 检查精确前缀（Supabase）
+  if (ALLOWED_URL_PREFIXES.some((prefix) => url.startsWith(prefix))) {
+    return { ok: true };
   }
-  return { ok: true };
+  // 检查域名后缀（SiliconFlow 全系列）
+  try {
+    const hostname = new URL(url).hostname;
+    if (ALLOWED_URL_DOMAINS.some((suffix) => hostname === suffix.slice(1) || hostname.endsWith(suffix))) {
+      return { ok: true };
+    }
+  } catch {
+    return { ok: false, error: 'imageUrl is not a valid URL' };
+  }
+  return { ok: false, error: 'imageUrl must be from an allowed domain' };
 }

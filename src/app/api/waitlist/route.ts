@@ -2,8 +2,27 @@ export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// 简单 IP 频率限制：同一 IP 60秒内最多提交 3 次
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 3;
+const ipTimestamps = new Map<string, number[]>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = (ipTimestamps.get(ip) ?? []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  if (timestamps.length >= RATE_LIMIT_MAX) return false;
+  timestamps.push(now);
+  ipTimestamps.set(ip, timestamps);
+  return true;
+}
 
 export async function POST(req: NextRequest) {
+  // 频率限制
+  const ip = req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests, please wait a moment' }, { status: 429 });
+  }
+
   try {
     const { email, locale = 'en' } = await req.json();
 
