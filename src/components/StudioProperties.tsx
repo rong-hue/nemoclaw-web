@@ -164,11 +164,18 @@ export default function PropertiesPanel({
                   onShadowChange(blur, shadowColor);
                 }} className="w-full accent-orange-500" />
                 <div className="flex items-center gap-2">
-                  <input type="color" value={shadowColor.slice(0, 7)} onChange={e => {
-                    const color = e.target.value + '80';
-                    setShadowColor(color);
-                    onShadowChange(shadowBlur, color);
-                  }} className="w-8 h-8 rounded cursor-pointer" />
+                  <input type="color" value={shadowColor.slice(0, 7)}
+                    onChange={e => {
+                      const color = e.target.value + '80';
+                      setShadowColor(color);
+                      onShadowChange(shadowBlur, color);
+                    }}
+                    onInput={e => {
+                      const color = (e.target as HTMLInputElement).value + '80';
+                      setShadowColor(color);
+                      onShadowChange(shadowBlur, color);
+                    }}
+                    className="w-8 h-8 rounded cursor-pointer" />
                   <span className="text-xs text-slate-400">{t("blur")}: {shadowBlur}px</span>
                   <span className="text-xs font-mono text-slate-500">{shadowColor.slice(0, 7).toUpperCase()}</span>
                 </div>
