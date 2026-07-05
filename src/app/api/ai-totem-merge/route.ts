@@ -68,8 +68,8 @@ export async function POST(req: Request) {
     const zoneHint = zone ? ` Focus the design placement on the ${zone} area.` : '';
     const fullPrompt = `${basePrompt}${zoneHint} The result should look like a professional product mockup photo. High quality, photorealistic, no artifacts.`;
 
-    // 5. 调用 Qwen-Image-Edit（多图输入：商品图 + 设计图）
-    // 硅基流动 Qwen-Image-Edit 支持传入多张图，用 images 数组
+    // 5. 调用 Kolors I2Image（以设计图作为参考，prompt 描述商品融合效果）
+    // Kolors 只支持单张参考图，用设计图引导风格和图案
     // L3: 30秒超时保护
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -80,12 +80,13 @@ export async function POST(req: Request) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: 'Qwen/Qwen-Image-Edit-2509',
+          model: 'Kwai-Kolors/Kolors',
           prompt: fullPrompt,
-          image: productImageUrl,      // 主图：商品底图
-          image2: designImageUrl,       // 参考图：图腾设计图
-          num_inference_steps: 20,
-          guidance_scale: 4,
+          image: designImageUrl,        // 以设计图（图腾）作为参考图案
+          image_size: '1024x1024',
+          num_inference_steps: 25,
+          guidance_scale: 7.5,
+          negative_prompt: 'low quality, blurry, watermark, text, signature, deformed, ugly',
         }),
       });
     } finally {

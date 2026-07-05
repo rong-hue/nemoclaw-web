@@ -80,11 +80,12 @@ export async function POST(req: Request) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: 'Qwen/Qwen-Image-Edit-2509',
+          model: 'Kwai-Kolors/Kolors',
           prompt: fullPrompt,
           image: imageUrl,
+          image_size: '1024x1024',
           num_inference_steps: 20,
-          guidance_scale: 4,
+          guidance_scale: 7.5,
           negative_prompt: 'photorealistic, western style, low quality, blurry, watermark, text, signature, overexposed',
         }),
       });
