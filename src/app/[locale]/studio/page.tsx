@@ -3,7 +3,7 @@ export const runtime = 'edge';
 
 import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Box, Check, Loader2, LayoutGrid, Wand2, Download, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, Box, Check, Loader2, LayoutGrid, Wand2, Download, Sparkles, MoreHorizontal } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabaseAuth, type User } from '@/lib/supabase-auth';
@@ -85,6 +85,15 @@ function StudioContent() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileHeaderMore, setShowMobileHeaderMore] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const [showStampPanel, setShowStampPanel] = useState(false);
   const [showTalismanPanel, setShowTalismanPanel] = useState(false);
   const [showProductPreview, setShowProductPreview] = useState(false);
@@ -562,14 +571,14 @@ function StudioContent() {
               setStyleError('');
               setShowStyleModal(true);
             }}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+            className="hidden md:flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
           >
             <Wand2 size={16} />
             {locale === 'zh' ? '风格转换' : 'Style AI'}
           </button>
           <button
             onClick={handleOpenTotemMap}
-            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+            className="hidden md:flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
           >
             <Box size={16} />
             {locale === 'zh' ? '图腾映射' : 'Totem Map'}
@@ -582,12 +591,61 @@ function StudioContent() {
             <LayoutGrid size={16} />
             <span className="hidden md:inline">{t('myDesigns')}</span>
           </Link>
+
+          {/* 手机端更多操作按钮 */}
+          <div className="relative md:hidden">
+            <button
+              onClick={() => setShowMobileHeaderMore(v => !v)}
+              className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm transition-all"
+            >
+              <MoreHorizontal size={16} />
+            </button>
+            {showMobileHeaderMore && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMobileHeaderMore(false)} />
+                <div className="absolute right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 w-48 py-1">
+                  <button
+                    onClick={() => {
+                      setShowMobileHeaderMore(false);
+                      if (!currentUser) {
+                        const callbackPath = encodeURIComponent(`/${locale}/studio${window.location.search}`);
+                        window.location.href = `/${locale}/auth?callbackUrl=${callbackPath}`;
+                        return;
+                      }
+                      setStyleFile(null);
+                      setStylePreview('');
+                      setStyleError('');
+                      setShowStyleModal(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+                  >
+                    <Wand2 size={16} className="text-purple-400" />
+                    {locale === 'zh' ? '风格转换' : 'Style AI'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMobileHeaderMore(false);
+                      handleOpenTotemMap();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+                  >
+                    <Box size={16} className="text-amber-400" />
+                    {locale === 'zh' ? '图腾映射' : 'Totem Map'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
           <button
             onClick={() => handleSave()}
             disabled={saveStatus === 'saving'}
             className={`flex items-center gap-2 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 ${saveButtonClass()}`}
           >
-            {saveButtonContent()}
+            {saveStatus === 'saving' ? <><Loader2 size={16} className="animate-spin" /><span className="hidden md:inline">{t('saving')}</span></> :
+             saveStatus === 'saved'  ? <><Check size={16} /><span className="hidden md:inline">{t('saved')}</span></> :
+             saveStatus === 'error'  ? <><Save size={16} /><span className="hidden md:inline">{t('saveFailed')}</span></> :
+             <><Save size={16} /><span className="hidden md:inline">{t('save')}</span></>}
           </button>
         </div>
       </header>
@@ -654,70 +712,100 @@ function StudioContent() {
         />
 
         <div className="flex-1 flex overflow-hidden">
-        {/* 印章面板 */}
-        {showStampPanel && (
-          <StampPanel
-            onStampSelect={handleStampSelect}
-            onClose={() => {
-              setShowStampPanel(false);
-              setActiveStampId(null);
-              canvasRef.current?.disableStampMode();
-              handleToolChange('select');
-            }}
-            activeStampId={activeStampId}
-            onParamsChange={(size, angle) => {
-              canvasRef.current?.updateStampParams(size, angle);
-              setStampCursorParams({ size, angle });
-            }}
-            onCustomTextStamp={(text) => {
-              canvasRef.current?.addCustomTextStamp(text);
-            }}
-            onComboStamp={(stamp, size, angle, text, offsetX, offsetY) => {
-              canvasRef.current?.addComboStamp(stamp.src, size, angle, text, offsetX, offsetY);
-            }}
-          />
-        )}
+        {/* 左侧面板：案头端包裹为底部抽屉 */}
+        {(() => {
+          const showAnyPanel = showStampPanel || showWabiPanel || showTalismanPanel;
+          const panelContent = (
+            <>
+              {/* 拖拽指示条（手机端） */}
+              {isMobile && (
+                <div className="flex justify-center py-2 cursor-pointer" onClick={() => {
+                  if (showStampPanel) { setShowStampPanel(false); setActiveStampId(null); canvasRef.current?.disableStampMode(); handleToolChange('select'); }
+                  if (showWabiPanel)  { setShowWabiPanel(false);  handleToolChange('select'); }
+                  if (showTalismanPanel) { setShowTalismanPanel(false); }
+                }}>
+                  <div className="w-10 h-1 rounded-full bg-slate-600" />
+                </div>
+              )}
 
-        {/* 残缺美笔刷面板 */}
-        {showWabiPanel && (
-          <WabiSabiBrushPanel
-            onClose={() => { setShowWabiPanel(false); handleToolChange('select'); }}
-            onParamsChange={(p) => {
-              setWabiParams(p);
-              canvasRef.current?.updateWabiSabiParams?.(p);
-            }}
-          />
-        )}
+              {/* 印章面板 */}
+              {showStampPanel && (
+                <StampPanel
+                  onStampSelect={handleStampSelect}
+                  onClose={() => {
+                    setShowStampPanel(false);
+                    setActiveStampId(null);
+                    canvasRef.current?.disableStampMode();
+                    handleToolChange('select');
+                  }}
+                  activeStampId={activeStampId}
+                  onParamsChange={(size, angle) => {
+                    canvasRef.current?.updateStampParams(size, angle);
+                    setStampCursorParams({ size, angle });
+                  }}
+                  onCustomTextStamp={(text) => {
+                    canvasRef.current?.addCustomTextStamp(text);
+                  }}
+                  onComboStamp={(stamp, size, angle, text, offsetX, offsetY) => {
+                    canvasRef.current?.addComboStamp(stamp.src, size, angle, text, offsetX, offsetY);
+                  }}
+                />
+              )}
 
-        {/* 护身符面板 */}
-        {showTalismanPanel && (
-          <TalismanPanel
-            isPro={isPro}
-            onSelectTalisman={async (talismanId, symbol, color) => {
-              // 服务端权限验证（防止前端绕过）
-              try {
-                const res = await fetch('/api/talisman/apply', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ talismanId }),
-                });
-                if (!res.ok) {
-                  const data = await res.json().catch(() => ({}));
-                  alert(data.error || t('talisman.upgradeRequired'));
-                  return;
-                }
-              } catch {
-                // 网络异常时不阻断操作（降级到纯前端校验）
-              }
-              // 将护身符作为 emoji + 名称 + 祝福语组合添加到画布
-              const talisman = getTalismanById(talismanId);
-              const name = locale === 'zh' ? talisman?.meaning.zh : talisman?.meaning.en;
-              const blessing = locale === 'zh' ? talisman?.blessing.zh : talisman?.blessing.en;
-              canvasRef.current?.addTalisman(symbol, name || '', color, blessing || '');
-              setShowTalismanPanel(false);
-            }}
-          />
-        )}
+              {/* 残缺美笔刷面板 */}
+              {showWabiPanel && (
+                <WabiSabiBrushPanel
+                  onClose={() => { setShowWabiPanel(false); handleToolChange('select'); }}
+                  onParamsChange={(p) => {
+                    setWabiParams(p);
+                    canvasRef.current?.updateWabiSabiParams?.(p);
+                  }}
+                />
+              )}
+
+              {/* 护身符面板 */}
+              {showTalismanPanel && (
+                <TalismanPanel
+                  isPro={isPro}
+                  onSelectTalisman={async (talismanId, symbol, color) => {
+                    // 服务端权限验证（防止前端绕过）
+                    try {
+                      const res = await fetch('/api/talisman/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ talismanId }),
+                      });
+                      if (!res.ok) {
+                        const data = await res.json().catch(() => ({}));
+                        alert(data.error || t('talisman.upgradeRequired'));
+                        return;
+                      }
+                    } catch {
+                      // 网络异常时不阻断操作（降级到纯前端校验）
+                    }
+                    // 将护身符作为 emoji + 名称 + 祝福语组合添加到画布
+                    const talisman = getTalismanById(talismanId);
+                    const name = locale === 'zh' ? talisman?.meaning.zh : talisman?.meaning.en;
+                    const blessing = locale === 'zh' ? talisman?.blessing.zh : talisman?.blessing.en;
+                    canvasRef.current?.addTalisman(symbol, name || '', color, blessing || '');
+                    setShowTalismanPanel(false);
+                  }}
+                />
+              )}
+            </>
+          );
+
+          if (isMobile) {
+            return (
+              <div className={`fixed inset-x-0 bottom-14 z-40 transition-transform duration-300 ${
+                showAnyPanel ? 'translate-y-0' : 'translate-y-full'
+              }`}>
+                {panelContent}
+              </div>
+            );
+          }
+          return panelContent;
+        })()}
 
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-800">
           {/* 画布尺寸控制栏 */}

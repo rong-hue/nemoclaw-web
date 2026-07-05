@@ -144,6 +144,61 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     // 通知父组件 canvas 已就绪
     onReady?.();
 
+    // 触摸手势：双指缩放和平移
+    let lastTouchDist = 0;
+    let lastTouchMidX = 0;
+    let lastTouchMidY = 0;
+
+    const canvasDomEl = canvas.getElement();
+    const wrapper = canvasDomEl.parentElement;
+    if (wrapper) {
+      wrapper.addEventListener('touchstart', (e: TouchEvent) => {
+        if (e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+          lastTouchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          lastTouchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener('touchmove', (e: TouchEvent) => {
+        if (e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+          // 缩放
+          if (lastTouchDist > 0) {
+            const scale = dist / lastTouchDist;
+            const vpt = canvas.viewportTransform;
+            if (vpt) {
+              const { Point } = require('fabric');
+              const point = new Point(midX, midY);
+              canvas.zoomToPoint(point, Math.min(Math.max(canvas.getZoom() * scale, 0.1), 5));
+            }
+          }
+          // 平移
+          const panX = midX - lastTouchMidX;
+          const panY = midY - lastTouchMidY;
+          const { Point } = require('fabric');
+          canvas.relativePan(new Point(panX, panY));
+
+          lastTouchDist = dist;
+          lastTouchMidX = midX;
+          lastTouchMidY = midY;
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener('touchend', () => {
+        lastTouchDist = 0;
+      });
+    }
+
     canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
     canvas.on('selection:cleared', () => onSelectionChange(null));

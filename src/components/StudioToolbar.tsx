@@ -6,6 +6,7 @@ import {
   Type, Square, Circle, ImagePlus, Trash2, RotateCcw, Download,
   MousePointer, Pencil, Pentagon, Star, Minus, ArrowRight, Copy,
   Image, Scissors, Wand2, Stamp, Brush, Undo2, Redo2, ChevronDown, Cpu, Shield,
+  MoreHorizontal,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -50,6 +51,19 @@ export default function Toolbar({
   const [lastShape, setLastShape] = useState<string>('rect');
   const shapeRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Mobile drawer state
+  const [mobileShapeOpen, setMobileShapeOpen] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
 
   // 点击外部关闭形状下拉
   useEffect(() => {
@@ -125,130 +139,287 @@ export default function Toolbar({
 
   const divider = <div className="w-px h-6 bg-slate-700 mx-1 shrink-0" />;
 
-  return (
-    <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-3 gap-1 overflow-x-auto" style={{ overflowY: 'visible' }}>
+  // ─── Desktop toolbar (unchanged) ───────────────────────────────────────────
+  if (!isMobile) {
+    return (
+      <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-3 gap-1 overflow-x-auto" style={{ overflowY: 'visible' }}>
 
-      {/* 绘制工具组 */}
-      {drawTools.map(tool => (
-        <button
-          key={tool.id}
-          onClick={tool.action}
-          title={tool.label}
-          className={`${btnBase} ${colorClass(tool.color, activeTool === tool.id)}`}
-        >
-          {tool.icon}
-          <span className="hidden sm:inline">{tool.label}</span>
-        </button>
-      ))}
-
-      {divider}
-
-      {/* 形状工具组（折叠下拉） */}
-      <div ref={shapeRef} className="relative shrink-0">
-        <div className={`flex items-center rounded-lg overflow-hidden ${isShapeActive ? 'bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]' : 'hover:bg-slate-700'}`}>
-          {/* 左侧：视觉组件入口 */}
+        {/* 绘制工具组 */}
+        {drawTools.map(tool => (
           <button
-            onClick={() => {
-              currentShapeTool.action();
-              setLastShape(currentShapeTool.id);
-            }}
-            title={L('visualComponents', 'Visual')}
-            className={`flex items-center gap-1.5 h-9 pl-2.5 pr-1.5 text-xs font-medium transition-all ${isShapeActive ? 'text-white' : 'text-slate-300'}`}
+            key={tool.id}
+            onClick={tool.action}
+            title={tool.label}
+            className={`${btnBase} ${colorClass(tool.color, activeTool === tool.id)}`}
           >
-            {/* 科技感图标：CPU 芯片 */}
-            <Cpu size={15} className={isShapeActive ? 'text-white' : 'text-cyan-400'} />
-            <span className="hidden sm:inline">{L('visualComponents', 'Visual')}</span>
+            {tool.icon}
+            <span className="hidden sm:inline">{tool.label}</span>
           </button>
-          {/* 右侧：展开下拉 */}
-          <button
-            onClick={openDropdown}
-            className={`flex items-center h-9 pr-1.5 pl-0.5 transition-all ${isShapeActive ? 'text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            <ChevronDown size={12} className={`transition-transform ${shapeOpen ? 'rotate-180' : ''}`} />
-          </button>
+        ))}
+
+        {divider}
+
+        {/* 形状工具组（折叠下拉） */}
+        <div ref={shapeRef} className="relative shrink-0">
+          <div className={`flex items-center rounded-lg overflow-hidden ${isShapeActive ? 'bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]' : 'hover:bg-slate-700'}`}>
+            {/* 左侧：视觉组件入口 */}
+            <button
+              onClick={() => {
+                currentShapeTool.action();
+                setLastShape(currentShapeTool.id);
+              }}
+              title={L('visualComponents', 'Visual')}
+              className={`flex items-center gap-1.5 h-9 pl-2.5 pr-1.5 text-xs font-medium transition-all ${isShapeActive ? 'text-white' : 'text-slate-300'}`}
+            >
+              {/* 科技感图标：CPU 芯片 */}
+              <Cpu size={15} className={isShapeActive ? 'text-white' : 'text-cyan-400'} />
+              <span className="hidden sm:inline">{L('visualComponents', 'Visual')}</span>
+            </button>
+            {/* 右侧：展开下拉 */}
+            <button
+              onClick={openDropdown}
+              className={`flex items-center h-9 pr-1.5 pl-0.5 transition-all ${isShapeActive ? 'text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              <ChevronDown size={12} className={`transition-transform ${shapeOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+
+          {/* 下拉面板 — portal 渲染到 body，避免被 overflow 裁剪 */}
+          {shapeOpen && typeof document !== 'undefined' && createPortal(
+            <div
+              style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
+              className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-1.5 grid grid-cols-4 gap-1 w-48"
+            >
+              {shapeTools.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => {
+                    s.action();
+                    setLastShape(s.id);
+                    setShapeOpen(false);
+                  }}
+                  title={s.label}
+                  className={`flex flex-col items-center justify-center gap-1 h-11 rounded-lg text-[10px] transition-all ${
+                    activeTool === s.id
+                      ? 'bg-orange-500 text-white'
+                      : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  {s.icon}
+                  <span>{s.label}</span>
+                </button>
+              ))}
+            </div>,
+            document.body
+          )}
         </div>
 
-        {/* 下拉面板 — portal 渲染到 body，避免被 overflow 裁剪 */}
-        {shapeOpen && typeof document !== 'undefined' && createPortal(
-          <div
-            style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
-            className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-1.5 grid grid-cols-4 gap-1 w-48"
+        {divider}
+
+        {/* 操作工具组 */}
+        {actionTools.map(tool => (
+          <button
+            key={tool.id}
+            onClick={tool.action}
+            title={tool.label}
+            className={`${btnBase} ${colorClass(tool.color, activeTool === tool.id)}`}
           >
-            {shapeTools.map(s => (
+            {tool.icon}
+            <span className="hidden md:inline">{tool.label}</span>
+          </button>
+        ))}
+
+        {divider}
+
+        {/* 历史：Undo / Redo */}
+        <button
+          onClick={() => onUndo?.()}
+          disabled={!canUndo}
+          title={`${L('undo', 'Undo')} (Ctrl+Z)`}
+          className={`${btnBase} ${!canUndo ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
+        >
+          <Undo2 size={16} />
+          <span className="hidden md:inline">{L('undo', 'Undo')}</span>
+        </button>
+        <button
+          onClick={() => onRedo?.()}
+          disabled={!canRedo}
+          title={`${L('redo', 'Redo')} (Ctrl+Y)`}
+          className={`${btnBase} ${!canRedo ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
+        >
+          <Redo2 size={16} />
+          <span className="hidden md:inline">{L('redo', 'Redo')}</span>
+        </button>
+
+        {divider}
+
+        {/* 导出工具组 */}
+        {exportTools.map(tool => (
+          <button
+            key={tool.id}
+            onClick={tool.action}
+            title={tool.label}
+            className={`${btnBase} ${colorClass(tool.color, false)}`}
+          >
+            {tool.icon}
+            <span className="hidden md:inline">{tool.label}</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  // ─── Mobile bottom tab bar ──────────────────────────────────────────────────
+  // Shape drawer items (rect/circle/polygon/star/line/arrow)
+  const mobileShapeItems = [
+    { id: 'rect',    icon: <Square size={20} />,    label: L('rect', 'Rect'),    action: () => { setActiveTool('rect');    onAddRect();    setMobileShapeOpen(false); } },
+    { id: 'circle',  icon: <Circle size={20} />,    label: L('circle', 'Circle'),action: () => { setActiveTool('circle');  onAddCircle();  setMobileShapeOpen(false); } },
+    { id: 'polygon', icon: <Pentagon size={20} />,  label: L('polygon', 'Poly'), action: () => { setActiveTool('polygon'); onAddPolygon(); setMobileShapeOpen(false); } },
+    { id: 'star',    icon: <Star size={20} />,      label: L('star', 'Star'),    action: () => { setActiveTool('star');    onAddStar();    setMobileShapeOpen(false); } },
+    { id: 'line',    icon: <Minus size={20} />,     label: L('line', 'Line'),    action: () => { setActiveTool('line');    onAddLine();    setMobileShapeOpen(false); } },
+    { id: 'arrow',   icon: <ArrowRight size={20} />,label: L('arrow', 'Arrow'),  action: () => { setActiveTool('arrow');   onAddArrow();   setMobileShapeOpen(false); } },
+  ];
+
+  // More drawer items
+  const mobileMoreItems = [
+    { id: 'draw',      icon: <Pencil size={20} />,     label: L('brush', 'Brush'),     action: () => { setActiveTool('draw');     onEnableDrawing();    setMobileMoreOpen(false); } },
+    { id: 'stamp',     icon: <Stamp size={20} />,      label: L('stamp', '印章'),      action: () => { setActiveTool('stamp');    onStamp?.();          setMobileMoreOpen(false); } },
+    { id: 'talisman',  icon: <span className="text-xl leading-none">☯</span>, label: L('talisman', '护身符'), action: () => { setActiveTool('talisman'); onTalisman?.(); setMobileMoreOpen(false); } },
+    { id: 'wabisabi',  icon: <Brush size={20} />,      label: L('wabiSabi', '残缺'),   action: () => { setActiveTool('wabisabi'); onWabiSabi?.();       setMobileMoreOpen(false); } },
+    { id: 'removebg',  icon: <Scissors size={20} />,   label: L('removeBg', '抠图'),   action: () => { onRemoveBackground();                           setMobileMoreOpen(false); } },
+    { id: 'undo',      icon: <Undo2 size={20} />,      label: L('undo', 'Undo'),       action: () => { onUndo?.();                                     setMobileMoreOpen(false); }, disabled: !canUndo },
+    { id: 'redo',      icon: <Redo2 size={20} />,      label: L('redo', 'Redo'),       action: () => { onRedo?.();                                     setMobileMoreOpen(false); }, disabled: !canRedo },
+    { id: 'delete',    icon: <Trash2 size={20} />,     label: L('delete', 'Del'),      action: () => { onDelete();                                     setMobileMoreOpen(false); } },
+    { id: 'clear',     icon: <RotateCcw size={20} />,  label: L('clear', 'Clear'),     action: () => { onClear();                                      setMobileMoreOpen(false); } },
+    { id: 'exportImg', icon: <Download size={20} />,   label: L('exportPNG', 'PNG'),   action: () => { onExportImage();                                setMobileMoreOpen(false); } },
+  ];
+
+  const mobileBtnClass = (id: string) =>
+    `flex flex-col items-center gap-1 text-[10px] transition-all px-1 py-1 rounded-lg ${
+      activeTool === id ? 'text-orange-400' : 'text-slate-300'
+    }`;
+
+  return (
+    <>
+      {/* Shape drawer */}
+      {mobileShapeOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-30"
+            onClick={() => setMobileShapeOpen(false)}
+          />
+          <div className="fixed inset-x-0 bottom-14 z-40 bg-slate-800 border border-slate-700 rounded-t-xl p-3 grid grid-cols-6 gap-2">
+            {mobileShapeItems.map(item => (
               <button
-                key={s.id}
-                onClick={() => {
-                  s.action();
-                  setLastShape(s.id);
-                  setShapeOpen(false);
-                }}
-                title={s.label}
-                className={`flex flex-col items-center justify-center gap-1 h-11 rounded-lg text-[10px] transition-all ${
-                  activeTool === s.id
-                    ? 'bg-orange-500 text-white'
-                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                key={item.id}
+                onClick={item.action}
+                className={`flex flex-col items-center gap-1 text-[10px] py-2 rounded-lg transition-all ${
+                  activeTool === item.id ? 'text-orange-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700'
                 }`}
               >
-                {s.icon}
-                <span>{s.label}</span>
+                {item.icon}
+                <span>{item.label}</span>
               </button>
             ))}
-          </div>,
-          document.body
-        )}
+          </div>
+        </>
+      )}
+
+      {/* More drawer */}
+      {mobileMoreOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-30"
+            onClick={() => setMobileMoreOpen(false)}
+          />
+          <div className="fixed inset-x-0 bottom-14 z-40 bg-slate-800 border border-slate-700 rounded-t-xl p-3 grid grid-cols-5 gap-2">
+            {mobileMoreItems.map(item => (
+              <button
+                key={item.id}
+                onClick={item.action}
+                disabled={'disabled' in item ? item.disabled : false}
+                className={`flex flex-col items-center gap-1 text-[10px] py-2 rounded-lg transition-all ${
+                  activeTool === item.id
+                    ? 'text-orange-400 bg-slate-700'
+                    : 'disabled' in item && item.disabled
+                    ? 'text-slate-600 cursor-not-allowed'
+                    : 'text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Bottom tab bar */}
+      <div className="fixed bottom-0 inset-x-0 z-50 h-14 bg-slate-900 border-t border-slate-700 flex items-center justify-around px-2">
+        {/* Select */}
+        <button
+          onClick={() => { setActiveTool('select'); setMobileShapeOpen(false); setMobileMoreOpen(false); }}
+          className={mobileBtnClass('select')}
+        >
+          <MousePointer size={20} />
+          <span>{L('select', '选择')}</span>
+        </button>
+
+        {/* Text */}
+        <button
+          onClick={() => { setActiveTool('text'); onAddText(); setMobileShapeOpen(false); setMobileMoreOpen(false); }}
+          className={mobileBtnClass('text')}
+        >
+          <Type size={20} />
+          <span>{L('text', '文字')}</span>
+        </button>
+
+        {/* Shape (with drawer toggle) */}
+        <button
+          onClick={() => { setMobileMoreOpen(false); setMobileShapeOpen(v => !v); }}
+          className={`flex flex-col items-center gap-1 text-[10px] transition-all px-1 py-1 rounded-lg ${
+            isShapeActive || mobileShapeOpen ? 'text-orange-400' : 'text-slate-300'
+          }`}
+        >
+          <div className="flex items-center gap-0.5">
+            <Square size={20} />
+            <ChevronDown size={12} className={`transition-transform ${mobileShapeOpen ? 'rotate-180' : ''}`} />
+          </div>
+          <span>{L('shape', '形状')}</span>
+        </button>
+
+        {/* Image */}
+        <button
+          onClick={() => { setActiveTool('image'); onUploadImage(); setMobileShapeOpen(false); setMobileMoreOpen(false); }}
+          className={mobileBtnClass('image')}
+        >
+          <ImagePlus size={20} />
+          <span>{L('image', '图片')}</span>
+        </button>
+
+        {/* AI Generate */}
+        <button
+          onClick={() => { setActiveTool('ai'); onAiGenerate(); setMobileShapeOpen(false); setMobileMoreOpen(false); }}
+          className={mobileBtnClass('ai')}
+        >
+          <Wand2 size={20} />
+          <span>{L('aiGenerate', 'AI生图')}</span>
+        </button>
+
+        {/* More (with drawer toggle) */}
+        <button
+          onClick={() => { setMobileShapeOpen(false); setMobileMoreOpen(v => !v); }}
+          className={`flex flex-col items-center gap-1 text-[10px] transition-all px-1 py-1 rounded-lg ${
+            mobileMoreOpen ? 'text-orange-400' : 'text-slate-300'
+          }`}
+        >
+          <div className="flex items-center gap-0.5">
+            <MoreHorizontal size={20} />
+            <ChevronDown size={12} className={`transition-transform ${mobileMoreOpen ? 'rotate-180' : ''}`} />
+          </div>
+          <span>更多</span>
+        </button>
       </div>
-
-      {divider}
-
-      {/* 操作工具组 */}
-      {actionTools.map(tool => (
-        <button
-          key={tool.id}
-          onClick={tool.action}
-          title={tool.label}
-          className={`${btnBase} ${colorClass(tool.color, activeTool === tool.id)}`}
-        >
-          {tool.icon}
-          <span className="hidden md:inline">{tool.label}</span>
-        </button>
-      ))}
-
-      {divider}
-
-      {/* 历史：Undo / Redo */}
-      <button
-        onClick={() => onUndo?.()}
-        disabled={!canUndo}
-        title={`${L('undo', 'Undo')} (Ctrl+Z)`}
-        className={`${btnBase} ${!canUndo ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
-      >
-        <Undo2 size={16} />
-        <span className="hidden md:inline">{L('undo', 'Undo')}</span>
-      </button>
-      <button
-        onClick={() => onRedo?.()}
-        disabled={!canRedo}
-        title={`${L('redo', 'Redo')} (Ctrl+Y)`}
-        className={`${btnBase} ${!canRedo ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
-      >
-        <Redo2 size={16} />
-        <span className="hidden md:inline">{L('redo', 'Redo')}</span>
-      </button>
-
-      {divider}
-
-      {/* 导出工具组 */}
-      {exportTools.map(tool => (
-        <button
-          key={tool.id}
-          onClick={tool.action}
-          title={tool.label}
-          className={`${btnBase} ${colorClass(tool.color, false)}`}
-        >
-          {tool.icon}
-          <span className="hidden md:inline">{tool.label}</span>
-        </button>
-      ))}
-    </div>
+    </>
   );
 }
