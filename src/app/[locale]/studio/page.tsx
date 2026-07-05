@@ -796,10 +796,9 @@ function StudioContent() {
           );
 
           if (isMobile) {
+            if (!showAnyPanel) return null;
             return (
-              <div className={`fixed inset-x-0 bottom-14 z-40 transition-transform duration-300 ${
-                showAnyPanel ? 'translate-y-0' : 'translate-y-full'
-              }`}>
+              <div className="fixed inset-x-0 bottom-14 z-40 bg-slate-900 border-t border-slate-700 rounded-t-xl shadow-2xl max-h-[60vh] overflow-y-auto">
                 {panelContent}
               </div>
             );
@@ -807,7 +806,7 @@ function StudioContent() {
           return panelContent;
         })()}
 
-        <div className="flex-1 flex flex-col overflow-hidden bg-slate-800">
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-800 pb-14 md:pb-0">
           {/* 画布尺寸控制栏 */}
           <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-b border-slate-700 flex-wrap">
             {PRESETS.map((p) => (
