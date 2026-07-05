@@ -158,11 +158,19 @@ export default function PropertiesPanel({
             <div>
               <p className="text-xs text-slate-500 mb-2">{t("shadow")}</p>
               <div className="space-y-2">
-                <input type="range" min={0} max={50} value={shadowBlur} onChange={e => setShadowBlur(Number(e.target.value))} className="w-full accent-orange-500" />
+                <input type="range" min={0} max={50} value={shadowBlur} onChange={e => {
+                  const blur = Number(e.target.value);
+                  setShadowBlur(blur);
+                  onShadowChange(blur, shadowColor);
+                }} className="w-full accent-orange-500" />
                 <div className="flex items-center gap-2">
-                  <input type="color" value={shadowColor.slice(0, 7)} onChange={e => setShadowColor(e.target.value + '80')} className="w-8 h-8 rounded cursor-pointer" />
+                  <input type="color" value={shadowColor.slice(0, 7)} onChange={e => {
+                    const color = e.target.value + '80';
+                    setShadowColor(color);
+                    onShadowChange(shadowBlur, color);
+                  }} className="w-8 h-8 rounded cursor-pointer" />
                   <span className="text-xs text-slate-400">{t("blur")}: {shadowBlur}px</span>
-                  <button onClick={() => onShadowChange(shadowBlur, shadowColor)} className="ml-auto bg-orange-500 hover:bg-orange-600 text-white text-xs rounded px-3 py-1">{t("apply")}</button>
+                  <span className="text-xs font-mono text-slate-500">{shadowColor.slice(0, 7).toUpperCase()}</span>
                 </div>
               </div>
             </div>
