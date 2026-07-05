@@ -71,7 +71,7 @@ export default function PropertiesPanel({
   };
 
   return (
-    <div className="w-72 bg-slate-900 border-l border-slate-700 flex flex-col overflow-hidden">
+    <div className="hidden md:flex w-72 bg-slate-900 border-l border-slate-700 flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
           <Sliders size={15} className="text-orange-400" />
