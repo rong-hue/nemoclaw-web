@@ -2,7 +2,7 @@
 
 import { Layers, Sliders, Lock, Unlock, Eye, EyeOff, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, AlignLeft, AlignCenter, AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical, Pencil } from 'lucide-react';
 import { LayerItem } from './StudioCanvas';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface PropsPanel {
@@ -48,6 +48,39 @@ export default function PropertiesPanel({
   const [shadowG, setShadowG] = useState(0);
   const [shadowB, setShadowB] = useState(0);
   const [shadowA, setShadowA] = useState(128); // 0-255, default 50%
+
+  // 当选中对象变化时，从对象的 shadow 属性同步到本地 state
+  useEffect(() => {
+    if (!selected) return;
+    const shadow = selected.shadow;
+    if (shadow && shadow.blur != null) {
+      setShadowBlur(shadow.blur);
+      // 解析 shadow.color（支持 #rrggbbaa / rgba() 格式）
+      let r = 0, g = 0, b = 0, a = 128;
+      if (typeof shadow.color === 'string') {
+        const hex8 = shadow.color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i);
+        if (hex8) {
+          r = parseInt(hex8[1], 16);
+          g = parseInt(hex8[2], 16);
+          b = parseInt(hex8[3], 16);
+          a = hex8[4] ? parseInt(hex8[4], 16) : 255;
+        } else {
+          const rgba = shadow.color.match(/rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)/);
+          if (rgba) {
+            r = parseInt(rgba[1]); g = parseInt(rgba[2]); b = parseInt(rgba[3]);
+            a = rgba[4] != null ? Math.round(parseFloat(rgba[4]) * 255) : 255;
+          }
+        }
+      }
+      setShadowR(r); setShadowG(g); setShadowB(b); setShadowA(a);
+      setShadowColor(shadow.color || '#00000080');
+    } else {
+      // 没有 shadow，重置到默认
+      setShadowBlur(10);
+      setShadowR(0); setShadowG(0); setShadowB(0); setShadowA(128);
+      setShadowColor('#00000080');
+    }
+  }, [selected]);
 
   const rgbaToShadowHex = (r: number, g: number, b: number, a: number) => {
     const h = (v: number) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0');
