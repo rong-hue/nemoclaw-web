@@ -86,6 +86,8 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
   const t = useTranslations('studio');
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<FabricCanvas | null>(null);
+  // 记录最近一次选中的对象，避免属性面板操作时 getActiveObject() 返回 null
+  const lastActiveRef = useRef<any>(null);
   // 历史记录栈（Undo/Redo）
   const historyStack = useRef<string[]>([]);
   const historyIndex = useRef<number>(-1);
@@ -199,8 +201,8 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       });
     }
 
-    canvas.on('selection:created', (e) => onSelectionChange(e.selected?.[0] || null));
-    canvas.on('selection:updated', (e) => onSelectionChange(e.selected?.[0] || null));
+    canvas.on('selection:created', (e) => { const obj = e.selected?.[0] || null; lastActiveRef.current = obj; onSelectionChange(obj); });
+    canvas.on('selection:updated', (e) => { const obj = e.selected?.[0] || null; lastActiveRef.current = obj; onSelectionChange(obj); });
     canvas.on('selection:cleared', () => onSelectionChange(null));
     // isRestoring=true 时跳过 syncLayers，避免 loadFromJSON 加载过程中触发 onLayersChange → triggerAutoSave
     canvas.on('object:added', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });
@@ -552,7 +554,7 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
     },
     setShadow: (blur: number, color: string) => {
       const canvas = fabricRef.current; if (!canvas) return;
-      const obj = canvas.getActiveObject();
+      const obj = canvas.getActiveObject() || lastActiveRef.current;
       if (obj) {
         // blur=0 视为关闭阴影
         obj.set('shadow', blur > 0 ? new Shadow({ blur, color, offsetX: 4, offsetY: 4 }) : null);

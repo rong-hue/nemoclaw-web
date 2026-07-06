@@ -65,10 +65,9 @@ export default function PropertiesPanel({
     }
   }, [selected]);
 
-  // 阴影辅助：直接用 color picker 的 #rrggbb + 固定 80% 透明度
+  // 阴影辅助：直接用 color picker 的 #rrggbb，传给 Fabric
   const doApplyShadow = (blur: number, color: string, enabled: boolean) => {
-    // color 是 #rrggbb，押照原来功能传 #rrggbbcc (cc=0xcc≈0.8)
-    onShadowChange(enabled ? blur : 0, color + 'cc');
+    onShadowChange(enabled ? Math.max(1, blur) : 0, color);
   };
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
@@ -97,7 +96,10 @@ export default function PropertiesPanel({
   };
 
   return (
-    <div className="hidden md:flex w-72 bg-slate-900 border-l border-slate-700 flex-col overflow-hidden">
+    <div
+      className="hidden md:flex w-72 bg-slate-900 border-l border-slate-700 flex-col overflow-hidden"
+      onMouseDown={e => e.stopPropagation()}
+    >
       <div className="flex-1 overflow-y-auto">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
           <Sliders size={15} className="text-orange-400" />
@@ -195,7 +197,7 @@ export default function PropertiesPanel({
                     }}
                     className="accent-orange-500"
                   />
-                  <span className="text-xs text-slate-400">{shadowEnabled ? t('on') || 'On' : t('off') || 'Off'}</span>
+                  <span className="text-xs text-slate-400">{shadowEnabled ? '开启' : '关闭'}</span>
                 </label>
               </div>
               {shadowEnabled && (
@@ -216,7 +218,7 @@ export default function PropertiesPanel({
                   </div>
                   {/* 颜色 */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500 w-10">{t('color') || 'Color'}</span>
+                    <span className="text-xs text-slate-500 w-10">颜色</span>
                     <input
                       type="color"
                       value={shadowColor}
