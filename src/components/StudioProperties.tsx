@@ -43,54 +43,32 @@ export default function PropertiesPanel({
   const [strokeColor, setStrokeColor] = useState('#1e293b');
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [shadowBlur, setShadowBlur] = useState(10);
-  const [shadowColor, setShadowColor] = useState('#00000080');
-  const [shadowR, setShadowR] = useState(0);
-  const [shadowG, setShadowG] = useState(0);
-  const [shadowB, setShadowB] = useState(0);
-  const [shadowA, setShadowA] = useState(128); // 0-255, default 50%
+  const [shadowColor, setShadowColor] = useState('#000000');
+  const [shadowEnabled, setShadowEnabled] = useState(false);
 
-  // 当选中对象变化时，从对象的 shadow 属性同步到本地 state
+  // 当选中对象变化时，从对象的 shadow 属性同步面板状态
   useEffect(() => {
     if (!selected) return;
-    const shadow = selected.shadow;
-    if (shadow && shadow.blur != null) {
-      setShadowBlur(shadow.blur);
-      // 解析 shadow.color（支持 #rrggbbaa / rgba() 格式）
-      let r = 0, g = 0, b = 0, a = 128;
-      if (typeof shadow.color === 'string') {
-        const hex8 = shadow.color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i);
-        if (hex8) {
-          r = parseInt(hex8[1], 16);
-          g = parseInt(hex8[2], 16);
-          b = parseInt(hex8[3], 16);
-          a = hex8[4] ? parseInt(hex8[4], 16) : 255;
-        } else {
-          const rgba = shadow.color.match(/rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)/);
-          if (rgba) {
-            r = parseInt(rgba[1]); g = parseInt(rgba[2]); b = parseInt(rgba[3]);
-            a = rgba[4] != null ? Math.round(parseFloat(rgba[4]) * 255) : 255;
-          }
-        }
+    const s = selected.shadow;
+    if (s && s.blur > 0) {
+      setShadowEnabled(true);
+      setShadowBlur(s.blur);
+      // 解析颜色：取前7位 (#rrggbb)，忽略 alpha 部分
+      if (typeof s.color === 'string') {
+        const hex = s.color.match(/^(#[0-9a-f]{6})/i);
+        setShadowColor(hex ? hex[1] : '#000000');
       }
-      setShadowR(r); setShadowG(g); setShadowB(b); setShadowA(a);
-      setShadowColor(shadow.color || '#00000080');
     } else {
-      // 没有 shadow，重置到默认
+      setShadowEnabled(false);
       setShadowBlur(10);
-      setShadowR(0); setShadowG(0); setShadowB(0); setShadowA(128);
-      setShadowColor('#00000080');
+      setShadowColor('#000000');
     }
   }, [selected]);
 
-  const rgbaToShadowHex = (r: number, g: number, b: number, a: number) => {
-    const h = (v: number) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0');
-    return `#${h(r)}${h(g)}${h(b)}${h(a)}`;
-  };
-
-  const applyShadow = (r: number, g: number, b: number, a: number, blur: number) => {
-    const color = rgbaToShadowHex(r, g, b, a);
-    setShadowColor(color);
-    onShadowChange(blur, color);
+  // 阴影辅助：直接用 color picker 的 #rrggbb + 固定 80% 透明度
+  const doApplyShadow = (blur: number, color: string, enabled: boolean) => {
+    // color 是 #rrggbb，押照原来功能传 #rrggbbcc (cc=0xcc≈0.8)
+    onShadowChange(enabled ? blur : 0, color + 'cc');
   };
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
@@ -204,80 +182,54 @@ export default function PropertiesPanel({
 
             {/* 阴影 */}
             <div>
-              <p className="text-xs text-slate-500 mb-2">{t("shadow")}</p>
-              <div className="space-y-2">
-                {/* Blur slider */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 w-8">Blur</span>
-                  <input type="range" min={0} max={50} value={shadowBlur} onChange={e => {
-                    const blur = Number(e.target.value);
-                    setShadowBlur(blur);
-                    applyShadow(shadowR, shadowG, shadowB, shadowA, blur);
-                  }} className="flex-1 accent-orange-500" />
-                  <span className="text-xs text-slate-400 w-8 text-right">{shadowBlur}</span>
-                </div>
-                {/* R */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-red-400 w-8">R</span>
-                  <input type="range" min={0} max={255} value={shadowR} onChange={e => {
-                    const v = Number(e.target.value);
-                    setShadowR(v);
-                    applyShadow(v, shadowG, shadowB, shadowA, shadowBlur);
-                  }} className="flex-1 accent-red-500" />
-                  <input type="number" min={0} max={255} value={shadowR} onChange={e => {
-                    const v = Math.max(0, Math.min(255, Number(e.target.value)));
-                    setShadowR(v);
-                    applyShadow(v, shadowG, shadowB, shadowA, shadowBlur);
-                  }} className="w-12 bg-slate-800 text-slate-300 text-xs px-1 py-0.5 rounded text-center" />
-                </div>
-                {/* G */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-green-400 w-8">G</span>
-                  <input type="range" min={0} max={255} value={shadowG} onChange={e => {
-                    const v = Number(e.target.value);
-                    setShadowG(v);
-                    applyShadow(shadowR, v, shadowB, shadowA, shadowBlur);
-                  }} className="flex-1 accent-green-500" />
-                  <input type="number" min={0} max={255} value={shadowG} onChange={e => {
-                    const v = Math.max(0, Math.min(255, Number(e.target.value)));
-                    setShadowG(v);
-                    applyShadow(shadowR, v, shadowB, shadowA, shadowBlur);
-                  }} className="w-12 bg-slate-800 text-slate-300 text-xs px-1 py-0.5 rounded text-center" />
-                </div>
-                {/* B */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-blue-400 w-8">B</span>
-                  <input type="range" min={0} max={255} value={shadowB} onChange={e => {
-                    const v = Number(e.target.value);
-                    setShadowB(v);
-                    applyShadow(shadowR, shadowG, v, shadowA, shadowBlur);
-                  }} className="flex-1 accent-blue-500" />
-                  <input type="number" min={0} max={255} value={shadowB} onChange={e => {
-                    const v = Math.max(0, Math.min(255, Number(e.target.value)));
-                    setShadowB(v);
-                    applyShadow(shadowR, shadowG, v, shadowA, shadowBlur);
-                  }} className="w-12 bg-slate-800 text-slate-300 text-xs px-1 py-0.5 rounded text-center" />
-                </div>
-                {/* Alpha */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 w-8">A</span>
-                  <input type="range" min={0} max={255} value={shadowA} onChange={e => {
-                    const v = Number(e.target.value);
-                    setShadowA(v);
-                    applyShadow(shadowR, shadowG, shadowB, v, shadowBlur);
-                  }} className="flex-1 accent-orange-500" />
-                  <input type="number" min={0} max={255} value={shadowA} onChange={e => {
-                    const v = Math.max(0, Math.min(255, Number(e.target.value)));
-                    setShadowA(v);
-                    applyShadow(shadowR, shadowG, shadowB, v, shadowBlur);
-                  }} className="w-12 bg-slate-800 text-slate-300 text-xs px-1 py-0.5 rounded text-center" />
-                </div>
-                {/* 颜色预览 */}
-                <div className="flex items-center gap-2 pt-1">
-                  <div className="w-6 h-6 rounded border border-slate-600" style={{ backgroundColor: `rgba(${shadowR},${shadowG},${shadowB},${(shadowA/255).toFixed(2)})` }} />
-                  <span className="text-xs font-mono text-slate-500">{shadowColor.slice(0, 9).toUpperCase()}</span>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-slate-500">{t("shadow")}</p>
+                <label className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={shadowEnabled}
+                    onChange={e => {
+                      const on = e.target.checked;
+                      setShadowEnabled(on);
+                      doApplyShadow(shadowBlur, shadowColor, on);
+                    }}
+                    className="accent-orange-500"
+                  />
+                  <span className="text-xs text-slate-400">{shadowEnabled ? t('on') || 'On' : t('off') || 'Off'}</span>
+                </label>
               </div>
+              {shadowEnabled && (
+                <div className="space-y-2">
+                  {/* Blur */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 w-10">Blur</span>
+                    <input
+                      type="range" min={1} max={50} value={shadowBlur}
+                      onChange={e => {
+                        const v = Number(e.target.value);
+                        setShadowBlur(v);
+                        doApplyShadow(v, shadowColor, true);
+                      }}
+                      className="flex-1 accent-orange-500"
+                    />
+                    <span className="text-xs text-slate-400 w-6 text-right">{shadowBlur}</span>
+                  </div>
+                  {/* 颜色 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 w-10">{t('color') || 'Color'}</span>
+                    <input
+                      type="color"
+                      value={shadowColor}
+                      onChange={e => {
+                        setShadowColor(e.target.value);
+                        doApplyShadow(shadowBlur, e.target.value, true);
+                      }}
+                      className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
+                    />
+                    <span className="text-xs font-mono text-slate-500">{shadowColor.toUpperCase()}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 滤镜（仅图片） */}
