@@ -203,7 +203,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
 
     canvas.on('selection:created', (e) => { const obj = e.selected?.[0] || null; lastActiveRef.current = obj; onSelectionChange(obj); });
     canvas.on('selection:updated', (e) => { const obj = e.selected?.[0] || null; lastActiveRef.current = obj; onSelectionChange(obj); });
-    canvas.on('selection:cleared', () => onSelectionChange(null));
+    // 延迟 150ms 再通知 React selection cleared
+    // 原因：原生 color picker 弹窗打开时会抢走焦点，触发 Fabric selection:cleared。
+    // 延迟给 color picker 的 onChange 时间先运行，再卡零属性面板。
+    canvas.on('selection:cleared', () => setTimeout(() => onSelectionChange(null), 150));
     // isRestoring=true 时跳过 syncLayers，避免 loadFromJSON 加载过程中触发 onLayersChange → triggerAutoSave
     canvas.on('object:added', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });
     canvas.on('object:removed', () => { if (!isRestoring.current) syncLayers(canvas); pushHistory(canvas); });

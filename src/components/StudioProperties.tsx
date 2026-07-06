@@ -222,6 +222,11 @@ export default function PropertiesPanel({
                     <input
                       type="color"
                       value={shadowColor}
+                      onInput={e => {
+                        const c = (e.target as HTMLInputElement).value;
+                        setShadowColor(c);
+                        doApplyShadow(shadowBlur, c, true);
+                      }}
                       onChange={e => {
                         setShadowColor(e.target.value);
                         doApplyShadow(shadowBlur, e.target.value, true);
