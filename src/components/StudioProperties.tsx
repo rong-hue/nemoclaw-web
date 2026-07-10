@@ -44,23 +44,24 @@ export default function PropertiesPanel({
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [shadowBlur, setShadowBlur] = useState(10);
   const [shadowColor, setShadowColor] = useState('#000000');
-  const [shadowR, setShadowR] = useState(0);
-  const [shadowG, setShadowG] = useState(0);
-  const [shadowB, setShadowB] = useState(0);
   const [shadowEnabled, setShadowEnabled] = useState(false);
-
-  // RGB 分量合成 hex
-  const rgbToHex = (r: number, g: number, b: number) =>
-    '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
-
-  // 从 hex 颜色同步 RGB 分量
-  const syncRGBFromHex = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    if (!isNaN(r)) setShadowR(r);
-    if (!isNaN(g)) setShadowG(g);
-    if (!isNaN(b)) setShadowB(b);
+  const shadowColorRef = useRef('#000000');
+  const shadowBlurRef = useRef(10);
+  const shadowColorInputRef = useRef<HTMLInputElement>(null);
+  // callback ref：每次 color input 挂载/卸载时自动绑定/解绑原生 input 事件
+  const colorInputCallbackRef = (el: HTMLInputElement | null) => {
+    (shadowColorInputRef as any).current = el;
+    if (!el) return;
+    // 移除旧监听（防重复）
+    el.removeEventListener('input', (el as any).__shadowHandler);
+    const handler = (e: Event) => {
+      const c = (e.target as HTMLInputElement).value;
+      shadowColorRef.current = c;
+      setShadowColor(c);
+      onShadowChange(Math.max(1, shadowBlurRef.current), c);
+    };
+    (el as any).__shadowHandler = handler;
+    el.addEventListener('input', handler);
   };
 
   // 当选中对象变化时，从对象的 shadow 属性同步面板状态
@@ -70,33 +71,27 @@ export default function PropertiesPanel({
     if (s && s.blur > 0) {
       setShadowEnabled(true);
       setShadowBlur(s.blur);
+      shadowBlurRef.current = s.blur;
       // 解析颜色：取前7位 (#rrggbb)，忽略 alpha 部分
       if (typeof s.color === 'string') {
         const hex = s.color.match(/^(#[0-9a-f]{6})/i);
         const resolvedColor = hex ? hex[1] : '#000000';
         setShadowColor(resolvedColor);
-        const r = parseInt(resolvedColor.slice(1, 3), 16);
-        const g = parseInt(resolvedColor.slice(3, 5), 16);
-        const b = parseInt(resolvedColor.slice(5, 7), 16);
-        setShadowR(r); setShadowG(g); setShadowB(b);
+        shadowColorRef.current = resolvedColor;
       }
     } else {
       setShadowEnabled(false);
       setShadowBlur(10);
+      shadowBlurRef.current = 10;
       setShadowColor('#000000');
-      setShadowR(0); setShadowG(0); setShadowB(0);
+      shadowColorRef.current = '#000000';
     }
   }, [selected]);
+
 
   // 阴影辅助：直接用 color picker 的 #rrggbb，传给 Fabric
   const doApplyShadow = (blur: number, color: string, enabled: boolean) => {
     onShadowChange(enabled ? Math.max(1, blur) : 0, color);
-  };
-  // RGB slider 辅助：合成 hex 并应用
-  const applyRGB = (r: number, g: number, b: number) => {
-    const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
-    setShadowColor(hex);
-    doApplyShadow(shadowBlur, hex, true);
   };
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
@@ -239,60 +234,29 @@ export default function PropertiesPanel({
                       onChange={e => {
                         const v = Number(e.target.value);
                         setShadowBlur(v);
-                        doApplyShadow(v, shadowColor, true);
+                        shadowBlurRef.current = v;
+                        doApplyShadow(v, shadowColorRef.current, true);
                       }}
                       className="flex-1 accent-orange-500"
                     />
                     <span className="text-xs text-slate-400 w-6 text-right">{shadowBlur}</span>
                   </div>
-                  {/* 颜色 RGB sliders */}
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500 w-4">R</span>
-                      <input type="range" min={0} max={255} value={shadowR}
-                        onChange={e => {
-                          const v = Number(e.target.value);
-                          setShadowR(v);
-                          const c = rgbToHex(v, shadowG, shadowB);
-                          setShadowColor(c);
-                          doApplyShadow(shadowBlur, c, true);
-                        }}
-                        className="flex-1 accent-red-500"
-                      />
-                      <span className="text-xs text-slate-400 w-6 text-right">{shadowR}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500 w-4">G</span>
-                      <input type="range" min={0} max={255} value={shadowG}
-                        onChange={e => {
-                          const v = Number(e.target.value);
-                          setShadowG(v);
-                          const c = rgbToHex(shadowR, v, shadowB);
-                          setShadowColor(c);
-                          doApplyShadow(shadowBlur, c, true);
-                        }}
-                        className="flex-1 accent-green-500"
-                      />
-                      <span className="text-xs text-slate-400 w-6 text-right">{shadowG}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500 w-4">B</span>
-                      <input type="range" min={0} max={255} value={shadowB}
-                        onChange={e => {
-                          const v = Number(e.target.value);
-                          setShadowB(v);
-                          const c = rgbToHex(shadowR, shadowG, v);
-                          setShadowColor(c);
-                          doApplyShadow(shadowBlur, c, true);
-                        }}
-                        className="flex-1 accent-blue-500"
-                      />
-                      <span className="text-xs text-slate-400 w-6 text-right">{shadowB}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-5 h-5 rounded border border-slate-600 flex-shrink-0" style={{ backgroundColor: shadowColor }} />
-                      <span className="text-xs font-mono text-slate-500">{shadowColor.toUpperCase()}</span>
-                    </div>
+                  {/* 颜色 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 w-10">颜色</span>
+                    <input
+                      ref={colorInputCallbackRef}
+                      type="color"
+                      value={shadowColor}
+                      onChange={e => {
+                        const c = e.target.value;
+                        shadowColorRef.current = c;
+                        setShadowColor(c);
+                        doApplyShadow(shadowBlur, c, true);
+                      }}
+                      className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
+                    />
+                    <span className="text-xs font-mono text-slate-500">{shadowColor.toUpperCase()}</span>
                   </div>
                 </div>
               )}
