@@ -61,6 +61,17 @@ async function verifyPayPalWebhook(req: Request, rawBody: string): Promise<boole
   });
   const { access_token } = await tokenRes.json() as { access_token: string };
 
+  // P0-S2: 验证 cert_url 必须来自 PayPal 官方域名，防止证书伪造
+  const certUrl = req.headers.get('paypal-cert-url') ?? '';
+  if (
+    !certUrl.startsWith('https://api.paypal.com/') &&
+    !certUrl.startsWith('https://api-m.paypal.com/') &&
+    !certUrl.startsWith('https://api-m.sandbox.paypal.com/')
+  ) {
+    console.error('[PayPal Webhook] Suspicious or missing cert_url:', certUrl);
+    return false;
+  }
+
   // 调用 PayPal 签名验证 API
   const verifyRes = await fetch(`${baseUrl}/v1/notifications/verify-webhook-signature`, {
     method: 'POST',
@@ -70,7 +81,7 @@ async function verifyPayPalWebhook(req: Request, rawBody: string): Promise<boole
     },
     body: JSON.stringify({
       auth_algo: req.headers.get('paypal-auth-algo'),
-      cert_url: req.headers.get('paypal-cert-url'),
+      cert_url: certUrl,
       transmission_id: req.headers.get('paypal-transmission-id'),
       transmission_sig: req.headers.get('paypal-transmission-sig'),
       transmission_time: req.headers.get('paypal-transmission-time'),
@@ -112,6 +123,12 @@ export async function POST(req: Request) {
     const transmissionId = req.headers.get('paypal-transmission-id') ?? '';
 
     console.log(`[PayPal Webhook] ${event_type} | sub=${subscriptionId} | tid=${transmissionId}`);
+
+    // P1-S4 (webhook): transmissionId 缺失直接拒绝，不跳过幂等检查
+    if (!transmissionId) {
+      console.error('[PayPal Webhook] Missing paypal-transmission-id header');
+      return Response.json({ error: 'Missing transmission-id' }, { status: 400 });
+    }
 
     // 幂等检查：防止重放攻击（M2）
     if (transmissionId) {

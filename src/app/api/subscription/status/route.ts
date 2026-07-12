@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     return Response.json({
       plan: sub.plan,
       status: sub.status,
-      paypal_subscription_id: sub.paypal_subscription_id,
+      // paypal_subscription_id 不返回客户端，防止泄露敏感支付 ID
       current_period_end: sub.current_period_end,
       is_early_bird: sub.is_early_bird,
     });

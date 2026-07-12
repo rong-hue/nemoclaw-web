@@ -238,7 +238,7 @@ export const aiUsageService = {
   async getDailyCount(userId: string): Promise<number> {
     const supabase = getServiceClient();
     const start = new Date();
-    start.setHours(0, 0, 0, 0);
+    start.setUTCHours(0, 0, 0, 0);
     const { count, error } = await supabase
       .from('ai_usage')
       .select('id', { count: 'exact', head: true })
