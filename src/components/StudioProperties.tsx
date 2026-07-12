@@ -224,7 +224,7 @@ export default function PropertiesPanel({
                     }}
                     className="accent-orange-500"
                   />
-                  <span className="text-xs text-slate-400">{shadowEnabled ? '开启' : '关闭'}</span>
+                  <span className="text-xs text-slate-400">{shadowEnabled ? t('shadowOn') : t('shadowOff')}</span>
                 </label>
               </div>
               {shadowEnabled && (
@@ -244,7 +244,7 @@ export default function PropertiesPanel({
                     />
                     <span className="text-xs text-slate-400 w-6 text-right">{shadowBlur}</span>
                   </div>
-                  {/* 颜色 — RGB sliders，彻底避免原生 color picker 事件问题 */}
+                  {/* Color — RGB sliders */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-500 w-4">R</span>
