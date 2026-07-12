@@ -45,32 +45,14 @@ export default function PropertiesPanel({
   const [shadowBlur, setShadowBlur] = useState(10);
   const [shadowColor, setShadowColor] = useState('#000000');
   const [shadowEnabled, setShadowEnabled] = useState(false);
-  const shadowColorRef = useRef('#000000');
   const shadowBlurRef = useRef(10);
   // 始终保持 onShadowChange 最新引用，避免闭包陈旧问题
   const onShadowChangeRef = useRef(onShadowChange);
   useEffect(() => { onShadowChangeRef.current = onShadowChange; });
-  const shadowColorInputRef = useRef<HTMLInputElement>(null);
-  // callback ref：稳定函数引用，内部通过 ref 调用最新的 onShadowChange
-  const colorInputCallbackRef = useRef((el: HTMLInputElement | null) => {
-    // 卸载旧元素时解绑
-    if (shadowColorInputRef.current) {
-      const old = (shadowColorInputRef.current as any).__shadowHandler;
-      if (old) shadowColorInputRef.current.removeEventListener('input', old);
-    }
-    shadowColorInputRef.current = el;
-    if (!el) return;
-    const handler = (e: Event) => {
-      const c = (e.target as HTMLInputElement).value;
-      console.log('[shadow color] input event fired, color=', c, 'blur=', shadowBlurRef.current);
-      shadowColorRef.current = c;
-      setShadowColor(c);
-      console.log('[shadow color] calling onShadowChange, fn=', typeof onShadowChangeRef.current);
-      onShadowChangeRef.current(Math.max(1, shadowBlurRef.current), c);
-    };
-    (el as any).__shadowHandler = handler;
-    el.addEventListener('input', handler);
-  });
+  // RGB 分量状态（0-255）
+  const [shadowR, setShadowR] = useState(0);
+  const [shadowG, setShadowG] = useState(0);
+  const [shadowB, setShadowB] = useState(0);
 
   // 当选中对象变化时，从对象的 shadow 属性同步面板状态
   useEffect(() => {
@@ -85,21 +67,34 @@ export default function PropertiesPanel({
         const hex = s.color.match(/^(#[0-9a-f]{6})/i);
         const resolvedColor = hex ? hex[1] : '#000000';
         setShadowColor(resolvedColor);
-        shadowColorRef.current = resolvedColor;
+        // 解析 RGB 分量
+        const rr = parseInt(resolvedColor.slice(1,3), 16);
+        const gg = parseInt(resolvedColor.slice(3,5), 16);
+        const bb = parseInt(resolvedColor.slice(5,7), 16);
+        setShadowR(rr); setShadowG(gg); setShadowB(bb);
       }
     } else {
       setShadowEnabled(false);
       setShadowBlur(10);
       shadowBlurRef.current = 10;
       setShadowColor('#000000');
-      shadowColorRef.current = '#000000';
+      setShadowR(0); setShadowG(0); setShadowB(0);
     }
   }, [selected]);
 
 
-  // 阴影辅助：直接用 color picker 的 #rrggbb，传给 Fabric
+  // 阴影辅助
   const doApplyShadow = (blur: number, color: string, enabled: boolean) => {
     onShadowChangeRef.current(enabled ? Math.max(1, blur) : 0, color);
+  };
+  // RGB → hex
+  const rgbToHex = (r: number, g: number, b: number) =>
+    '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  // 当 RGB 任一分量变化时更新颜色
+  const handleShadowRGB = (r: number, g: number, b: number) => {
+    const hex = rgbToHex(r, g, b);
+    setShadowColor(hex);
+    doApplyShadow(shadowBlurRef.current, hex, true);
   };
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
@@ -243,23 +238,39 @@ export default function PropertiesPanel({
                         const v = Number(e.target.value);
                         setShadowBlur(v);
                         shadowBlurRef.current = v;
-                        doApplyShadow(v, shadowColorRef.current, true);
+                        doApplyShadow(v, shadowColor, true);
                       }}
                       className="flex-1 accent-orange-500"
                     />
                     <span className="text-xs text-slate-400 w-6 text-right">{shadowBlur}</span>
                   </div>
-                  {/* 颜色 */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500 w-10">颜色</span>
-                    <input
-                      ref={colorInputCallbackRef.current}
-                      type="color"
-                      defaultValue={shadowColor}
-                      key={selected?.id ?? 'shadow-color'}
-                      className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
-                    />
-                    <span className="text-xs font-mono text-slate-500">{shadowColor.toUpperCase()}</span>
+                  {/* 颜色 — RGB sliders，彻底避免原生 color picker 事件问题 */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-4">R</span>
+                      <input type="range" min={0} max={255} value={shadowR}
+                        onChange={e => { const v = Number(e.target.value); setShadowR(v); handleShadowRGB(v, shadowG, shadowB); }}
+                        className="flex-1 accent-red-500" />
+                      <span className="text-xs text-slate-400 w-6 text-right">{shadowR}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-4">G</span>
+                      <input type="range" min={0} max={255} value={shadowG}
+                        onChange={e => { const v = Number(e.target.value); setShadowG(v); handleShadowRGB(shadowR, v, shadowB); }}
+                        className="flex-1 accent-green-500" />
+                      <span className="text-xs text-slate-400 w-6 text-right">{shadowG}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-4">B</span>
+                      <input type="range" min={0} max={255} value={shadowB}
+                        onChange={e => { const v = Number(e.target.value); setShadowB(v); handleShadowRGB(shadowR, shadowG, v); }}
+                        className="flex-1 accent-blue-500" />
+                      <span className="text-xs text-slate-400 w-6 text-right">{shadowB}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-6 h-6 rounded border border-slate-600" style={{ backgroundColor: shadowColor }} />
+                      <span className="text-xs font-mono text-slate-400">{shadowColor.toUpperCase()}</span>
+                    </div>
                   </div>
                 </div>
               )}
