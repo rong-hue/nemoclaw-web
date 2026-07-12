@@ -47,28 +47,28 @@ export default function PropertiesPanel({
   const [shadowEnabled, setShadowEnabled] = useState(false);
   const shadowColorRef = useRef('#000000');
   const shadowBlurRef = useRef(10);
+  // 始终保持 onShadowChange 最新引用，避免闭包陈旧问题
+  const onShadowChangeRef = useRef(onShadowChange);
+  useEffect(() => { onShadowChangeRef.current = onShadowChange; });
   const shadowColorInputRef = useRef<HTMLInputElement>(null);
-  // 用稳定的 useRef 存 handler，避免每次渲染创建新函数
-  const shadowInputHandlerRef = useRef<((e: Event) => void) | null>(null);
-  const colorInputCallbackRef = useRef<(el: HTMLInputElement | null) => void>();
-  if (!colorInputCallbackRef.current) {
-    colorInputCallbackRef.current = (el: HTMLInputElement | null) => {
-      // 先解绑旧元素上的 handler
-      if (shadowColorInputRef.current && shadowInputHandlerRef.current) {
-        shadowColorInputRef.current.removeEventListener('input', shadowInputHandlerRef.current);
-      }
-      shadowColorInputRef.current = el;
-      if (!el) return;
-      const handler = (e: Event) => {
-        const c = (e.target as HTMLInputElement).value;
-        shadowColorRef.current = c;
-        setShadowColor(c);
-        onShadowChange(Math.max(1, shadowBlurRef.current), c);
-      };
-      shadowInputHandlerRef.current = handler;
-      el.addEventListener('input', handler);
+  // callback ref：稳定函数引用，内部通过 ref 调用最新的 onShadowChange
+  const colorInputCallbackRef = useRef((el: HTMLInputElement | null) => {
+    // 卸载旧元素时解绑
+    if (shadowColorInputRef.current) {
+      const old = (shadowColorInputRef.current as any).__shadowHandler;
+      if (old) shadowColorInputRef.current.removeEventListener('input', old);
+    }
+    shadowColorInputRef.current = el;
+    if (!el) return;
+    const handler = (e: Event) => {
+      const c = (e.target as HTMLInputElement).value;
+      shadowColorRef.current = c;
+      setShadowColor(c);
+      onShadowChangeRef.current(Math.max(1, shadowBlurRef.current), c);
     };
-  }
+    (el as any).__shadowHandler = handler;
+    el.addEventListener('input', handler);
+  });
 
   // 当选中对象变化时，从对象的 shadow 属性同步面板状态
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function PropertiesPanel({
 
   // 阴影辅助：直接用 color picker 的 #rrggbb，传给 Fabric
   const doApplyShadow = (blur: number, color: string, enabled: boolean) => {
-    onShadowChange(enabled ? Math.max(1, blur) : 0, color);
+    onShadowChangeRef.current(enabled ? Math.max(1, blur) : 0, color);
   };
   const [filterType, setFilterType] = useState('brightness');
   const [filterValue, setFilterValue] = useState(0);
