@@ -48,21 +48,27 @@ export default function PropertiesPanel({
   const shadowColorRef = useRef('#000000');
   const shadowBlurRef = useRef(10);
   const shadowColorInputRef = useRef<HTMLInputElement>(null);
-  // callback ref：每次 color input 挂载/卸载时自动绑定/解绑原生 input 事件
-  const colorInputCallbackRef = (el: HTMLInputElement | null) => {
-    (shadowColorInputRef as any).current = el;
-    if (!el) return;
-    // 移除旧监听（防重复）
-    el.removeEventListener('input', (el as any).__shadowHandler);
-    const handler = (e: Event) => {
-      const c = (e.target as HTMLInputElement).value;
-      shadowColorRef.current = c;
-      setShadowColor(c);
-      onShadowChange(Math.max(1, shadowBlurRef.current), c);
+  // 用稳定的 useRef 存 handler，避免每次渲染创建新函数
+  const shadowInputHandlerRef = useRef<((e: Event) => void) | null>(null);
+  const colorInputCallbackRef = useRef<(el: HTMLInputElement | null) => void>();
+  if (!colorInputCallbackRef.current) {
+    colorInputCallbackRef.current = (el: HTMLInputElement | null) => {
+      // 先解绑旧元素上的 handler
+      if (shadowColorInputRef.current && shadowInputHandlerRef.current) {
+        shadowColorInputRef.current.removeEventListener('input', shadowInputHandlerRef.current);
+      }
+      shadowColorInputRef.current = el;
+      if (!el) return;
+      const handler = (e: Event) => {
+        const c = (e.target as HTMLInputElement).value;
+        shadowColorRef.current = c;
+        setShadowColor(c);
+        onShadowChange(Math.max(1, shadowBlurRef.current), c);
+      };
+      shadowInputHandlerRef.current = handler;
+      el.addEventListener('input', handler);
     };
-    (el as any).__shadowHandler = handler;
-    el.addEventListener('input', handler);
-  };
+  }
 
   // 当选中对象变化时，从对象的 shadow 属性同步面板状态
   useEffect(() => {
@@ -245,15 +251,10 @@ export default function PropertiesPanel({
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-500 w-10">颜色</span>
                     <input
-                      ref={colorInputCallbackRef}
+                      ref={colorInputCallbackRef.current}
                       type="color"
-                      value={shadowColor}
-                      onChange={e => {
-                        const c = e.target.value;
-                        shadowColorRef.current = c;
-                        setShadowColor(c);
-                        doApplyShadow(shadowBlur, c, true);
-                      }}
+                      defaultValue={shadowColor}
+                      key={selected?.id ?? 'shadow-color'}
                       className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
                     />
                     <span className="text-xs font-mono text-slate-500">{shadowColor.toUpperCase()}</span>
