@@ -556,8 +556,10 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       if (obj) { obj.set('opacity', value / 100); canvas.renderAll(); }
     },
     setShadow: (blur: number, color: string) => {
+      console.log('[setShadow] called blur=', blur, 'color=', color, 'canvas=', !!fabricRef.current);
       const canvas = fabricRef.current; if (!canvas) return;
       const obj = canvas.getActiveObject() || lastActiveRef.current;
+      console.log('[setShadow] obj=', !!obj, obj?.type);
       if (obj) {
         // blur=0 视为关闭阴影
         obj.set('shadow', blur > 0 ? new Shadow({ blur, color, offsetX: 4, offsetY: 4 }) : null);

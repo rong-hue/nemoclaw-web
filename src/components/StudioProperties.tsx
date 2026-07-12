@@ -62,8 +62,10 @@ export default function PropertiesPanel({
     if (!el) return;
     const handler = (e: Event) => {
       const c = (e.target as HTMLInputElement).value;
+      console.log('[shadow color] input event fired, color=', c, 'blur=', shadowBlurRef.current);
       shadowColorRef.current = c;
       setShadowColor(c);
+      console.log('[shadow color] calling onShadowChange, fn=', typeof onShadowChangeRef.current);
       onShadowChangeRef.current(Math.max(1, shadowBlurRef.current), c);
     };
     (el as any).__shadowHandler = handler;
