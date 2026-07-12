@@ -50,6 +50,7 @@ export default function Toolbar({
   const [shapeOpen, setShapeOpen] = useState(false);
   const [lastShape, setLastShape] = useState<string>('rect');
   const shapeRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
 
   // Mobile detection
@@ -68,7 +69,10 @@ export default function Toolbar({
   // 点击外部关闭形状下拉
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (shapeRef.current && !shapeRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inTrigger = shapeRef.current?.contains(target);
+      const inDropdown = dropdownRef.current?.contains(target);
+      if (!inTrigger && !inDropdown) {
         setShapeOpen(false);
       }
     };
@@ -187,6 +191,7 @@ export default function Toolbar({
           {/* 下拉面板 — portal 渲染到 body，避免被 overflow 裁剪 */}
           {shapeOpen && typeof document !== 'undefined' && createPortal(
             <div
+              ref={dropdownRef}
               style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
               className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-1.5 grid grid-cols-4 gap-1 w-48"
             >
