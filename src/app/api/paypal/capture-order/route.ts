@@ -38,6 +38,26 @@ export async function POST(req: Request) {
 
     const accessToken = await getAccessToken();
 
+    // P1-S1: 验证 order 归属 — 用 PayPal GET /v2/checkout/orders/{id} 获取 payer email，
+    // 与当前登录用户 email 比对，防止已登录用户 capture 他人 order
+    const orderRes = await fetch(
+      `${PAYPAL_BASE}/v2/checkout/orders/${paypalOrderId}`,
+      { headers: { 'Authorization': `Bearer ${accessToken}` } }
+    );
+    if (!orderRes.ok) {
+      console.error('[capture-order] Failed to fetch order:', await orderRes.text());
+      return Response.json({ error: 'Failed to verify order' }, { status: 502 });
+    }
+    const orderData = await orderRes.json() as {
+      payer?: { email_address?: string };
+      status: string;
+    };
+    const payerEmail = orderData.payer?.email_address?.toLowerCase();
+    if (!payerEmail || payerEmail !== user.email.toLowerCase()) {
+      console.error(`[capture-order] Order ownership mismatch: payer=${payerEmail} user=${user.email}`);
+      return Response.json({ error: 'Order does not belong to you' }, { status: 403 });
+    }
+
     const captureRes = await fetch(
       `${PAYPAL_BASE}/v2/checkout/orders/${paypalOrderId}/capture`,
       {
