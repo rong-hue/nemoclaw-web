@@ -23,9 +23,10 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const cart = cartService.getCart();
-    if (cart.length === 0) { router.push(`/${locale}/cart`); return; }
-    setItems(cart);
+    cartService.getCart().then(cart => {
+      if (cart.length === 0) { router.push(`/${locale}/cart`); return; }
+      setItems(cart);
+    });
 
     supabaseAuth.getCurrentUser().then(user => {
       if (user) setForm(f => ({ ...f, name: user.name || '' }));

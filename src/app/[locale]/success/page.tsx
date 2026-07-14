@@ -61,7 +61,7 @@ function SuccessContent() {
       }
 
       // 付款成功，清除购物车和订单
-      cartService.clearCart();
+      await cartService.clearCart();
       localStorage.removeItem('pendingOrder');
       setCaptureData({ captureId: data.captureId, amount: data.amount, currency: data.currency });
       setStatus('success');

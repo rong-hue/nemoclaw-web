@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { supabaseAuth, type User } from '@/lib/supabase-auth';
 import { designsService } from '@/lib/supabase';
+import { initCart } from '@/lib/cart';
 import { PlusCircle, Pencil, Trash2, LogOut, Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -35,8 +36,13 @@ export default function DashboardPage() {
     supabaseAuth.getCurrentUser().then(user => {
       setCurrentUser(user);
       setAuthLoading(false);
+      // 初始化购物车（触发 localStorage→Supabase 迁移）
+      initCart(user?.id ?? null);
     });
-    const subscription = supabaseAuth.onAuthStateChange(user => setCurrentUser(user));
+    const subscription = supabaseAuth.onAuthStateChange(user => {
+      setCurrentUser(user);
+      initCart(user?.id ?? null);
+    });
     return () => subscription.unsubscribe();
   }, []);
 

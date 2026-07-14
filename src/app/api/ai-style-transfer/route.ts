@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[AI Style Transfer] Unhandled error:', msg);
     // Return JSON explicitly — never let edge runtime bubble up HTML
-    return new Response(JSON.stringify({ error: 'Internal server error', detail: msg }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

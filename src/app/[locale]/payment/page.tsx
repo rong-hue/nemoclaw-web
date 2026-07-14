@@ -65,8 +65,8 @@ export default function PaymentPage() {
   // 模拟微信/支付宝（占位，后续接入）
   const handleSimulate = () => {
     setLoading(true);
-    setTimeout(() => {
-      cartService.clearCart();
+    setTimeout(async () => {
+      await cartService.clearCart();
       localStorage.removeItem('pendingOrder');
       router.push(`/${locale}/success?orderId=${order.orderId}`);
     }, 1500);

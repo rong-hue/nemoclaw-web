@@ -12,13 +12,14 @@ export default function CartIcon() {
   const locale = (params?.locale as string) || 'en';
 
   useEffect(() => {
-    const update = () => {
-      const cart = cartService.getCart();
+    const update = async () => {
+      const cart = await cartService.getCart();
       setCount(cart.reduce((sum, i) => sum + i.quantity, 0));
     };
     update();
-    window.addEventListener('cartUpdated', update);
-    return () => window.removeEventListener('cartUpdated', update);
+    const handler = () => { update(); };
+    window.addEventListener('cartUpdated', handler);
+    return () => window.removeEventListener('cartUpdated', handler);
   }, []);
 
   return (

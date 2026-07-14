@@ -174,13 +174,14 @@ export const subscriptionsService = {
   },
 
   // 创建订阅记录（用户点击订阅后立即写入 pending）
+  // P1-S3: 用 service_role key，防止客户端绕过 RLS 伪造订阅写入
   async create(sub: {
     user_id: string;
     user_email?: string;
     plan: 'early_bird' | 'monthly' | 'yearly';
     paypal_subscription_id: string;
   }) {
-    const supabase = getSupabaseClient();
+    const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('subscriptions')
       .insert({

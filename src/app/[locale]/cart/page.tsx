@@ -21,20 +21,21 @@ export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const router = useRouter();
 
-  const refresh = () => {
-    setItems(cartService.getCart());
+  const refresh = async () => {
+    const cart = await cartService.getCart();
+    setItems(cart);
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
   useEffect(() => { refresh(); }, []);
 
-  const updateQty = (id: string, qty: number) => {
-    cartService.updateQuantity(id, qty);
+  const updateQty = async (id: string, qty: number) => {
+    await cartService.updateQuantity(id, qty);
     refresh();
   };
 
-  const remove = (id: string) => {
-    cartService.removeItem(id);
+  const remove = async (id: string) => {
+    await cartService.removeItem(id);
     refresh();
   };
 
