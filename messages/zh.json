@@ -616,6 +616,13 @@
         }
       }
     },
+    "loadingDesign": "正在加载设计...",
+    "loadErrorAuth": "会话已过期，请刷新页面重新登录",
+    "loadErrorNotFound": "设计未找到 — 可能已被删除",
+    "loadErrorNetwork": "网络错误，请检查网络连接后重试",
+    "loadErrorParse": "设计数据损坏，无法加载",
+    "loadErrorEmpty": "该设计暂无内容",
+    "loadErrorGeneral": "加载失败：{message}",
     "layerImage": "图片 {n}",
     "layerText": "文字：{text}",
     "layerRect": "矩形 {n}",

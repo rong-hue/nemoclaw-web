@@ -747,12 +747,64 @@ const StudioCanvas = forwardRef<CanvasRef, CanvasProps>(({ onSelectionChange, on
       const canvas = fabricRef.current; if (!canvas) return;
       try {
         const data = typeof json === 'string' ? JSON.parse(json) : json;
+        
+        // 诊断：记录设计中的图片对象信息
+        const imageObjects = (data.objects || []).filter(
+          (obj: any) => obj.type === 'Image' || obj.type === 'image'
+        );
+        
+        // 修复旧格式兼容性：Fabric.js 5.x 用 'image'（小写），Fabric.js 7.x 需要 'Image'（大写）
+        // 自动将小写 'image' 统一为大写 'Image'，避免旧设计加载后图片不可见
+        let fixedLegacyTypes = 0;
+        for (const obj of data.objects || []) {
+          if (obj.type === 'image') {
+            obj.type = 'Image';
+            fixedLegacyTypes++;
+          }
+          // 也修复 group 内嵌套的 image 对象
+          if (obj.type === 'group' && Array.isArray(obj.objects)) {
+            for (const sub of obj.objects) {
+              if (sub.type === 'image') {
+                sub.type = 'Image';
+                fixedLegacyTypes++;
+              }
+            }
+          }
+        }
+        if (fixedLegacyTypes > 0) {
+          console.log(`[StudioCanvas] Fixed ${fixedLegacyTypes} legacy 'image' → 'Image' type(s)`);
+        }
+        
+        if (imageObjects.length > 0) {
+          console.log(
+            `[StudioCanvas] loadFromJSON: design contains ${imageObjects.length} image(s):`,
+            imageObjects.map((obj: any) => ({
+              type: obj.type,
+              srcLen: typeof obj.src === 'string' ? obj.src.length : 0,
+              isDataUrl: typeof obj.src === 'string' ? obj.src.startsWith('data:') : false,
+              srcHead: typeof obj.src === 'string' ? obj.src.substring(0, 60) : 'N/A',
+            }))
+          );
+        }
+        
         // 加载已有设计时，用 isRestoring 防止触发 pushHistory
         isRestoring.current = true;
         await canvas.loadFromJSON(data);
         canvas.renderAll();
         syncLayers(canvas);
         isRestoring.current = false;
+        
+        // 加载后验证：检查图片对象是否实际加载成功
+        const loadedImages = canvas.getObjects().filter(
+          (obj: any) => obj.type === 'Image' || obj.type === 'image'
+        );
+        if (imageObjects.length > 0 && loadedImages.length === 0) {
+          console.warn(
+            '[StudioCanvas] WARNING: design had', imageObjects.length,
+            'image(s) but none loaded successfully. Image URLs may have expired.'
+          );
+        }
+        
         // 重置历史栈，以加载后的状态作为第 0 帧
         historyStack.current = [JSON.stringify(canvas.toJSON())];
         historyIndex.current = 0;

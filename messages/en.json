@@ -669,6 +669,13 @@
         }
       }
     },
+    "loadingDesign": "Loading design...",
+    "loadErrorAuth": "Session expired, please refresh the page and log in again",
+    "loadErrorNotFound": "Design not found — it may have been deleted",
+    "loadErrorNetwork": "Network error, please check your connection and try again",
+    "loadErrorParse": "Design data corrupted, unable to load",
+    "loadErrorEmpty": "This design has no content",
+    "loadErrorGeneral": "Failed to load design: {message}",
     "layerImage": "Image {n}",
     "layerText": "Text: {text}",
     "layerRect": "Rect {n}",

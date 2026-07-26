@@ -83,6 +83,13 @@ function StudioContent() {
   const designIdRef = useRef<string | undefined>(undefined);
   const [designTitle, setDesignTitle] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [loadError, setLoadError] = useState<string>('');
+  const [isLoadingDesign, setIsLoadingDesign] = useState(false);
+  // 同步更新 ref，供 triggerAutoSave 闭包内检查
+  const setLoadingDesign = (v: boolean) => {
+    isLoadingDesignRef.current = v;
+    setIsLoadingDesign(v);
+  };
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -138,12 +145,16 @@ function StudioContent() {
     setCanRedo(canvasRef.current?.canRedo() ?? false);
   };
 
-  // 自动保存：debounce 3s
+  // 自动保存：debounce 10s
+  // 注意：useLoadingDesignRef 用于在加载设计期间阻止自动保存（防止保存空画布）
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoadingDesignRef = useRef(false);
   const triggerAutoSave = useCallback(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
-      autoSaveRef.current();
+      if (!isLoadingDesignRef.current) {
+        autoSaveRef.current();
+      }
     }, 10000);
   }, []);
 
@@ -176,32 +187,92 @@ function StudioContent() {
       canvasHasContent = !!(parsed?.objects && parsed.objects.length > 0);
     } catch { canvasHasContent = false; }
     if (designId === designIdFromUrl && canvasHasContent) { return; }
+
+    setLoadError('');
+    setLoadingDesign(true);
+    
+    // 用局部变量捕获当前 designIdFromUrl，避免 effect 依赖变化时
+    // 异步回调内的 designIdFromUrl 已被覆盖为新的
+    const targetDesignId = designIdFromUrl;
+    
     (async () => {
       try {
-        const design = await designsService.getById(designIdFromUrl);
+        // 加载前验证 auth 状态（避免 session 过期时静默失败）
+        const liveUser = await supabaseAuth.getCurrentUser();
+        if (!liveUser) {
+          setLoadError(t('loadErrorAuth'));
+          setLoadingDesign(false);
+          return;
+        }
+        
+        let design: any;
+        try {
+          design = await designsService.getById(targetDesignId);
+        } catch (fetchErr: any) {
+          const msg = fetchErr?.message || String(fetchErr);
+          if (msg.includes('PGRST116') || msg.includes('contains 0 rows') || msg.includes('not found')) {
+            setLoadError(t('loadErrorNotFound'));
+          } else if (msg.includes('JWT') || msg.includes('token') || msg.includes('auth')) {
+            setLoadError(t('loadErrorAuth'));
+          } else if (msg.includes('network') || msg.includes('fetch')) {
+            setLoadError(t('loadErrorNetwork'));
+          } else {
+            // 尝试重试一次（可能是暂时的网络波动）
+            console.warn('[Studio] First load attempt failed:', msg, 'retrying...');
+            try {
+              design = await designsService.getById(targetDesignId);
+            } catch (retryErr: any) {
+              setLoadError(t('loadErrorGeneral', { message: retryErr?.message || String(retryErr) }));
+              setLoadingDesign(false);
+              return;
+            }
+          }
+          if (!design) { setLoadingDesign(false); return; }
+        }
+        
         // 检查 canvas_json 是否有实际内容（空对象 {} 是无效数据，不加载）
         const cjObj = typeof design.canvas_json === 'string'
           ? JSON.parse(design.canvas_json)
           : design.canvas_json;
         const hasObjects = Array.isArray(cjObj?.objects) && cjObj.objects.length > 0;
         if (design.canvas_json && hasObjects) {
+          // 检查是否包含可能过期的图片 URL（诊断用）
+          let imageCount = 0;
+          for (const obj of cjObj.objects || []) {
+            if (obj.type === 'Image' || obj.type === 'image') {
+              imageCount++;
+              if (typeof obj.src === 'string' && !obj.src.startsWith('data:') && !obj.src.startsWith('blob:')) {
+                console.log('[Studio] Design contains remote image URL:', obj.src?.substring(0, 80));
+              }
+            }
+          }
+          if (imageCount > 0) {
+            console.log(`[Studio] Design has ${imageCount} image object(s), checking load...`);
+          }
+          
           setDesignTitle(design.title || '');
           designIdRef.current = design.id;
           setDesignId(design.id);
           const jsonData = typeof design.canvas_json === 'string'
             ? design.canvas_json
             : JSON.stringify(design.canvas_json);
-          // canvasReady 已确保 canvasRef.current 存在，直接加载
           try {
             await canvasRef.current!.loadFromJSON(jsonData);
+            console.log('[Studio] Design loaded successfully:', targetDesignId);
+            setLoadingDesign(false);
           } catch(e) {
             console.error('[Studio] loadFromJSON error:', e);
+            setLoadError(t('loadErrorParse'));
+            setLoadingDesign(false);
           }
         } else {
-          console.warn('[Studio] canvas_json has no objects, skipping load.');
+          setLoadError(t('loadErrorEmpty'));
+          setLoadingDesign(false);
         }
       } catch (err) {
-        console.error('Failed to load design:', err);
+        console.error('[Studio] Failed to load design:', err);
+        setLoadError(t('loadErrorGeneral', { message: (err as Error)?.message || String(err) }));
+        setLoadingDesign(false);
       }
     })();
   }, [searchParams, authLoading, currentUser?.id, canvasReady]); // canvasReady 确保 canvas 初始化后再加载
@@ -849,6 +920,25 @@ function StudioContent() {
             </div>
             <span className="text-slate-500 text-xs ml-1">{canvasW} × {canvasH} px</span>
           </div>
+          {/* 设计加载错误提示 */}
+          {loadError && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 mx-4 mt-2 flex items-center gap-2">
+              <span className="text-red-400 text-sm">⚠️ {loadError}</span>
+              <button
+                onClick={() => setLoadError('')}
+                className="ml-auto text-red-400 hover:text-red-300 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          {/* 设计加载中 */}
+          {isLoadingDesign && (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-4 py-2 mx-4 mt-2 flex items-center gap-2">
+              <Loader2 size={16} className="animate-spin text-blue-400" />
+              <span className="text-blue-400 text-sm">{t('loadingDesign')}</span>
+            </div>
+          )}
           {/* 画布区域 */}
           <div
             ref={canvasContainerRef}
