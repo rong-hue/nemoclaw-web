@@ -2,6 +2,7 @@ export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { oracleService, subscriptionsService, FREE_DAILY_ORACLE_LIMIT, PRO_DAILY_ORACLE_LIMIT } from '@/lib/supabase';
 import { generateOracleSeed, selectOracleText } from '@/lib/oracle-texts';
+import { persistImageToStorage } from '@/lib/image-persist';
 
 // GET /api/oracle/today
 // 返回今日神谕（如果已生成则直接返回，未生成则调用 AI 生成）
@@ -73,11 +74,14 @@ export async function GET(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
+    // 将临时 URL 转存到 Supabase Storage，避免 URL 过期
+    const permanentUrl = await persistImageToStorage(imageUrl, userId);
+
     // 4. 保存到数据库
     const oracle = await oracleService.createOracle({
       user_id: userId,
       date: today,
-      image_url: imageUrl,
+      image_url: permanentUrl,
       oracle_text: oracleText.zh,
       oracle_text_en: oracleText.en,
       seed,
@@ -165,9 +169,12 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
+    // 将临时 URL 转存到 Supabase Storage，避免 URL 过期
+    const permanentUrl = await persistImageToStorage(imageUrl, userId);
+
     // 4. 更新数据库（regenerate_count 已由原子 RPC 递增，此处只更新图片和文本）
     const oracle = await oracleService.updateOracle(userId, today, {
-      image_url: imageUrl,
+      image_url: permanentUrl,
       oracle_text: oracleText.zh,
       oracle_text_en: oracleText.en,
       seed: newSeed,

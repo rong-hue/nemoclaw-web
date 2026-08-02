@@ -2,6 +2,7 @@ export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 import { validateImageUrl } from '@/lib/input-validation';
+import { persistImageToStorage } from '@/lib/image-persist';
 
 // 场景3：个性化 AI Oracle 图 — 用户照片 → 个性化神谕图
 // POST /api/ai-oracle-personal
@@ -117,10 +118,11 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 6. 记录使用（已在配额检查时原子写入 COST 次，无需再次记录）
+    // 6. 将临时 URL 转存到 Supabase Storage，避免 URL 过期后设计无法加载
+    const permanentUrl = await persistImageToStorage(resultUrl, user.id);
 
     return Response.json({
-      url: resultUrl,
+      url: permanentUrl,
       mood,
       element: element ?? null,
       used: quotaResult.used,

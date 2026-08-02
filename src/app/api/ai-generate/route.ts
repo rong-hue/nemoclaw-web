@@ -2,6 +2,7 @@ export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 import { validatePrompt, validateImageUrl } from '@/lib/input-validation';
+import { persistImageToStorage } from '@/lib/image-persist';
 
 // SiliconFlow FLUX AI 生图 API — 带配额控制
 // POST /api/ai-generate
@@ -118,9 +119,10 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 5. 记录使用（已在配额检查时原子写入，无需再次记录）
+    // 5. 将临时 URL 转存到 Supabase Storage，避免 URL 过期后设计无法加载
+    const permanentUrl = await persistImageToStorage(imageUrl, user.id);
 
-    return Response.json({ url: imageUrl, used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub });
+    return Response.json({ url: permanentUrl, used: quotaResult.used, limit: quotaResult.limit, isPro: !!activeSub });
   } catch (err: unknown) {
     console.error('[AI Generate] Error:', err instanceof Error ? err.message : String(err));
     return Response.json({ error: 'Internal server error' }, { status: 500 });

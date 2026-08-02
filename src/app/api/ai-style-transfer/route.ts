@@ -2,6 +2,7 @@ export const runtime = 'edge';
 import { getServerUser } from '@/lib/supabase-auth';
 import { aiUsageService, subscriptionsService, FREE_DAILY_LIMIT, PRO_DAILY_LIMIT } from '@/lib/supabase';
 import { validatePrompt, validateImageUrl } from '@/lib/input-validation';
+import { persistImageToStorage } from '@/lib/image-persist';
 
 // 场景2：图腾风格迁移 API — 用户上传图片，转换为东方美学风格
 // POST /api/ai-style-transfer
@@ -105,10 +106,11 @@ export async function POST(req: Request) {
       return Response.json({ error: 'No image returned' }, { status: 502 });
     }
 
-    // 6. 记录使用（已在配额检查时原子写入，无需再次记录）
+    // 6. 将临时 URL 转存到 Supabase Storage，避免 URL 过期后设计无法加载
+    const permanentUrl = await persistImageToStorage(resultUrl, user.id);
 
     return Response.json({
-      url: resultUrl,
+      url: permanentUrl,
       style,
       used: quotaResult.used,
       limit: quotaResult.limit,
